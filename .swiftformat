@@ -1,0 +1,30 @@
+--swiftversion 6.0
+
+# Files
+--exclude Carthage,Pods,DerivedData,build,.build,VoltLift/VoltLift.xcodeproj,VoltLift/VoltLift.xcworkspace
+
+# General style
+--indent 4
+--stripunusedargs closure-only
+--structthreshold 300
+--enumthreshold 200
+--classthreshold 400
+--maxwidth 120
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--commas inline
+--binarygrouping 4,8
+--hexgrouping 4,8
+--decimalgrouping 3
+--exponentcase lowercase
+--operatorfunc spaced
+--semicolons never
+--trimwhitespace always
+--linebreaks lf
+--ifdef no-indent
+
+# Swift-specific (conservative set)
+--self insert
+
+
