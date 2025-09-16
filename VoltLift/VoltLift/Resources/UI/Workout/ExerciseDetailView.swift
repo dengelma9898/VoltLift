@@ -3,45 +3,45 @@ import SwiftUI
 struct ExerciseDetailView: View {
     let exercise: Exercise
     let onAddToWorkout: () -> Void
-    
+
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.xl) {
                     // Header Section
-                    headerSection
-                    
+                    self.headerSection
+
                     // Description Section
-                    descriptionSection
-                    
+                    self.descriptionSection
+
                     // Instructions Section
-                    instructionsSection
-                    
+                    self.instructionsSection
+
                     // Safety Tips Section
-                    safetyTipsSection
-                    
+                    self.safetyTipsSection
+
                     // Muscle Groups Section
-                    muscleGroupsSection
-                    
+                    self.muscleGroupsSection
+
                     // Variations Section
-                    if !exercise.variations.isEmpty {
-                        variationsSection
+                    if !self.exercise.variations.isEmpty {
+                        self.variationsSection
                     }
-                    
+
                     // Add to Workout Button
-                    addToWorkoutButton
+                    self.addToWorkoutButton
                 }
                 .padding(DesignSystem.Spacing.l)
             }
             .background(DesignSystem.ColorRole.background)
-            .navigationTitle(exercise.name)
+            .navigationTitle(self.exercise.name)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        dismiss()
+                        self.dismiss()
                     }
                     .foregroundColor(DesignSystem.ColorRole.primary)
                 }
@@ -49,66 +49,66 @@ struct ExerciseDetailView: View {
         }
         .vlBrandBackground()
     }
-    
+
     // MARK: - Header Section
-    
+
     private var headerSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                 HStack {
-                    Image(systemName: exercise.sfSymbolName)
+                    Image(systemName: self.exercise.sfSymbolName)
                         .font(.system(size: 32, weight: .medium))
                         .foregroundColor(DesignSystem.ColorRole.primary)
                         .frame(width: 48, height: 48)
-                    
+
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
                         VLThemedText(
-                            exercise.name,
+                            self.exercise.name,
                             font: DesignSystem.Typography.titleM,
                             color: DesignSystem.ColorRole.textPrimary
                         )
-                        
+
                         HStack {
-                            difficultyBadge
-                            muscleGroupBadge
+                            self.difficultyBadge
+                            self.muscleGroupBadge
                         }
                     }
-                    
+
                     Spacer()
                 }
-                
-                if !exercise.requiredEquipment.isEmpty {
-                    equipmentSection
+
+                if !self.exercise.requiredEquipment.isEmpty {
+                    self.equipmentSection
                 }
             }
         }
     }
-    
+
     private var difficultyBadge: some View {
         HStack(spacing: DesignSystem.Spacing.s) {
-            Image(systemName: difficultyIcon)
+            Image(systemName: self.difficultyIcon)
                 .font(.caption)
-                .foregroundColor(difficultyColor)
-            
-            Text(exercise.difficulty.rawValue)
+                .foregroundColor(self.difficultyColor)
+
+            Text(self.exercise.difficulty.rawValue)
                 .font(DesignSystem.Typography.caption)
-                .foregroundColor(difficultyColor)
+                .foregroundColor(self.difficultyColor)
         }
         .padding(.horizontal, DesignSystem.Spacing.m)
         .padding(.vertical, DesignSystem.Spacing.s)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.pill)
-                .fill(difficultyColor.opacity(0.15))
+                .fill(self.difficultyColor.opacity(0.15))
         )
     }
-    
+
     private var muscleGroupBadge: some View {
         HStack(spacing: DesignSystem.Spacing.s) {
             Image(systemName: "figure.strengthtraining.traditional")
                 .font(.caption)
                 .foregroundColor(DesignSystem.ColorRole.secondary)
-            
-            Text(exercise.muscleGroup.rawValue)
+
+            Text(self.exercise.muscleGroup.rawValue)
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
         }
@@ -119,30 +119,30 @@ struct ExerciseDetailView: View {
                 .fill(DesignSystem.ColorRole.secondary.opacity(0.15))
         )
     }
-    
+
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
             HStack {
                 Image(systemName: "wrench.and.screwdriver")
                     .font(.caption)
                     .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                
+
                 VLThemedText(
                     "Required Equipment",
                     font: DesignSystem.Typography.caption.weight(.semibold),
                     color: DesignSystem.ColorRole.textSecondary
                 )
             }
-            
+
             LazyVGrid(columns: [
                 GridItem(.adaptive(minimum: 120), spacing: DesignSystem.Spacing.s)
             ], spacing: DesignSystem.Spacing.s) {
-                ForEach(Array(exercise.requiredEquipment), id: \.self) { equipment in
+                ForEach(Array(self.exercise.requiredEquipment), id: \.self) { equipment in
                     HStack(spacing: DesignSystem.Spacing.s) {
-                        Image(systemName: equipmentIcon(for: equipment))
+                        Image(systemName: self.equipmentIcon(for: equipment))
                             .font(.caption2)
                             .foregroundColor(DesignSystem.ColorRole.primary)
-                        
+
                         Text(equipment)
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
@@ -157,38 +157,38 @@ struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     // MARK: - Description Section
-    
+
     private var descriptionSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                sectionHeader(
+                self.sectionHeader(
                     title: "Description",
                     icon: "text.alignleft"
                 )
-                
+
                 VLThemedText(
-                    exercise.description,
+                    self.exercise.description,
                     font: DesignSystem.Typography.body,
                     color: DesignSystem.ColorRole.textPrimary
                 )
             }
         }
     }
-    
+
     // MARK: - Instructions Section
-    
+
     private var instructionsSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                sectionHeader(
+                self.sectionHeader(
                     title: "Instructions",
                     icon: "list.number"
                 )
-                
+
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                    ForEach(Array(exercise.instructions.enumerated()), id: \.offset) { index, instruction in
+                    ForEach(Array(self.exercise.instructions.enumerated()), id: \.offset) { index, instruction in
                         HStack(alignment: .top, spacing: DesignSystem.Spacing.m) {
                             Text("\(index + 1)")
                                 .font(DesignSystem.Typography.callout.weight(.semibold))
@@ -198,13 +198,13 @@ struct ExerciseDetailView: View {
                                     Circle()
                                         .fill(DesignSystem.ColorRole.primary.opacity(0.15))
                                 )
-                            
+
                             VLThemedText(
                                 instruction,
                                 font: DesignSystem.Typography.body,
                                 color: DesignSystem.ColorRole.textPrimary
                             )
-                            
+
                             Spacer()
                         }
                     }
@@ -212,30 +212,30 @@ struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     // MARK: - Safety Tips Section
-    
+
     private var safetyTipsSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                sectionHeader(
+                self.sectionHeader(
                     title: "Safety Tips",
                     icon: "exclamationmark.shield"
                 )
-                
+
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                    ForEach(Array(exercise.safetyTips.enumerated()), id: \.offset) { _, tip in
+                    ForEach(Array(self.exercise.safetyTips.enumerated()), id: \.offset) { _, tip in
                         HStack(alignment: .top, spacing: DesignSystem.Spacing.m) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.callout)
                                 .foregroundColor(DesignSystem.ColorRole.success)
-                            
+
                             VLThemedText(
                                 tip,
                                 font: DesignSystem.Typography.body,
                                 color: DesignSystem.ColorRole.textPrimary
                             )
-                            
+
                             Spacer()
                         }
                     }
@@ -243,30 +243,30 @@ struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     // MARK: - Muscle Groups Section
-    
+
     private var muscleGroupsSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                sectionHeader(
+                self.sectionHeader(
                     title: "Target Muscles",
                     icon: "figure.strengthtraining.traditional"
                 )
-                
+
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
                     // Primary muscles
-                    muscleGroupList(
+                    self.muscleGroupList(
                         title: "Primary",
-                        muscles: exercise.targetMuscles,
+                        muscles: self.exercise.targetMuscles,
                         color: DesignSystem.ColorRole.primary
                     )
-                    
+
                     // Secondary muscles
-                    if !exercise.secondaryMuscles.isEmpty {
-                        muscleGroupList(
+                    if !self.exercise.secondaryMuscles.isEmpty {
+                        self.muscleGroupList(
                             title: "Secondary",
-                            muscles: exercise.secondaryMuscles,
+                            muscles: self.exercise.secondaryMuscles,
                             color: DesignSystem.ColorRole.secondary
                         )
                     }
@@ -274,7 +274,7 @@ struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     private func muscleGroupList(title: String, muscles: [String], color: Color) -> some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
             VLThemedText(
@@ -282,7 +282,7 @@ struct ExerciseDetailView: View {
                 font: DesignSystem.Typography.callout.weight(.semibold),
                 color: DesignSystem.ColorRole.textSecondary
             )
-            
+
             LazyVGrid(columns: [
                 GridItem(.adaptive(minimum: 140), spacing: DesignSystem.Spacing.s)
             ], spacing: DesignSystem.Spacing.s) {
@@ -291,11 +291,11 @@ struct ExerciseDetailView: View {
                         Circle()
                             .fill(color)
                             .frame(width: 6, height: 6)
-                        
+
                         Text(muscle)
                             .font(DesignSystem.Typography.callout)
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                        
+
                         Spacer()
                     }
                     .padding(.horizontal, DesignSystem.Spacing.m)
@@ -308,33 +308,33 @@ struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     // MARK: - Variations Section
-    
+
     private var variationsSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
-                sectionHeader(
+                self.sectionHeader(
                     title: "Variations",
                     icon: "arrow.triangle.branch"
                 )
-                
+
                 VStack(spacing: DesignSystem.Spacing.m) {
-                    ForEach(exercise.variations) { variation in
-                        variationCard(variation)
+                    ForEach(self.exercise.variations) { variation in
+                        self.variationCard(variation)
                     }
                 }
             }
         }
     }
-    
+
     private func variationCard(_ variation: ExerciseVariation) -> some View {
         HStack(spacing: DesignSystem.Spacing.m) {
             Image(systemName: variation.sfSymbolName)
                 .font(.title3)
-                .foregroundColor(variationColor(for: variation.difficultyModifier))
+                .foregroundColor(self.variationColor(for: variation.difficultyModifier))
                 .frame(width: 32, height: 32)
-            
+
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
                 HStack {
                     VLThemedText(
@@ -342,12 +342,12 @@ struct ExerciseDetailView: View {
                         font: DesignSystem.Typography.callout.weight(.semibold),
                         color: DesignSystem.ColorRole.textPrimary
                     )
-                    
+
                     Spacer()
-                    
-                    difficultyIndicator(for: variation.difficultyModifier)
+
+                    self.difficultyIndicator(for: variation.difficultyModifier)
                 }
-                
+
                 VLThemedText(
                     variation.description,
                     font: DesignSystem.Typography.caption,
@@ -358,107 +358,107 @@ struct ExerciseDetailView: View {
         .padding(DesignSystem.Spacing.m)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.m)
-                .fill(variationColor(for: variation.difficultyModifier).opacity(0.08))
+                .fill(self.variationColor(for: variation.difficultyModifier).opacity(0.08))
         )
     }
-    
+
     // MARK: - Add to Workout Button
-    
+
     private var addToWorkoutButton: some View {
         VLButton("Add to Workout", style: .primary) {
-            onAddToWorkout()
-            dismiss()
+            self.onAddToWorkout()
+            self.dismiss()
         }
         .padding(.top, DesignSystem.Spacing.l)
     }
-    
+
     // MARK: - Helper Views
-    
+
     private func sectionHeader(title: String, icon: String) -> some View {
         HStack(spacing: DesignSystem.Spacing.m) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundColor(DesignSystem.ColorRole.primary)
-            
+
             VLThemedText(
                 title,
                 font: DesignSystem.Typography.titleS,
                 color: DesignSystem.ColorRole.textPrimary
             )
-            
+
             Spacer()
         }
     }
-    
+
     private func difficultyIndicator(for modifier: Int) -> some View {
         HStack(spacing: 2) {
-            ForEach(0..<3, id: \.self) { index in
+            ForEach(0 ..< 3, id: \.self) { index in
                 let isActive = (modifier == -1 && index == 0) ||
-                              (modifier == 0 && index == 1) ||
-                              (modifier == 1 && index == 2)
-                
+                    (modifier == 0 && index == 1) ||
+                    (modifier == 1 && index == 2)
+
                 Circle()
-                    .fill(isActive ? variationColor(for: modifier) : Color.gray.opacity(0.3))
+                    .fill(isActive ? self.variationColor(for: modifier) : Color.gray.opacity(0.3))
                     .frame(width: 6, height: 6)
             }
         }
     }
-    
+
     // MARK: - Helper Properties
-    
+
     private var difficultyIcon: String {
-        switch exercise.difficulty {
+        switch self.exercise.difficulty {
         case .beginner:
-            return "1.circle.fill"
+            "1.circle.fill"
         case .intermediate:
-            return "2.circle.fill"
+            "2.circle.fill"
         case .advanced:
-            return "3.circle.fill"
+            "3.circle.fill"
         }
     }
-    
+
     private var difficultyColor: Color {
-        switch exercise.difficulty {
+        switch self.exercise.difficulty {
         case .beginner:
-            return DesignSystem.ColorRole.success
+            DesignSystem.ColorRole.success
         case .intermediate:
-            return DesignSystem.ColorRole.warning
+            DesignSystem.ColorRole.warning
         case .advanced:
-            return DesignSystem.ColorRole.danger
+            DesignSystem.ColorRole.danger
         }
     }
-    
+
     private func variationColor(for modifier: Int) -> Color {
         switch modifier {
         case -1:
-            return DesignSystem.ColorRole.success
+            DesignSystem.ColorRole.success
         case 0:
-            return DesignSystem.ColorRole.secondary
+            DesignSystem.ColorRole.secondary
         case 1:
-            return DesignSystem.ColorRole.warning
+            DesignSystem.ColorRole.warning
         default:
-            return DesignSystem.ColorRole.secondary
+            DesignSystem.ColorRole.secondary
         }
     }
-    
+
     private func equipmentIcon(for equipment: String) -> String {
         switch equipment.lowercased() {
         case let eq where eq.contains("dumbbell"):
-            return "dumbbell"
+            "dumbbell"
         case let eq where eq.contains("barbell"):
-            return "dumbbell"
+            "dumbbell"
         case let eq where eq.contains("kettlebell"):
-            return "circle"
+            "circle"
         case let eq where eq.contains("band"):
-            return "bolt.horizontal.circle"
+            "bolt.horizontal.circle"
         case let eq where eq.contains("bench"):
-            return "rectangle.portrait"
+            "rectangle.portrait"
         case let eq where eq.contains("pull"):
-            return "figure.climbing"
+            "figure.climbing"
         case let eq where eq.contains("cable"):
-            return "cable.connector"
+            "cable.connector"
         default:
-            return "wrench.and.screwdriver"
+            "wrench.and.screwdriver"
         }
     }
 }

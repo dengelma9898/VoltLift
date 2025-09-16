@@ -12,31 +12,31 @@ struct VLErrorView: View {
     let error: UserPreferencesError
     let recoveryOptions: [ErrorRecoveryOption]
     let onDismiss: () -> Void
-    
+
     @State private var showingRecoveryOptions = false
-    
+
     var body: some View {
         VLGlassCard {
             VStack(spacing: DesignSystem.Spacing.l) {
                 // Error icon and title
                 HStack(spacing: DesignSystem.Spacing.m) {
-                    Image(systemName: iconForSeverity(error.severity))
+                    Image(systemName: self.iconForSeverity(self.error.severity))
                         .font(.title2)
-                        .foregroundColor(colorForSeverity(error.severity))
-                    
+                        .foregroundColor(self.colorForSeverity(self.error.severity))
+
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(titleForSeverity(error.severity))
+                        Text(self.titleForSeverity(self.error.severity))
                             .font(DesignSystem.Typography.titleS)
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                        
-                        Text(error.localizedDescription)
+
+                        Text(self.error.localizedDescription)
                             .font(DesignSystem.Typography.body)
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                    
+
                     Spacer()
                 }
-                
+
                 // Recovery suggestion
                 if let suggestion = error.recoverySuggestion {
                     Text(suggestion)
@@ -44,27 +44,27 @@ struct VLErrorView: View {
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                
+
                 // Action buttons
                 HStack(spacing: DesignSystem.Spacing.m) {
-                    if recoveryOptions.count > 1 {
+                    if self.recoveryOptions.count > 1 {
                         VLButton(
                             "Options",
                             style: .secondary
                         ) {
-                            showingRecoveryOptions = true
+                            self.showingRecoveryOptions = true
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     VLButton(
                         "Dismiss",
                         style: .secondary
                     ) {
-                        onDismiss()
+                        self.onDismiss()
                     }
-                    
+
                     // Show primary recovery action if available
                     if let primaryOption = recoveryOptions.first(where: { !$0.isDestructive }) {
                         VLButton(
@@ -79,19 +79,19 @@ struct VLErrorView: View {
                 }
             }
         }
-        .actionSheet(isPresented: $showingRecoveryOptions) {
+        .actionSheet(isPresented: self.$showingRecoveryOptions) {
             ActionSheet(
                 title: Text("Recovery Options"),
                 message: Text("Choose how to handle this error"),
-                buttons: recoveryOptions.map { option in
+                buttons: self.recoveryOptions.map { option in
                     if option.isDestructive {
-                        return .destructive(Text(option.title)) {
+                        .destructive(Text(option.title)) {
                             Task {
                                 await option.action()
                             }
                         }
                     } else {
-                        return .default(Text(option.title)) {
+                        .default(Text(option.title)) {
                             Task {
                                 await option.action()
                             }
@@ -101,39 +101,39 @@ struct VLErrorView: View {
             )
         }
     }
-    
+
     // MARK: - Helpers
-    
+
     private func iconForSeverity(_ severity: ErrorSeverity) -> String {
         switch severity {
         case .warning:
-            return "exclamationmark.triangle.fill"
+            "exclamationmark.triangle.fill"
         case .error:
-            return "xmark.circle.fill"
+            "xmark.circle.fill"
         case .critical:
-            return "exclamationmark.octagon.fill"
+            "exclamationmark.octagon.fill"
         }
     }
-    
+
     private func colorForSeverity(_ severity: ErrorSeverity) -> Color {
         switch severity {
         case .warning:
-            return DesignSystem.ColorRole.warning
+            DesignSystem.ColorRole.warning
         case .error:
-            return DesignSystem.ColorRole.danger
+            DesignSystem.ColorRole.danger
         case .critical:
-            return DesignSystem.ColorRole.danger
+            DesignSystem.ColorRole.danger
         }
     }
-    
+
     private func titleForSeverity(_ severity: ErrorSeverity) -> String {
         switch severity {
         case .warning:
-            return "Warning"
+            "Warning"
         case .error:
-            return "Error"
+            "Error"
         case .critical:
-            return "Critical Error"
+            "Critical Error"
         }
     }
 }
@@ -142,21 +142,21 @@ struct VLErrorView: View {
 struct VLLoadingView: View {
     let message: String
     let showProgress: Bool
-    
+
     init(message: String = "Loading...", showProgress: Bool = true) {
         self.message = message
         self.showProgress = showProgress
     }
-    
+
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.l) {
-            if showProgress {
+            if self.showProgress {
                 ProgressView()
                     .scaleEffect(1.2)
                     .tint(DesignSystem.ColorRole.primary)
             }
-            
-            Text(message)
+
+            Text(self.message)
                 .font(DesignSystem.Typography.body)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 .multilineTextAlignment(.center)
@@ -169,44 +169,45 @@ struct VLLoadingView: View {
 /// A view modifier that shows error states and loading states
 struct ErrorHandlingModifier: ViewModifier {
     @ObservedObject var userPreferencesService: UserPreferencesService
-    
+
     func body(content: Content) -> some View {
         ZStack {
             content
-                .disabled(userPreferencesService.isLoading)
-            
+                .disabled(self.userPreferencesService.isLoading)
+
             // Loading overlay
-            if userPreferencesService.isLoading {
-                VLLoadingView(message: userPreferencesService.loadingMessage)
+            if self.userPreferencesService.isLoading {
+                VLLoadingView(message: self.userPreferencesService.loadingMessage)
                     .background(DesignSystem.ColorRole.background.opacity(0.8))
                     .transition(.opacity)
             }
-            
+
             // Error overlay
             if let error = userPreferencesService.lastError,
-               userPreferencesService.showingErrorAlert {
+               userPreferencesService.showingErrorAlert
+            {
                 VStack {
                     Spacer()
-                    
+
                     VLErrorView(
                         error: error,
-                        recoveryOptions: userPreferencesService.errorRecoveryOptions
+                        recoveryOptions: self.userPreferencesService.errorRecoveryOptions
                     ) {
                         Task { @MainActor in
-                            userPreferencesService.showingErrorAlert = false
-                            userPreferencesService.lastError = nil
+                            self.userPreferencesService.showingErrorAlert = false
+                            self.userPreferencesService.lastError = nil
                         }
                     }
                     .padding(DesignSystem.Spacing.l)
-                    
+
                     Spacer()
                 }
                 .background(DesignSystem.ColorRole.background.opacity(0.9))
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: userPreferencesService.isLoading)
-        .animation(.easeInOut(duration: 0.3), value: userPreferencesService.showingErrorAlert)
+        .animation(.easeInOut(duration: 0.3), value: self.userPreferencesService.isLoading)
+        .animation(.easeInOut(duration: 0.3), value: self.userPreferencesService.showingErrorAlert)
     }
 }
 
@@ -225,26 +226,26 @@ extension View {
     VLErrorView(
         error: .networkUnavailable,
         recoveryOptions: [
-            ErrorRecoveryOption(title: "Retry", description: "Try again") { },
-            ErrorRecoveryOption(title: "Dismiss", description: "Close") { }
+            ErrorRecoveryOption(title: "Retry", description: "Try again") {},
+            ErrorRecoveryOption(title: "Dismiss", description: "Close") {}
         ]
-    ) { }
-    .padding()
-    .background(DesignSystem.ColorRole.background)
-    .preferredColorScheme(.dark)
+    ) {}
+        .padding()
+        .background(DesignSystem.ColorRole.background)
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Error View - Critical") {
     VLErrorView(
         error: .dataCorruption,
         recoveryOptions: [
-            ErrorRecoveryOption(title: "Reset Data", description: "Clear all data", isDestructive: true) { },
-            ErrorRecoveryOption(title: "Dismiss", description: "Close") { }
+            ErrorRecoveryOption(title: "Reset Data", description: "Clear all data", isDestructive: true) {},
+            ErrorRecoveryOption(title: "Dismiss", description: "Close") {}
         ]
-    ) { }
-    .padding()
-    .background(DesignSystem.ColorRole.background)
-    .preferredColorScheme(.dark)
+    ) {}
+        .padding()
+        .background(DesignSystem.ColorRole.background)
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Loading View") {

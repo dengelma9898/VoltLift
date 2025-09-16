@@ -1,9 +1,8 @@
-import XCTest
 import SwiftUI
 @testable import VoltLift
+import XCTest
 
 final class ExerciseDetailViewTests: XCTestCase {
-    
     func testExerciseDetailViewInitialization() {
         // Given
         let exercise = Exercise(
@@ -26,14 +25,14 @@ final class ExerciseDetailViewTests: XCTestCase {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         var addToWorkoutCalled = false
-        
+
         // When
         let view = ExerciseDetailView(exercise: exercise) {
             addToWorkoutCalled = true
         }
-        
+
         // Then
         XCTAssertNotNil(view)
         XCTAssertEqual(view.exercise.name, "Push-up")
@@ -44,7 +43,7 @@ final class ExerciseDetailViewTests: XCTestCase {
         XCTAssertEqual(view.exercise.variations.count, 1)
         XCTAssertFalse(addToWorkoutCalled)
     }
-    
+
     func testExerciseWithEquipment() {
         // Given
         let exercise = Exercise(
@@ -58,16 +57,16 @@ final class ExerciseDetailViewTests: XCTestCase {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         )
-        
+
         // When
         let view = ExerciseDetailView(exercise: exercise) {}
-        
+
         // Then
         XCTAssertEqual(view.exercise.requiredEquipment.count, 2)
         XCTAssertTrue(view.exercise.requiredEquipment.contains("Dumbbells"))
         XCTAssertTrue(view.exercise.requiredEquipment.contains("Adjustable Bench"))
     }
-    
+
     func testExerciseWithoutVariations() {
         // Given
         let exercise = Exercise(
@@ -81,18 +80,18 @@ final class ExerciseDetailViewTests: XCTestCase {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         // When
         let view = ExerciseDetailView(exercise: exercise) {}
-        
+
         // Then
         XCTAssertTrue(view.exercise.variations.isEmpty)
     }
-    
+
     func testDifficultyLevels() {
         // Test all difficulty levels
         let difficulties: [DifficultyLevel] = [.beginner, .intermediate, .advanced]
-        
+
         for difficulty in difficulties {
             let exercise = Exercise(
                 name: "Test Exercise",
@@ -105,16 +104,16 @@ final class ExerciseDetailViewTests: XCTestCase {
                 difficulty: difficulty,
                 sfSymbolName: "figure.strengthtraining.traditional"
             )
-            
+
             let view = ExerciseDetailView(exercise: exercise) {}
             XCTAssertEqual(view.exercise.difficulty, difficulty)
         }
     }
-    
+
     func testMuscleGroups() {
         // Test all muscle groups
         let muscleGroups: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .legs, .core, .fullBody]
-        
+
         for muscleGroup in muscleGroups {
             let exercise = Exercise(
                 name: "Test Exercise",
@@ -127,7 +126,7 @@ final class ExerciseDetailViewTests: XCTestCase {
                 difficulty: .beginner,
                 sfSymbolName: "figure.strengthtraining.traditional"
             )
-            
+
             let view = ExerciseDetailView(exercise: exercise) {}
             XCTAssertEqual(view.exercise.muscleGroup, muscleGroup)
         }

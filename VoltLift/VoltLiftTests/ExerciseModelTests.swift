@@ -5,13 +5,12 @@
 //  Created by Kiro on 15.9.2025.
 //
 
-import XCTest
 @testable import VoltLift
+import XCTest
 
 final class ExerciseModelTests: XCTestCase {
-    
     // MARK: - Exercise Model Tests
-    
+
     func testExerciseInitialization_WithAllProperties_SetsCorrectValues() {
         // Given
         let id = UUID()
@@ -33,7 +32,7 @@ final class ExerciseModelTests: XCTestCase {
             )
         ]
         let sfSymbolName = "figure.strengthtraining.traditional"
-        
+
         // When
         let exercise = Exercise(
             id: id,
@@ -49,7 +48,7 @@ final class ExerciseModelTests: XCTestCase {
             variations: variations,
             sfSymbolName: sfSymbolName
         )
-        
+
         // Then
         XCTAssertEqual(exercise.id, id)
         XCTAssertEqual(exercise.name, name)
@@ -64,7 +63,7 @@ final class ExerciseModelTests: XCTestCase {
         XCTAssertEqual(exercise.variations, variations)
         XCTAssertEqual(exercise.sfSymbolName, sfSymbolName)
     }
-    
+
     func testExerciseInitialization_WithDefaultValues_SetsCorrectDefaults() {
         // When
         let exercise = Exercise(
@@ -78,13 +77,13 @@ final class ExerciseModelTests: XCTestCase {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         // Then
         XCTAssertNotNil(exercise.id)
         XCTAssertTrue(exercise.secondaryMuscles.isEmpty)
         XCTAssertTrue(exercise.variations.isEmpty)
     }
-    
+
     func testExerciseEquality_WithSameProperties_ReturnsTrue() {
         // Given
         let id = UUID()
@@ -100,7 +99,7 @@ final class ExerciseModelTests: XCTestCase {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         let exercise2 = Exercise(
             id: id,
             name: "Push-up",
@@ -113,12 +112,12 @@ final class ExerciseModelTests: XCTestCase {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         // When & Then
         XCTAssertEqual(exercise1, exercise2)
         XCTAssertEqual(exercise1.hashValue, exercise2.hashValue)
     }
-    
+
     func testExerciseEquality_WithDifferentProperties_ReturnsFalse() {
         // Given
         let exercise1 = Exercise(
@@ -132,7 +131,7 @@ final class ExerciseModelTests: XCTestCase {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         let exercise2 = Exercise(
             name: "Pull-up",
             muscleGroup: .back,
@@ -144,14 +143,14 @@ final class ExerciseModelTests: XCTestCase {
             difficulty: .advanced,
             sfSymbolName: "figure.climbing"
         )
-        
+
         // When & Then
         XCTAssertNotEqual(exercise1, exercise2)
         XCTAssertNotEqual(exercise1.hashValue, exercise2.hashValue)
     }
-    
+
     // MARK: - ExerciseVariation Tests
-    
+
     func testExerciseVariationInitialization_WithAllProperties_SetsCorrectValues() {
         // Given
         let id = UUID()
@@ -159,7 +158,7 @@ final class ExerciseModelTests: XCTestCase {
         let description = "Easier variation performed on knees"
         let difficultyModifier = -1
         let sfSymbolName = "figure.strengthtraining.traditional"
-        
+
         // When
         let variation = ExerciseVariation(
             id: id,
@@ -168,7 +167,7 @@ final class ExerciseModelTests: XCTestCase {
             difficultyModifier: difficultyModifier,
             sfSymbolName: sfSymbolName
         )
-        
+
         // Then
         XCTAssertEqual(variation.id, id)
         XCTAssertEqual(variation.name, name)
@@ -176,7 +175,7 @@ final class ExerciseModelTests: XCTestCase {
         XCTAssertEqual(variation.difficultyModifier, difficultyModifier)
         XCTAssertEqual(variation.sfSymbolName, sfSymbolName)
     }
-    
+
     func testExerciseVariationInitialization_WithDefaultId_GeneratesUniqueId() {
         // When
         let variation1 = ExerciseVariation(
@@ -185,18 +184,18 @@ final class ExerciseModelTests: XCTestCase {
             difficultyModifier: 0,
             sfSymbolName: "test"
         )
-        
+
         let variation2 = ExerciseVariation(
             name: "Variation 2",
             description: "Test",
             difficultyModifier: 0,
             sfSymbolName: "test"
         )
-        
+
         // Then
         XCTAssertNotEqual(variation1.id, variation2.id)
     }
-    
+
     func testExerciseVariationEquality_WithSameProperties_ReturnsTrue() {
         // Given
         let id = UUID()
@@ -207,7 +206,7 @@ final class ExerciseModelTests: XCTestCase {
             difficultyModifier: 1,
             sfSymbolName: "test.symbol"
         )
-        
+
         let variation2 = ExerciseVariation(
             id: id,
             name: "Test Variation",
@@ -215,54 +214,54 @@ final class ExerciseModelTests: XCTestCase {
             difficultyModifier: 1,
             sfSymbolName: "test.symbol"
         )
-        
+
         // When & Then
         XCTAssertEqual(variation1, variation2)
         XCTAssertEqual(variation1.hashValue, variation2.hashValue)
     }
-    
+
     // MARK: - DifficultyLevel Tests
-    
+
     func testDifficultyLevel_AllCases_ContainsExpectedValues() {
         // Given
         let expectedCases: [DifficultyLevel] = [.beginner, .intermediate, .advanced]
-        
+
         // When
         let allCases = DifficultyLevel.allCases
-        
+
         // Then
         XCTAssertEqual(allCases.count, 3)
         XCTAssertEqual(Set(allCases), Set(expectedCases))
     }
-    
+
     func testDifficultyLevel_RawValues_AreCorrect() {
         // When & Then
         XCTAssertEqual(DifficultyLevel.beginner.rawValue, "Beginner")
         XCTAssertEqual(DifficultyLevel.intermediate.rawValue, "Intermediate")
         XCTAssertEqual(DifficultyLevel.advanced.rawValue, "Advanced")
     }
-    
+
     func testDifficultyLevel_Id_ReturnsRawValue() {
         // When & Then
         XCTAssertEqual(DifficultyLevel.beginner.id, "Beginner")
         XCTAssertEqual(DifficultyLevel.intermediate.id, "Intermediate")
         XCTAssertEqual(DifficultyLevel.advanced.id, "Advanced")
     }
-    
+
     // MARK: - MuscleGroup Tests
-    
+
     func testMuscleGroup_AllCases_ContainsExpectedValues() {
         // Given
         let expectedCases: [MuscleGroup] = [.chest, .back, .shoulders, .arms, .legs, .core, .fullBody]
-        
+
         // When
         let allCases = MuscleGroup.allCases
-        
+
         // Then
         XCTAssertEqual(allCases.count, 7)
         XCTAssertEqual(Set(allCases), Set(expectedCases))
     }
-    
+
     func testMuscleGroup_RawValues_AreCorrect() {
         // When & Then
         XCTAssertEqual(MuscleGroup.chest.rawValue, "Chest")
@@ -273,7 +272,7 @@ final class ExerciseModelTests: XCTestCase {
         XCTAssertEqual(MuscleGroup.core.rawValue, "Core")
         XCTAssertEqual(MuscleGroup.fullBody.rawValue, "Full Body")
     }
-    
+
     func testMuscleGroup_Id_ReturnsRawValue() {
         // When & Then
         XCTAssertEqual(MuscleGroup.chest.id, "Chest")
@@ -284,9 +283,9 @@ final class ExerciseModelTests: XCTestCase {
         XCTAssertEqual(MuscleGroup.core.id, "Core")
         XCTAssertEqual(MuscleGroup.fullBody.id, "Full Body")
     }
-    
+
     // MARK: - Codable Tests
-    
+
     func testExercise_Codable_EncodesAndDecodesCorrectly() throws {
         // Given
         let originalExercise = Exercise(
@@ -309,15 +308,15 @@ final class ExerciseModelTests: XCTestCase {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         )
-        
+
         // When
         let encodedData = try JSONEncoder().encode(originalExercise)
         let decodedExercise = try JSONDecoder().decode(Exercise.self, from: encodedData)
-        
+
         // Then
         XCTAssertEqual(originalExercise, decodedExercise)
     }
-    
+
     func testExerciseVariation_Codable_EncodesAndDecodesCorrectly() throws {
         // Given
         let originalVariation = ExerciseVariation(
@@ -326,38 +325,38 @@ final class ExerciseModelTests: XCTestCase {
             difficultyModifier: 1,
             sfSymbolName: "diamond"
         )
-        
+
         // When
         let encodedData = try JSONEncoder().encode(originalVariation)
         let decodedVariation = try JSONDecoder().decode(ExerciseVariation.self, from: encodedData)
-        
+
         // Then
         XCTAssertEqual(originalVariation, decodedVariation)
     }
-    
+
     func testDifficultyLevel_Codable_EncodesAndDecodesCorrectly() throws {
         // Given
         let difficulties: [DifficultyLevel] = [.beginner, .intermediate, .advanced]
-        
+
         for difficulty in difficulties {
             // When
             let encodedData = try JSONEncoder().encode(difficulty)
             let decodedDifficulty = try JSONDecoder().decode(DifficultyLevel.self, from: encodedData)
-            
+
             // Then
             XCTAssertEqual(difficulty, decodedDifficulty)
         }
     }
-    
+
     func testMuscleGroup_Codable_EncodesAndDecodesCorrectly() throws {
         // Given
         let muscleGroups = MuscleGroup.allCases
-        
+
         for muscleGroup in muscleGroups {
             // When
             let encodedData = try JSONEncoder().encode(muscleGroup)
             let decodedMuscleGroup = try JSONDecoder().decode(MuscleGroup.self, from: encodedData)
-            
+
             // Then
             XCTAssertEqual(muscleGroup, decodedMuscleGroup)
         }

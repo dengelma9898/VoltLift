@@ -19,44 +19,44 @@ struct SavedPlansView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var showingWorkoutExecution = false
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: DesignSystem.Spacing.l) {
-                if userPreferencesService.savedPlans.isEmpty && !userPreferencesService.isLoading {
-                    emptyStateView
+                if self.userPreferencesService.savedPlans.isEmpty, !self.userPreferencesService.isLoading {
+                    self.emptyStateView
                 } else {
-                    plansList
+                    self.plansList
                 }
             }
             .padding(DesignSystem.Spacing.l)
             .background(DesignSystem.ColorRole.background)
             .navigationTitle("Saved Plans")
             .navigationBarTitleDisplayMode(.large)
-            .withErrorHandling(userPreferencesService)
+            .withErrorHandling(self.userPreferencesService)
             .task {
-                await loadPlans()
+                await self.loadPlans()
             }
-            .alert("Rename Plan", isPresented: $showingRenameAlert) {
-                TextField("Plan name", text: $newPlanName)
+            .alert("Rename Plan", isPresented: self.$showingRenameAlert) {
+                TextField("Plan name", text: self.$newPlanName)
                 Button("Cancel", role: .cancel) {
-                    resetAlertState()
+                    self.resetAlertState()
                 }
                 Button("Rename") {
                     Task {
-                        await renamePlan()
+                        await self.renamePlan()
                     }
                 }
             } message: {
                 Text("Enter a new name for your workout plan")
             }
-            .alert("Delete Plan", isPresented: $showingDeleteConfirmation) {
+            .alert("Delete Plan", isPresented: self.$showingDeleteConfirmation) {
                 Button("Cancel", role: .cancel) {
-                    resetAlertState()
+                    self.resetAlertState()
                 }
                 Button("Delete", role: .destructive) {
                     Task {
-                        await deletePlan()
+                        await self.deletePlan()
                     }
                 }
             } message: {
@@ -65,33 +65,33 @@ struct SavedPlansView: View {
                 }
             }
 
-            .fullScreenCover(isPresented: $showingWorkoutExecution) {
-                if let selectedPlanForWorkout = selectedPlanForWorkout {
+            .fullScreenCover(isPresented: self.$showingWorkoutExecution) {
+                if let selectedPlanForWorkout {
                     WorkoutExecutionView(workoutPlan: selectedPlanForWorkout) {
                         // Workout completed - refresh plans to update last used date
                         Task {
-                            await loadPlans()
+                            await self.loadPlans()
                         }
                     }
-                    .environmentObject(userPreferencesService)
+                    .environmentObject(self.userPreferencesService)
                 }
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var emptyStateView: some View {
         VStack(spacing: DesignSystem.Spacing.xl) {
             Image(systemName: "doc.text")
                 .font(.system(size: 64))
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
-            
+
             VStack(spacing: DesignSystem.Spacing.s) {
                 Text("No Saved Plans")
                     .font(DesignSystem.Typography.titleM)
                     .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                
+
                 Text("Your workout plans will appear here once you create them")
                     .font(DesignSystem.Typography.body)
                     .foregroundColor(DesignSystem.ColorRole.textSecondary)
@@ -100,17 +100,17 @@ struct SavedPlansView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     private var plansList: some View {
         ScrollView {
             LazyVStack(spacing: DesignSystem.Spacing.m) {
-                ForEach(userPreferencesService.savedPlans) { plan in
-                    planRow(plan)
+                ForEach(self.userPreferencesService.savedPlans) { plan in
+                    self.planRow(plan)
                 }
             }
         }
     }
-    
+
     private func planRow(_ plan: WorkoutPlanData) -> some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
@@ -120,29 +120,29 @@ struct SavedPlansView: View {
                         Text(plan.name)
                             .font(DesignSystem.Typography.titleS)
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                        
+
                         Text("\(plan.exerciseCount) exercise\(plan.exerciseCount == 1 ? "" : "s")")
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     Menu {
                         Button {
-                            selectPlan(plan)
+                            self.selectPlan(plan)
                         } label: {
                             Label("Use Plan", systemImage: "play.fill")
                         }
-                        
+
                         Button {
-                            showRenameAlert(for: plan)
+                            self.showRenameAlert(for: plan)
                         } label: {
                             Label("Rename", systemImage: "pencil")
                         }
-                        
+
                         Button(role: .destructive) {
-                            showDeleteConfirmation(for: plan)
+                            self.showDeleteConfirmation(for: plan)
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -154,122 +154,125 @@ struct SavedPlansView: View {
                     }
                     .accessibilityLabel("Plan options for \(plan.name)")
                 }
-                
+
                 // Plan metadata
                 HStack(spacing: DesignSystem.Spacing.l) {
-                    metadataItem(
+                    self.metadataItem(
                         icon: "calendar",
                         title: "Created",
-                        value: formatDate(plan.createdDate)
+                        value: self.formatDate(plan.createdDate)
                     )
-                    
+
                     if let lastUsed = plan.lastUsedDate {
-                        metadataItem(
+                        self.metadataItem(
                             icon: "clock",
                             title: "Last Used",
-                            value: formatDate(lastUsed)
+                            value: self.formatDate(lastUsed)
                         )
                     }
                 }
             }
         }
         .onTapGesture {
-            selectPlan(plan)
+            self.selectPlan(plan)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Workout plan \(plan.name)")
         .accessibilityHint("Double tap to use this plan, or use the menu for more options")
     }
-    
+
     private func metadataItem(icon: String, title: String, value: String) -> some View {
         HStack(spacing: DesignSystem.Spacing.s) {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 .frame(width: 12)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(DesignSystem.Typography.caption)
                     .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                
+
                 Text(value)
                     .font(DesignSystem.Typography.caption.weight(.medium))
                     .foregroundColor(DesignSystem.ColorRole.textPrimary)
             }
         }
     }
-    
+
     // MARK: - Actions
-    
+
     private func loadPlans() async {
         do {
-            try await userPreferencesService.loadSavedPlans()
+            try await self.userPreferencesService.loadSavedPlans()
         } catch {
-            handleError(error, operation: "loading plans")
+            self.handleError(error, operation: "loading plans")
         }
     }
-    
+
     private func selectPlan(_ plan: WorkoutPlanData) {
         // Navigate to workout execution - the WorkoutExecutionView will handle marking the plan as used
-        selectedPlanForWorkout = plan
-        showingWorkoutExecution = true
+        self.selectedPlanForWorkout = plan
+        self.showingWorkoutExecution = true
     }
-    
+
     private func showRenameAlert(for plan: WorkoutPlanData) {
-        selectedPlan = plan
-        newPlanName = plan.name
-        showingRenameAlert = true
+        self.selectedPlan = plan
+        self.newPlanName = plan.name
+        self.showingRenameAlert = true
     }
-    
+
     private func showDeleteConfirmation(for plan: WorkoutPlanData) {
-        selectedPlan = plan
-        showingDeleteConfirmation = true
+        self.selectedPlan = plan
+        self.showingDeleteConfirmation = true
     }
-    
+
     private func renamePlan() async {
         guard let plan = selectedPlan, !newPlanName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            resetAlertState()
+            self.resetAlertState()
             return
         }
-        
+
         do {
-            try await userPreferencesService.renamePlan(plan.id, newName: newPlanName.trimmingCharacters(in: .whitespacesAndNewlines))
-            resetAlertState()
+            try await self.userPreferencesService.renamePlan(
+                plan.id,
+                newName: self.newPlanName.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+            self.resetAlertState()
         } catch {
-            resetAlertState()
-            handleError(error, operation: "renaming plan")
+            self.resetAlertState()
+            self.handleError(error, operation: "renaming plan")
         }
     }
-    
+
     private func deletePlan() async {
         guard let plan = selectedPlan else {
-            resetAlertState()
+            self.resetAlertState()
             return
         }
-        
+
         do {
-            try await userPreferencesService.deletePlan(plan.id)
-            resetAlertState()
+            try await self.userPreferencesService.deletePlan(plan.id)
+            self.resetAlertState()
         } catch {
-            resetAlertState()
-            handleError(error, operation: "deleting plan")
+            self.resetAlertState()
+            self.handleError(error, operation: "deleting plan")
         }
     }
-    
+
     private func resetAlertState() {
-        selectedPlan = nil
-        newPlanName = ""
+        self.selectedPlan = nil
+        self.newPlanName = ""
     }
-    
+
     private func handleError(_ error: Error, operation: String) {
         // Error handling is now managed by the UserPreferencesService
         // The withErrorHandling modifier will display errors automatically
         print("Error in SavedPlansView: \(error.localizedDescription)")
     }
-    
+
     // MARK: - Helpers
-    
+
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

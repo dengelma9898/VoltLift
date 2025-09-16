@@ -15,68 +15,72 @@ struct SettingsView: View {
     @State private var validationResults: DataValidationResults?
     @State private var isPerformingValidation = false
     @State private var isResettingPreferences = false
-    
+
     var body: some View {
         NavigationStack {
             List {
-                equipmentManagementSection
-                dataManagementSection
-                aboutSection
+                self.equipmentManagementSection
+                self.dataManagementSection
+                self.aboutSection
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
             .refreshable {
-                await loadData()
+                await self.loadData()
             }
             .task {
-                await loadData()
+                await self.loadData()
             }
-            .alert("Reset All Preferences", isPresented: $showingResetConfirmation) {
-                Button("Cancel", role: .cancel) { }
+            .alert("Reset All Preferences", isPresented: self.$showingResetConfirmation) {
+                Button("Cancel", role: .cancel) {}
                 Button("Reset", role: .destructive) {
                     Task {
-                        await resetAllPreferences()
+                        await self.resetAllPreferences()
                     }
                 }
             } message: {
-                Text("This will permanently delete all your equipment selections and saved workout plans. This action cannot be undone.")
+                Text(
+                    "This will permanently delete all your equipment selections and saved workout plans. This action cannot be undone."
+                )
             }
-            .alert("Data Validation Results", isPresented: $showingDataValidationAlert) {
-                Button("OK") { }
+            .alert("Data Validation Results", isPresented: self.$showingDataValidationAlert) {
+                Button("OK") {}
             } message: {
                 if let results = validationResults {
                     Text(results.summary)
                 }
             }
-            .sheet(isPresented: $showingEquipmentManagement) {
-                EquipmentManagementView(userPreferencesService: userPreferencesService)
+            .sheet(isPresented: self.$showingEquipmentManagement) {
+                EquipmentManagementView(userPreferencesService: self.userPreferencesService)
             }
         }
     }
-    
+
     // MARK: - View Sections
-    
+
     private var equipmentManagementSection: some View {
         Section("Equipment Management") {
             Button {
-                showingEquipmentManagement = true
+                self.showingEquipmentManagement = true
             } label: {
                 HStack {
                     Image(systemName: "dumbbell.fill")
                         .foregroundColor(DesignSystem.ColorRole.primary)
                         .frame(width: 24)
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Manage Equipment")
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                        
-                        Text("\(userPreferencesService.selectedEquipment.filter(\.isSelected).count) items selected")
-                            .font(.caption)
-                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+
+                        Text(
+                            "\(self.userPreferencesService.selectedEquipment.filter(\.isSelected).count) items selected"
+                        )
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
@@ -85,150 +89,150 @@ struct SettingsView: View {
             .buttonStyle(.plain)
         }
     }
-    
+
     private var dataManagementSection: some View {
         Section("Data Management") {
             Button {
                 Task {
-                    await validateDataIntegrity()
+                    await self.validateDataIntegrity()
                 }
             } label: {
                 HStack {
                     Image(systemName: "checkmark.shield.fill")
                         .foregroundColor(DesignSystem.ColorRole.success)
                         .frame(width: 24)
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Validate Data Integrity")
                             .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                        
+
                         Text("Check for data corruption or inconsistencies")
                             .font(.caption)
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                    
+
                     Spacer()
-                    
-                    if isPerformingValidation {
+
+                    if self.isPerformingValidation {
                         ProgressView()
                             .scaleEffect(0.8)
                     }
                 }
             }
             .buttonStyle(.plain)
-            .disabled(isPerformingValidation)
-            
+            .disabled(self.isPerformingValidation)
+
             Button {
-                showingResetConfirmation = true
+                self.showingResetConfirmation = true
             } label: {
                 HStack {
                     Image(systemName: "trash.fill")
                         .foregroundColor(DesignSystem.ColorRole.danger)
                         .frame(width: 24)
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Reset All Preferences")
                             .foregroundColor(DesignSystem.ColorRole.danger)
-                        
+
                         Text("Delete all equipment and workout plan data")
                             .font(.caption)
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                    
+
                     Spacer()
-                    
-                    if isResettingPreferences {
+
+                    if self.isResettingPreferences {
                         ProgressView()
                             .scaleEffect(0.8)
                     }
                 }
             }
             .buttonStyle(.plain)
-            .disabled(isResettingPreferences)
+            .disabled(self.isResettingPreferences)
         }
     }
-    
+
     private var aboutSection: some View {
         Section("About") {
             HStack {
                 Image(systemName: "info.circle.fill")
                     .foregroundColor(DesignSystem.ColorRole.primary)
                     .frame(width: 24)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Data Storage")
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                    
+
                     Text("All data is stored locally on your device and never shared")
                         .font(.caption)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 }
-                
+
                 Spacer()
             }
-            
+
             HStack {
                 Image(systemName: "externaldrive.fill")
                     .foregroundColor(DesignSystem.ColorRole.primary)
                     .frame(width: 24)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Saved Plans")
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                    
-                    Text("\(userPreferencesService.savedPlans.count) workout plans saved")
+
+                    Text("\(self.userPreferencesService.savedPlans.count) workout plans saved")
                         .font(.caption)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 }
-                
+
                 Spacer()
             }
         }
     }
-    
+
     // MARK: - Actions
-    
+
     private func loadData() async {
         do {
-            async let equipmentLoad: Void = userPreferencesService.loadSelectedEquipment()
-            async let plansLoad: Void = userPreferencesService.loadSavedPlans()
-            
+            async let equipmentLoad: Void = self.userPreferencesService.loadSelectedEquipment()
+            async let plansLoad: Void = self.userPreferencesService.loadSavedPlans()
+
             _ = try await (equipmentLoad, plansLoad)
         } catch {
             // Error handling is managed by the service's published properties
             print("Failed to load settings data: \(error)")
         }
     }
-    
+
     private func validateDataIntegrity() async {
-        isPerformingValidation = true
+        self.isPerformingValidation = true
         defer { isPerformingValidation = false }
-        
+
         do {
             let results = try await performDataValidation()
-            validationResults = results
-            showingDataValidationAlert = true
+            self.validationResults = results
+            self.showingDataValidationAlert = true
         } catch {
-            validationResults = DataValidationResults(
+            self.validationResults = DataValidationResults(
                 isValid: false,
                 equipmentIssues: ["Failed to validate equipment data"],
                 planIssues: ["Failed to validate plan data"],
                 summary: "Validation failed: \(error.localizedDescription)"
             )
-            showingDataValidationAlert = true
+            self.showingDataValidationAlert = true
         }
     }
-    
+
     private func performDataValidation() async throws -> DataValidationResults {
         // Load fresh data for validation
-        try await userPreferencesService.loadSelectedEquipment()
-        try await userPreferencesService.loadSavedPlans()
-        
+        try await self.userPreferencesService.loadSelectedEquipment()
+        try await self.userPreferencesService.loadSavedPlans()
+
         var equipmentIssues: [String] = []
         var planIssues: [String] = []
-        
+
         // Validate equipment data
-        for equipment in userPreferencesService.selectedEquipment {
+        for equipment in self.userPreferencesService.selectedEquipment {
             if equipment.id.isEmpty {
                 equipmentIssues.append("Equipment with empty ID found")
             }
@@ -239,9 +243,9 @@ struct SettingsView: View {
                 equipmentIssues.append("Equipment '\(equipment.name)' has empty category")
             }
         }
-        
+
         // Validate plan data
-        for plan in userPreferencesService.savedPlans {
+        for plan in self.userPreferencesService.savedPlans {
             if plan.name.isEmpty {
                 planIssues.append("Plan with empty name found")
             }
@@ -251,7 +255,7 @@ struct SettingsView: View {
             if plan.exerciseCount != plan.exercises.count {
                 planIssues.append("Plan '\(plan.name)' has mismatched exercise count")
             }
-            
+
             // Validate individual exercises
             for (index, exercise) in plan.exercises.enumerated() {
                 if exercise.name.isEmpty {
@@ -271,12 +275,12 @@ struct SettingsView: View {
                 }
             }
         }
-        
+
         let isValid = equipmentIssues.isEmpty && planIssues.isEmpty
-        let summary = isValid 
+        let summary = isValid
             ? "All data is valid and consistent ✓"
             : "Found \(equipmentIssues.count + planIssues.count) issues that need attention"
-        
+
         return DataValidationResults(
             isValid: isValid,
             equipmentIssues: equipmentIssues,
@@ -284,19 +288,19 @@ struct SettingsView: View {
             summary: summary
         )
     }
-    
+
     private func resetAllPreferences() async {
-        isResettingPreferences = true
+        self.isResettingPreferences = true
         defer { isResettingPreferences = false }
-        
+
         do {
             // Delete all saved plans
-            for plan in userPreferencesService.savedPlans {
-                try await userPreferencesService.deletePlan(plan.id)
+            for plan in self.userPreferencesService.savedPlans {
+                try await self.userPreferencesService.deletePlan(plan.id)
             }
-            
+
             // Reset equipment selection
-            let unselectedEquipment = userPreferencesService.selectedEquipment.map { equipment in
+            let unselectedEquipment = self.userPreferencesService.selectedEquipment.map { equipment in
                 EquipmentItem(
                     id: equipment.id,
                     name: equipment.name,
@@ -304,11 +308,11 @@ struct SettingsView: View {
                     isSelected: false
                 )
             }
-            try await userPreferencesService.saveEquipmentSelection(unselectedEquipment)
-            
+            try await self.userPreferencesService.saveEquipmentSelection(unselectedEquipment)
+
             // Reload data to reflect changes
-            await loadData()
-            
+            await self.loadData()
+
         } catch {
             print("Failed to reset preferences: \(error)")
         }

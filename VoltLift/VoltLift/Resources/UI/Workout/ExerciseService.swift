@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 // MARK: - ExerciseDisplayItem
 
@@ -8,9 +8,9 @@ struct ExerciseDisplayItem: Identifiable, Hashable {
     let exercise: Exercise
     let isAvailable: Bool
     let missingEquipment: Set<String>
-    
-    var id: UUID { exercise.id }
-    
+
+    var id: UUID { self.exercise.id }
+
     init(exercise: Exercise, availableEquipment: Set<String>) {
         self.exercise = exercise
         self.isAvailable = exercise.requiredEquipment.isSubset(of: availableEquipment)
@@ -24,31 +24,31 @@ struct ExerciseDisplayItem: Identifiable, Hashable {
 protocol ExerciseServiceProtocol {
     /// Returns all exercises in the database
     func getAllExercises() -> [Exercise]
-    
+
     /// Returns exercises for a specific muscle group that can be performed with available equipment
     func getExercises(for muscleGroup: MuscleGroup, availableEquipment: Set<String>) -> [Exercise]
-    
+
     /// Returns exercises with equipment availability hints for a specific muscle group
     func getExercisesWithEquipmentHints(
         for muscleGroup: MuscleGroup,
         availableEquipment: Set<String>
     ) -> [ExerciseDisplayItem]
-    
+
     /// Returns a specific exercise by its ID
     func getExercise(by id: UUID) -> Exercise?
-    
+
     /// Returns exercises filtered by difficulty level
     func getExercises(for difficulty: DifficultyLevel, availableEquipment: Set<String>) -> [Exercise]
-    
+
     /// Returns exercises that require no equipment (bodyweight exercises)
     func getBodyweightExercises() -> [Exercise]
-    
+
     /// Returns recently used exercises
     func getRecentlyUsedExercises(limit: Int) async -> [Exercise]
-    
+
     /// Returns most frequently used exercises
     func getMostUsedExercises(limit: Int) async -> [Exercise]
-    
+
     /// Records exercise usage for metadata tracking
     func recordExerciseUsage(exerciseId: UUID) async
 }
@@ -57,15 +57,14 @@ protocol ExerciseServiceProtocol {
 
 /// Concrete implementation of ExerciseServiceProtocol
 final class ExerciseService: ExerciseServiceProtocol {
-    
     // MARK: - Properties
-    
+
     private let metadataService: ExerciseMetadataServiceProtocol
-    
+
     // MARK: - Singleton
-    
+
     static let shared = ExerciseService()
-    
+
     private init() {
         // Initialize with main context - in production this should be injected
         let context = PersistenceController.shared.container.viewContext
@@ -73,27 +72,27 @@ final class ExerciseService: ExerciseServiceProtocol {
             ExerciseMetadataService(context: context)
         }
     }
-    
+
     /// Initializer for dependency injection (useful for testing)
     init(metadataService: ExerciseMetadataServiceProtocol) {
         self.metadataService = metadataService
     }
-    
+
     // MARK: - Public Methods
-    
+
     func getAllExercises() -> [Exercise] {
-        return EnhancedExerciseCatalog.allExercises
+        EnhancedExerciseCatalog.allExercises
     }
-    
+
     func getExercises(for muscleGroup: MuscleGroup, availableEquipment: Set<String>) -> [Exercise] {
-        return EnhancedExerciseCatalog.allExercises
+        EnhancedExerciseCatalog.allExercises
             .filter { exercise in
                 exercise.muscleGroup == muscleGroup &&
-                exercise.requiredEquipment.isSubset(of: availableEquipment)
+                    exercise.requiredEquipment.isSubset(of: availableEquipment)
             }
             .sorted { $0.name < $1.name }
     }
-    
+
     func getExercisesWithEquipmentHints(
         for muscleGroup: MuscleGroup,
         availableEquipment: Set<String>
@@ -101,7 +100,7 @@ final class ExerciseService: ExerciseServiceProtocol {
         // Performance optimization: Filter first, then map and sort
         // This reduces the number of ExerciseDisplayItem objects created
         let filteredExercises = EnhancedExerciseCatalog.allExercises.filter { $0.muscleGroup == muscleGroup }
-        
+
         return filteredExercises
             .map { ExerciseDisplayItem(exercise: $0, availableEquipment: availableEquipment) }
             .sorted { lhs, rhs in
@@ -112,45 +111,45 @@ final class ExerciseService: ExerciseServiceProtocol {
                 return lhs.exercise.name < rhs.exercise.name
             }
     }
-    
+
     func getExercise(by id: UUID) -> Exercise? {
-        return EnhancedExerciseCatalog.allExercises.first { $0.id == id }
+        EnhancedExerciseCatalog.allExercises.first { $0.id == id }
     }
-    
+
     func getExercises(for difficulty: DifficultyLevel, availableEquipment: Set<String>) -> [Exercise] {
-        return EnhancedExerciseCatalog.allExercises
+        EnhancedExerciseCatalog.allExercises
             .filter { exercise in
                 exercise.difficulty == difficulty &&
-                exercise.requiredEquipment.isSubset(of: availableEquipment)
+                    exercise.requiredEquipment.isSubset(of: availableEquipment)
             }
             .sorted { $0.name < $1.name }
     }
-    
+
     func getBodyweightExercises() -> [Exercise] {
-        return EnhancedExerciseCatalog.allExercises
-            .filter { $0.requiredEquipment.isEmpty }
+        EnhancedExerciseCatalog.allExercises
+            .filter(\.requiredEquipment.isEmpty)
             .sorted { $0.name < $1.name }
     }
-    
+
     func getRecentlyUsedExercises(limit: Int = 10) async -> [Exercise] {
         let metadata = await metadataService.getRecentlyUsedExercises(limit: limit)
         return metadata.compactMap { metadata in
             guard let exerciseId = metadata.exerciseId else { return nil }
-            return getExercise(by: exerciseId)
+            return self.getExercise(by: exerciseId)
         }
     }
-    
+
     func getMostUsedExercises(limit: Int = 10) async -> [Exercise] {
         let metadata = await metadataService.getMostUsedExercises(limit: limit)
         return metadata.compactMap { metadata in
             guard let exerciseId = metadata.exerciseId else { return nil }
-            return getExercise(by: exerciseId)
+            return self.getExercise(by: exerciseId)
         }
     }
-    
+
     func recordExerciseUsage(exerciseId: UUID) async {
         guard let exercise = getExercise(by: exerciseId) else { return }
-        await metadataService.updateLastUsed(for: exerciseId, name: exercise.name)
+        await self.metadataService.updateLastUsed(for: exerciseId, name: exercise.name)
     }
 }
 
@@ -166,8 +165,8 @@ extension ExerciseService {
         guard let enhancedMuscleGroup = MuscleGroup(rawValue: muscleGroup.rawValue) else {
             return []
         }
-        
-        return getExercises(for: enhancedMuscleGroup, availableEquipment: availableEquipment)
-            .map { $0.legacyExercise }
+
+        return self.getExercises(for: enhancedMuscleGroup, availableEquipment: availableEquipment)
+            .map(\.legacyExercise)
     }
 }

@@ -2,19 +2,19 @@ import XCTest
 
 final class ExerciseUITestsBasic: XCTestCase {
     var app: XCUIApplication!
-    
+
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launch()
+        self.app = XCUIApplication()
+        self.app.launch()
     }
-    
+
     override func tearDownWithError() throws {
-        app = nil
+        self.app = nil
     }
-    
+
     func testAppLaunches() throws {
         // Simple test to verify the app launches
-        XCTAssertTrue(app.exists)
+        XCTAssertTrue(self.app.exists)
     }
 }

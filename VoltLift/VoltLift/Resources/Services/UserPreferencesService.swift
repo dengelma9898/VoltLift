@@ -5,17 +5,16 @@
 //  Created by Kiro on 15.9.2025.
 //
 
-import Foundation
-import CoreData
 import Combine
+import CoreData
+import Foundation
 
 /// Service responsible for managing user equipment preferences and workout plans
 /// Provides persistent storage using Core Data with error handling and retry logic
 @MainActor
 class UserPreferencesService: ObservableObject {
-    
     // MARK: - Published Properties
-    
+
     @Published var selectedEquipment: [EquipmentItem] = []
     @Published var savedPlans: [WorkoutPlanData] = []
     @Published var hasCompletedSetup: Bool = false
@@ -25,51 +24,51 @@ class UserPreferencesService: ObservableObject {
     @Published var operationInProgress: String?
     @Published var showingErrorAlert: Bool = false
     @Published var errorRecoveryOptions: [ErrorRecoveryOption] = []
-    
+
     // MARK: - Private Properties
-    
+
     private let persistenceController: PersistenceController
     private let maxRetryAttempts: Int = 3
     private let retryDelay: TimeInterval = 1.0
-    
+
     // Performance optimization properties
     private var lazyLoadedPlans: [UUID: WorkoutPlanData] = [:]
     private var planMetadataCache: [WorkoutPlanMetadata] = []
     private let backgroundQueue = DispatchQueue(label: "com.voltlift.userpreferences.background", qos: .utility)
     private let batchSize: Int = 50
-    
+
     // MARK: - Internal Properties for Testing
-    
+
     /// Internal access to lazy loaded plans count for testing purposes
-    internal var cachedPlansCount: Int {
-        return lazyLoadedPlans.count
+    var cachedPlansCount: Int {
+        self.lazyLoadedPlans.count
     }
-    
+
     // MARK: - Initialization
-    
+
     init(persistenceController: PersistenceController = .shared) {
         self.persistenceController = persistenceController
     }
-    
+
     // MARK: - Equipment Management
-    
+
     /// Loads selected equipment from Core Data
     /// - Throws: UserPreferencesError if loading fails
     func loadSelectedEquipment() async throws {
         setLoadingState(true, message: "Loading your equipment...")
-        operationInProgress = "Loading equipment"
-        defer { 
+        self.operationInProgress = "Loading equipment"
+        defer {
             isLoading = false
             loadingMessage = ""
             operationInProgress = nil
         }
-        
+
         do {
             let equipment = try await performWithRetry {
                 try await self.fetchEquipmentFromCoreData()
             }
-            
-            selectedEquipment = equipment
+
+            self.selectedEquipment = equipment
             clearError()
         } catch {
             let preferencesError = mapError(error, operation: "load equipment")
@@ -77,25 +76,25 @@ class UserPreferencesService: ObservableObject {
             throw preferencesError
         }
     }
-    
+
     /// Saves equipment selection to Core Data
     /// - Parameter equipment: Array of equipment items to save
     /// - Throws: UserPreferencesError if saving fails
     func saveEquipmentSelection(_ equipment: [EquipmentItem]) async throws {
         setLoadingState(true, message: "Saving your equipment selection...")
-        operationInProgress = "Saving equipment"
-        defer { 
+        self.operationInProgress = "Saving equipment"
+        defer {
             isLoading = false
             loadingMessage = ""
             operationInProgress = nil
         }
-        
+
         do {
             try await performWithRetry {
                 try await self.saveEquipmentToCoreData(equipment)
             }
-            
-            selectedEquipment = equipment
+
+            self.selectedEquipment = equipment
             clearError()
         } catch {
             let preferencesError = mapError(error, operation: "save equipment")
@@ -103,58 +102,58 @@ class UserPreferencesService: ObservableObject {
             throw preferencesError
         }
     }
-    
+
     /// Updates a single equipment item's selection status
     /// - Parameters:
     ///   - equipment: The equipment item to update
     ///   - isSelected: New selection status
     /// - Throws: UserPreferencesError if update fails
     func updateEquipmentSelection(_ equipment: EquipmentItem, isSelected: Bool) async throws {
-        isLoading = true
+        self.isLoading = true
         defer { isLoading = false }
-        
+
         do {
             try await performWithRetry {
                 try await self.updateEquipmentInCoreData(equipment, isSelected: isSelected)
             }
-            
+
             // Update local state
             if let index = selectedEquipment.firstIndex(where: { $0.id == equipment.id }) {
-                selectedEquipment[index] = EquipmentItem(
+                self.selectedEquipment[index] = EquipmentItem(
                     id: equipment.id,
                     name: equipment.name,
                     category: equipment.category,
                     isSelected: isSelected
                 )
             }
-            
-            lastError = nil
+
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "update equipment")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     // MARK: - Workout Plan Management
-    
+
     /// Loads all saved workout plans from Core Data
     /// - Throws: UserPreferencesError if loading fails
     func loadSavedPlans() async throws {
         setLoadingState(true, message: "Loading your workout plans...")
-        operationInProgress = "Loading plans"
-        defer { 
+        self.operationInProgress = "Loading plans"
+        defer {
             isLoading = false
             loadingMessage = ""
             operationInProgress = nil
         }
-        
+
         do {
             let plans = try await performWithRetry {
                 try await self.fetchPlansFromCoreData()
             }
-            
-            savedPlans = plans
+
+            self.savedPlans = plans
             clearError()
         } catch {
             let preferencesError = mapError(error, operation: "load plans")
@@ -162,84 +161,84 @@ class UserPreferencesService: ObservableObject {
             throw preferencesError
         }
     }
-    
+
     /// Saves a workout plan with automatic JSON serialization
     /// - Parameters:
     ///   - plan: The workout plan data to save
     ///   - name: Custom name for the plan (optional, uses plan.name if nil)
     /// - Throws: UserPreferencesError if saving fails
     func savePlan(_ plan: WorkoutPlanData, name: String? = nil) async throws {
-        isLoading = true
+        self.isLoading = true
         defer { isLoading = false }
-        
+
         do {
             let planToSave = name != nil ? WorkoutPlanData(
                 id: plan.id,
-                name: name!,
+                name: name ?? plan.name,
                 exercises: plan.exercises,
                 createdDate: plan.createdDate,
                 lastUsedDate: plan.lastUsedDate
             ) : plan
-            
+
             try await performWithRetry {
                 try await self.savePlanToCoreData(planToSave)
             }
-            
+
             // Update local state
             if let index = savedPlans.firstIndex(where: { $0.id == planToSave.id }) {
-                savedPlans[index] = planToSave
+                self.savedPlans[index] = planToSave
             } else {
-                savedPlans.append(planToSave)
+                self.savedPlans.append(planToSave)
             }
-            
-            lastError = nil
+
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "save plan")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     /// Deletes a workout plan by ID
     /// - Parameter planId: UUID of the plan to delete
     /// - Throws: UserPreferencesError if deletion fails
     func deletePlan(_ planId: UUID) async throws {
-        isLoading = true
+        self.isLoading = true
         defer { isLoading = false }
-        
+
         do {
             try await performWithRetry {
                 try await self.deletePlanFromCoreData(planId)
             }
-            
+
             // Update local state
-            savedPlans.removeAll { $0.id == planId }
-            lastError = nil
+            self.savedPlans.removeAll { $0.id == planId }
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "delete plan")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     /// Renames a workout plan
     /// - Parameters:
     ///   - planId: UUID of the plan to rename
     ///   - newName: New name for the plan
     /// - Throws: UserPreferencesError if renaming fails
     func renamePlan(_ planId: UUID, newName: String) async throws {
-        isLoading = true
+        self.isLoading = true
         defer { isLoading = false }
-        
+
         do {
             try await performWithRetry {
                 try await self.renamePlanInCoreData(planId, newName: newName)
             }
-            
+
             // Update local state
             if let index = savedPlans.firstIndex(where: { $0.id == planId }) {
-                let existingPlan = savedPlans[index]
-                savedPlans[index] = WorkoutPlanData(
+                let existingPlan = self.savedPlans[index]
+                self.savedPlans[index] = WorkoutPlanData(
                     id: existingPlan.id,
                     name: newName,
                     exercises: existingPlan.exercises,
@@ -247,33 +246,33 @@ class UserPreferencesService: ObservableObject {
                     lastUsedDate: existingPlan.lastUsedDate
                 )
             }
-            
-            lastError = nil
+
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "rename plan")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     /// Marks a workout plan as used by updating its last used date
     /// - Parameter planId: UUID of the plan to mark as used
     /// - Throws: UserPreferencesError if update fails
     func markPlanAsUsed(_ planId: UUID) async throws {
-        isLoading = true
+        self.isLoading = true
         defer { isLoading = false }
-        
+
         do {
             let currentDate = Date()
-            
+
             try await performWithRetry {
                 try await self.updatePlanLastUsedDate(planId, date: currentDate)
             }
-            
+
             // Update local state
             if let index = savedPlans.firstIndex(where: { $0.id == planId }) {
-                let existingPlan = savedPlans[index]
-                savedPlans[index] = WorkoutPlanData(
+                let existingPlan = self.savedPlans[index]
+                self.savedPlans[index] = WorkoutPlanData(
                     id: existingPlan.id,
                     name: existingPlan.name,
                     exercises: existingPlan.exercises,
@@ -281,17 +280,17 @@ class UserPreferencesService: ObservableObject {
                     lastUsedDate: currentDate
                 )
             }
-            
-            lastError = nil
+
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "mark plan as used")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     // MARK: - Setup State Management
-    
+
     /// Checks if user has completed initial setup
     /// - Returns: True if setup is complete, false otherwise
     /// - Throws: UserPreferencesError if check fails
@@ -300,32 +299,32 @@ class UserPreferencesService: ObservableObject {
             let hasEquipment = try await performWithRetry {
                 try await self.hasSelectedEquipmentInCoreData()
             }
-            
-            hasCompletedSetup = hasEquipment
-            lastError = nil
+
+            self.hasCompletedSetup = hasEquipment
+            self.lastError = nil
             return hasEquipment
         } catch {
             let preferencesError = mapError(error, operation: "check setup completion")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
-    
+
     /// Marks setup as complete by ensuring equipment selection exists
     /// - Throws: UserPreferencesError if marking fails
     func markSetupComplete() async throws {
         do {
             let isComplete = try await checkSetupCompletion()
-            
+
             if !isComplete {
                 throw UserPreferencesError.invalidData(field: "equipment selection")
             }
-            
-            hasCompletedSetup = true
-            lastError = nil
+
+            self.hasCompletedSetup = true
+            self.lastError = nil
         } catch {
             let preferencesError = mapError(error, operation: "mark setup complete")
-            lastError = preferencesError
+            self.lastError = preferencesError
             throw preferencesError
         }
     }
@@ -334,21 +333,20 @@ class UserPreferencesService: ObservableObject {
 // MARK: - Private Core Data Methods
 
 private extension UserPreferencesService {
-    
     /// Fetches equipment from Core Data
     /// - Returns: Array of EquipmentItem
     /// - Throws: Error if fetch fails
     func fetchEquipmentFromCoreData() async throws -> [EquipmentItem] {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<UserEquipment> = UserEquipment.fetchRequest()
                     request.sortDescriptors = [NSSortDescriptor(keyPath: \UserEquipment.name, ascending: true)]
-                    
+
                     let coreDataEquipment = try context.fetch(request)
-                    
+
                     let equipment = coreDataEquipment.map { entity in
                         EquipmentItem(
                             id: entity.equipmentId ?? UUID().uuidString,
@@ -357,7 +355,7 @@ private extension UserPreferencesService {
                             isSelected: entity.isSelected
                         )
                     }
-                    
+
                     continuation.resume(returning: equipment)
                 } catch {
                     continuation.resume(throwing: error)
@@ -365,14 +363,14 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Saves equipment to Core Data
     /// - Parameter equipment: Array of EquipmentItem to save
     /// - Throws: Error if save fails
     func saveEquipmentToCoreData(_ equipment: [EquipmentItem]) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     // Clear existing equipment
@@ -380,7 +378,7 @@ private extension UserPreferencesService {
                         fetchRequest: UserEquipment.fetchRequest() as! NSFetchRequest<NSFetchRequestResult>
                     )
                     try context.execute(deleteRequest)
-                    
+
                     // Add new equipment
                     for item in equipment {
                         let entity = UserEquipment(context: context)
@@ -390,7 +388,7 @@ private extension UserPreferencesService {
                         entity.isSelected = item.isSelected
                         entity.dateAdded = Date()
                     }
-                    
+
                     try context.save()
                     continuation.resume()
                 } catch {
@@ -399,24 +397,24 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Updates a single equipment item in Core Data
     /// - Parameters:
     ///   - equipment: Equipment item to update
     ///   - isSelected: New selection status
     /// - Throws: Error if update fails
     func updateEquipmentInCoreData(_ equipment: EquipmentItem, isSelected: Bool) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<UserEquipment> = UserEquipment.fetchRequest()
                     request.predicate = NSPredicate(format: "equipmentId == %@", equipment.id)
                     request.fetchLimit = 1
-                    
+
                     let results = try context.fetch(request)
-                    
+
                     if let entity = results.first {
                         entity.isSelected = isSelected
                     } else {
@@ -428,7 +426,7 @@ private extension UserPreferencesService {
                         entity.isSelected = isSelected
                         entity.dateAdded = Date()
                     }
-                    
+
                     try context.save()
                     continuation.resume()
                 } catch {
@@ -437,20 +435,20 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Checks if user has selected equipment in Core Data
     /// - Returns: True if equipment exists, false otherwise
     /// - Throws: Error if check fails
     func hasSelectedEquipmentInCoreData() async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<UserEquipment> = UserEquipment.fetchRequest()
                     request.predicate = NSPredicate(format: "isSelected == YES")
                     request.fetchLimit = 1
-                    
+
                     let count = try context.count(for: request)
                     continuation.resume(returning: count > 0)
                 } catch {
@@ -459,14 +457,14 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Fetches all workout plans from Core Data
     /// - Returns: Array of WorkoutPlanData
     /// - Throws: Error if fetch fails
     func fetchPlansFromCoreData() async throws -> [WorkoutPlanData] {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<WorkoutPlan> = WorkoutPlan.fetchRequest()
@@ -474,20 +472,21 @@ private extension UserPreferencesService {
                         NSSortDescriptor(keyPath: \WorkoutPlan.lastUsedDate, ascending: false),
                         NSSortDescriptor(keyPath: \WorkoutPlan.createdDate, ascending: false)
                     ]
-                    
+
                     let coreDataPlans = try context.fetch(request)
-                    
+
                     let plans = try coreDataPlans.compactMap { entity -> WorkoutPlanData? in
                         guard let planId = entity.planId,
                               let name = entity.name,
                               let createdDate = entity.createdDate,
-                              let planData = entity.planData else {
+                              let planData = entity.planData
+                        else {
                             return nil
                         }
-                        
+
                         // Deserialize exercises from JSON
                         let exercises = try self.deserializeExercises(from: planData)
-                        
+
                         return WorkoutPlanData(
                             id: planId,
                             name: name,
@@ -496,7 +495,7 @@ private extension UserPreferencesService {
                             lastUsedDate: entity.lastUsedDate
                         )
                     }
-                    
+
                     continuation.resume(returning: plans)
                 } catch {
                     continuation.resume(throwing: error)
@@ -504,27 +503,27 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Saves a workout plan to Core Data with JSON serialization
     /// - Parameter plan: WorkoutPlanData to save
     /// - Throws: Error if save fails
     func savePlanToCoreData(_ plan: WorkoutPlanData) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     // Check if plan already exists
                     let request: NSFetchRequest<WorkoutPlan> = WorkoutPlan.fetchRequest()
                     request.predicate = NSPredicate(format: "planId == %@", plan.id as CVarArg)
                     request.fetchLimit = 1
-                    
+
                     let existingPlans = try context.fetch(request)
                     let entity = existingPlans.first ?? WorkoutPlan(context: context)
-                    
+
                     // Serialize exercises to JSON
                     let exerciseData = try self.serializeExercises(plan.exercises)
-                    
+
                     // Update entity properties
                     entity.planId = plan.id
                     entity.name = plan.name
@@ -532,7 +531,7 @@ private extension UserPreferencesService {
                     entity.lastUsedDate = plan.lastUsedDate
                     entity.exerciseCount = Int32(plan.exerciseCount)
                     entity.planData = exerciseData
-                    
+
                     try context.save()
                     continuation.resume()
                 } catch {
@@ -541,27 +540,27 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Deletes a workout plan from Core Data
     /// - Parameter planId: UUID of the plan to delete
     /// - Throws: Error if deletion fails
     func deletePlanFromCoreData(_ planId: UUID) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<WorkoutPlan> = WorkoutPlan.fetchRequest()
                     request.predicate = NSPredicate(format: "planId == %@", planId as CVarArg)
                     request.fetchLimit = 1
-                    
+
                     let plans = try context.fetch(request)
-                    
+
                     guard let planToDelete = plans.first else {
                         continuation.resume(throwing: UserPreferencesError.planNotFound(id: planId))
                         return
                     }
-                    
+
                     context.delete(planToDelete)
                     try context.save()
                     continuation.resume()
@@ -571,29 +570,29 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Renames a workout plan in Core Data
     /// - Parameters:
     ///   - planId: UUID of the plan to rename
     ///   - newName: New name for the plan
     /// - Throws: Error if renaming fails
     func renamePlanInCoreData(_ planId: UUID, newName: String) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<WorkoutPlan> = WorkoutPlan.fetchRequest()
                     request.predicate = NSPredicate(format: "planId == %@", planId as CVarArg)
                     request.fetchLimit = 1
-                    
+
                     let plans = try context.fetch(request)
-                    
+
                     guard let planToRename = plans.first else {
                         continuation.resume(throwing: UserPreferencesError.planNotFound(id: planId))
                         return
                     }
-                    
+
                     planToRename.name = newName
                     try context.save()
                     continuation.resume()
@@ -603,29 +602,29 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     /// Updates the last used date for a workout plan
     /// - Parameters:
     ///   - planId: UUID of the plan to update
     ///   - date: New last used date
     /// - Throws: Error if update fails
     func updatePlanLastUsedDate(_ planId: UUID, date: Date) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            let context = persistenceController.newBackgroundContext()
-            
+        try await withCheckedThrowingContinuation { continuation in
+            let context = self.persistenceController.newBackgroundContext()
+
             context.perform {
                 do {
                     let request: NSFetchRequest<WorkoutPlan> = WorkoutPlan.fetchRequest()
                     request.predicate = NSPredicate(format: "planId == %@", planId as CVarArg)
                     request.fetchLimit = 1
-                    
+
                     let plans = try context.fetch(request)
-                    
+
                     guard let planToUpdate = plans.first else {
                         continuation.resume(throwing: UserPreferencesError.planNotFound(id: planId))
                         return
                     }
-                    
+
                     planToUpdate.lastUsedDate = date
                     try context.save()
                     continuation.resume()
@@ -635,9 +634,9 @@ private extension UserPreferencesService {
             }
         }
     }
-    
+
     // MARK: - JSON Serialization Helpers
-    
+
     /// Serializes exercises to JSON data
     /// - Parameter exercises: Array of ExerciseData to serialize
     /// - Returns: JSON data
@@ -647,7 +646,7 @@ private extension UserPreferencesService {
         encoder.dateEncodingStrategy = .iso8601
         return try encoder.encode(exercises)
     }
-    
+
     /// Deserializes exercises from JSON data
     /// - Parameter data: JSON data to deserialize
     /// - Returns: Array of ExerciseData
@@ -662,37 +661,36 @@ private extension UserPreferencesService {
 // MARK: - Error Handling and Recovery
 
 extension UserPreferencesService {
-    
     /// Sets the loading state with an optional message
     /// - Parameters:
     ///   - loading: Whether loading is in progress
     ///   - message: Optional loading message to display
     private func setLoadingState(_ loading: Bool, message: String = "") {
-        isLoading = loading
-        loadingMessage = message
+        self.isLoading = loading
+        self.loadingMessage = message
     }
-    
+
     /// Clears the current error state
     func clearError() {
-        lastError = nil
-        showingErrorAlert = false
-        errorRecoveryOptions = []
+        self.lastError = nil
+        self.showingErrorAlert = false
+        self.errorRecoveryOptions = []
     }
-    
+
     /// Handles an error by setting appropriate state and recovery options
     /// - Parameters:
     ///   - error: The error to handle
     ///   - operation: Description of the operation that failed
     func handleError(_ error: UserPreferencesError, operation: String) {
-        lastError = error
-        errorRecoveryOptions = createRecoveryOptions(for: error, operation: operation)
-        
+        self.lastError = error
+        self.errorRecoveryOptions = self.createRecoveryOptions(for: error, operation: operation)
+
         // Show alert for critical errors or non-recoverable errors
         if error.severity == .critical || !error.isRecoverable {
-            showingErrorAlert = true
+            self.showingErrorAlert = true
         }
     }
-    
+
     /// Creates recovery options for a given error
     /// - Parameters:
     ///   - error: The error to create recovery options for
@@ -700,7 +698,7 @@ extension UserPreferencesService {
     /// - Returns: Array of recovery options
     private func createRecoveryOptions(for error: UserPreferencesError, operation: String) -> [ErrorRecoveryOption] {
         var options: [ErrorRecoveryOption] = []
-        
+
         // Add retry option for retryable errors
         if error.canRetry {
             options.append(ErrorRecoveryOption(
@@ -710,7 +708,7 @@ extension UserPreferencesService {
                 // Implementation would retry the last operation
             })
         }
-        
+
         // Always add dismiss option
         options.append(ErrorRecoveryOption(
             title: "Dismiss",
@@ -718,40 +716,41 @@ extension UserPreferencesService {
         ) {
             await self.clearError()
         })
-        
+
         return options
     }
-    
+
     /// Performs an operation with retry logic
     /// - Parameter operation: The async operation to perform
     /// - Returns: Result of the operation
     /// - Throws: Error if all retry attempts fail
     func performWithRetry<T>(_ operation: @escaping () async throws -> T) async throws -> T {
         var lastError: Error?
-        
-        for attempt in 1...maxRetryAttempts {
+
+        for attempt in 1 ... self.maxRetryAttempts {
             do {
                 return try await operation()
             } catch {
                 lastError = error
-                
+
                 // Don't retry for certain error types
                 if let preferencesError = error as? UserPreferencesError,
-                   !preferencesError.canRetry {
+                   !preferencesError.canRetry
+                {
                     throw error
                 }
-                
+
                 // Wait before retrying (exponential backoff)
-                if attempt < maxRetryAttempts {
-                    let delay = retryDelay * pow(2.0, Double(attempt - 1))
+                if attempt < self.maxRetryAttempts {
+                    let delay = self.retryDelay * pow(2.0, Double(attempt - 1))
                     try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 }
             }
         }
-        
+
         throw lastError ?? UserPreferencesError.operationTimeout
     }
-    
+
     /// Maps generic errors to UserPreferencesError
     /// - Parameters:
     ///   - error: The original error
@@ -761,7 +760,7 @@ extension UserPreferencesService {
         if let preferencesError = error as? UserPreferencesError {
             return preferencesError
         }
-        
+
         // Map Core Data errors
         if let nsError = error as NSError? {
             switch nsError.code {
@@ -775,7 +774,7 @@ extension UserPreferencesService {
                 break
             }
         }
-        
+
         // Default mapping
         if operation.contains("save") {
             return .saveFailure(underlying: error.localizedDescription)

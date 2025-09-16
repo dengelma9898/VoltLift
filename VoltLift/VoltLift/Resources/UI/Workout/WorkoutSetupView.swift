@@ -1,5 +1,7 @@
 import SwiftUI
 
+// swiftlint:disable type_body_length
+
 struct WorkoutSetupView: View {
     struct Equipment: Identifiable, Hashable {
         let id = UUID()
@@ -39,18 +41,18 @@ struct WorkoutSetupView: View {
     @State private var preferencesError: UserPreferencesError?
     @State private var selectedPlanForWorkout: WorkoutPlanData?
     @State private var showingWorkoutExecution = false
-    
+
     // Computed property to get current selected equipment from service
     private var currentSelectedEquipment: [Equipment] {
-        return userPreferencesService.selectedEquipment.compactMap { item in
+        self.userPreferencesService.selectedEquipment.compactMap { item in
             guard item.isSelected else { return nil }
-            return Equipment(name: item.name, icon: getIconForEquipment(item.name))
+            return Equipment(name: item.name, icon: self.getIconForEquipment(item.name))
         }
     }
-    
+
     // Use service state for UI decisions
     private var hasSelectedEquipment: Bool {
-        return !currentSelectedEquipment.isEmpty
+        !self.currentSelectedEquipment.isEmpty
     }
 
     var body: some View {
@@ -59,7 +61,7 @@ struct WorkoutSetupView: View {
                 self.header
 
                 // Show loading state
-                if isLoadingPreferences {
+                if self.isLoadingPreferences {
                     VLGlassCard {
                         HStack(spacing: DesignSystem.Spacing.m) {
                             ProgressView()
@@ -87,10 +89,10 @@ struct WorkoutSetupView: View {
                             Text(error.localizedDescription)
                                 .font(DesignSystem.Typography.callout)
                                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                            
+
                             Button("Retry") {
                                 Task {
-                                    await loadUserPreferences()
+                                    await self.loadUserPreferences()
                                 }
                             }
                             .buttonStyle(VLSecondaryButtonStyle())
@@ -98,7 +100,9 @@ struct WorkoutSetupView: View {
                     }
                 }
 
-                if false && !hasSelectedEquipment && !isLoadingPreferences { // Temporarily disable equipment requirement
+                if false, !self.hasSelectedEquipment,
+                   !self.isLoadingPreferences
+                { // Temporarily disable equipment requirement
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             Text("Add your equipment")
@@ -109,12 +113,12 @@ struct WorkoutSetupView: View {
                                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
 
                             NavigationLink {
-                                EquipmentSetupView(initialSelection: Set(currentSelectedEquipment
+                                EquipmentSetupView(initialSelection: Set(self.currentSelectedEquipment
                                         .map(\.name)
                                 )) { equipment in
                                     Task { @MainActor in
                                         self.selectedEquipment = equipment
-                                        await saveEquipmentSelection(equipment)
+                                        await self.saveEquipmentSelection(equipment)
                                     }
                                 }
                             } label: {
@@ -124,7 +128,7 @@ struct WorkoutSetupView: View {
                     }
                 }
 
-                if self.plans.isEmpty && !isLoadingPreferences { // Allow plan creation without equipment for testing
+                if self.plans.isEmpty, !self.isLoadingPreferences { // Allow plan creation without equipment for testing
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             Text("Create your first plan")
@@ -135,15 +139,15 @@ struct WorkoutSetupView: View {
                                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
 
                             NavigationLink {
-                                PlanCreationView(selectedEquipmentNames: Set(currentSelectedEquipment
+                                PlanCreationView(selectedEquipmentNames: Set(self.currentSelectedEquipment
                                         .map(\.name)
                                 )) { newPlans in
                                     self.plans = newPlans
                                     // Save plans immediately to UserPreferencesService
                                     Task {
-                                        await savePlans(newPlans)
+                                        await self.savePlans(newPlans)
                                         // Refresh saved plans to show the newly created plan
-                                        try? await userPreferencesService.loadSavedPlans()
+                                        try? await self.userPreferencesService.loadSavedPlans()
                                         // Clear local plans since they're now saved
                                         await MainActor.run {
                                             self.plans = []
@@ -160,9 +164,9 @@ struct WorkoutSetupView: View {
                 if !self.plans.isEmpty {
                     self.plansSection
                 }
-                
+
                 // Saved Plans Section
-                if !userPreferencesService.savedPlans.isEmpty {
+                if !self.userPreferencesService.savedPlans.isEmpty {
                     self.savedPlansSection
                 }
 
@@ -176,17 +180,17 @@ struct WorkoutSetupView: View {
         .navigationBarTitleDisplayMode(.large)
         .vlBrandBackground()
         .task {
-            await loadUserPreferences()
+            await self.loadUserPreferences()
         }
-        .fullScreenCover(isPresented: $showingWorkoutExecution) {
+        .fullScreenCover(isPresented: self.$showingWorkoutExecution) {
             if let selectedPlan = selectedPlanForWorkout {
                 WorkoutExecutionView(workoutPlan: selectedPlan) {
                     // Workout completed - refresh plans to update last used date
                     Task {
-                        await loadUserPreferences()
+                        await self.loadUserPreferences()
                     }
                 }
-                .environmentObject(userPreferencesService)
+                .environmentObject(self.userPreferencesService)
             }
         }
     }
@@ -211,7 +215,7 @@ struct WorkoutSetupView: View {
 
                 ForEach(self.plans) { plan in
                     Button {
-                        startWorkoutWithNewPlan(plan)
+                        self.startWorkoutWithNewPlan(plan)
                     } label: {
                         VLListRow(plan.name, subtitle: "\(plan.exercises.count) exercises") {
                             Image(systemName: "list.bullet.rectangle")
@@ -222,7 +226,7 @@ struct WorkoutSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    
+
                     if plan.id != self.plans.last?.id {
                         Divider().opacity(0.2)
                     }
@@ -230,7 +234,7 @@ struct WorkoutSetupView: View {
             }
         }
     }
-    
+
     private var savedPlansSection: some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
@@ -238,9 +242,9 @@ struct WorkoutSetupView: View {
                     Text("Saved Plans")
                         .font(DesignSystem.Typography.titleS)
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                    
+
                     Spacer()
-                    
+
                     NavigationLink {
                         SavedPlansView()
                     } label: {
@@ -250,9 +254,9 @@ struct WorkoutSetupView: View {
                     }
                 }
 
-                ForEach(Array(userPreferencesService.savedPlans.prefix(3))) { plan in
+                ForEach(Array(self.userPreferencesService.savedPlans.prefix(3))) { plan in
                     Button {
-                        startWorkoutWithSavedPlan(plan)
+                        self.startWorkoutWithSavedPlan(plan)
                     } label: {
                         VLListRow(plan.name, subtitle: "\(plan.exerciseCount) exercises") {
                             Image(systemName: "bookmark.fill")
@@ -261,9 +265,9 @@ struct WorkoutSetupView: View {
                             VStack(alignment: .trailing, spacing: 2) {
                                 Image(systemName: "play.fill")
                                     .foregroundColor(DesignSystem.ColorRole.primary)
-                                
+
                                 if let lastUsed = plan.lastUsedDate {
-                                    Text(formatRelativeDate(lastUsed))
+                                    Text(self.formatRelativeDate(lastUsed))
                                         .font(DesignSystem.Typography.caption)
                                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                                 }
@@ -271,8 +275,8 @@ struct WorkoutSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    
-                    if plan.id != userPreferencesService.savedPlans.prefix(3).last?.id {
+
+                    if plan.id != self.userPreferencesService.savedPlans.prefix(3).last?.id {
                         Divider().opacity(0.2)
                     }
                 }
@@ -282,10 +286,10 @@ struct WorkoutSetupView: View {
 
     private var equipmentSection: some View {
         NavigationLink {
-            EquipmentSetupView(initialSelection: Set(currentSelectedEquipment.map(\.name))) { equipment in
+            EquipmentSetupView(initialSelection: Set(self.currentSelectedEquipment.map(\.name))) { equipment in
                 Task { @MainActor in
                     self.selectedEquipment = equipment
-                    await saveEquipmentSelection(equipment)
+                    await self.saveEquipmentSelection(equipment)
                 }
             }
         } label: {
@@ -295,7 +299,7 @@ struct WorkoutSetupView: View {
                         .font(DesignSystem.Typography.titleS)
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     Spacer()
-                    Text("\(currentSelectedEquipment.count)")
+                    Text("\(self.currentSelectedEquipment.count)")
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     Image(systemName: "pencil.circle")
@@ -305,29 +309,29 @@ struct WorkoutSetupView: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     // MARK: - Private Methods
-    
+
     /// Loads user preferences from UserPreferencesService
     private func loadUserPreferences() async {
-        isLoadingPreferences = true
-        preferencesError = nil
-        
+        self.isLoadingPreferences = true
+        self.preferencesError = nil
+
         do {
             // Load equipment preferences
-            try await userPreferencesService.loadSelectedEquipment()
-            
+            try await self.userPreferencesService.loadSelectedEquipment()
+
             // Convert EquipmentItem to local Equipment struct
-            selectedEquipment = userPreferencesService.selectedEquipment.compactMap { item in
+            self.selectedEquipment = self.userPreferencesService.selectedEquipment.compactMap { item in
                 guard item.isSelected else { return nil }
-                return Equipment(name: item.name, icon: getIconForEquipment(item.name))
+                return Equipment(name: item.name, icon: self.getIconForEquipment(item.name))
             }
-            
+
             // Load saved plans
-            try await userPreferencesService.loadSavedPlans()
-            
+            try await self.userPreferencesService.loadSavedPlans()
+
             // Convert WorkoutPlanData to local Plan struct
-            plans = userPreferencesService.savedPlans.map { planData in
+            self.plans = self.userPreferencesService.savedPlans.map { planData in
                 let exercises = planData.exercises.map { exerciseData in
                     Exercise(
                         name: exerciseData.name,
@@ -337,35 +341,35 @@ struct WorkoutSetupView: View {
                 }
                 return Plan(name: planData.name, exercises: exercises)
             }
-            
+
         } catch {
-            preferencesError = error as? UserPreferencesError ?? 
+            self.preferencesError = error as? UserPreferencesError ??
                 UserPreferencesError.loadFailure(underlying: error.localizedDescription)
         }
-        
-        isLoadingPreferences = false
+
+        self.isLoadingPreferences = false
     }
-    
+
     /// Saves equipment selection to UserPreferencesService
     private func saveEquipmentSelection(_ equipment: [Equipment]) async {
         // Convert local Equipment to EquipmentItem
-        let equipmentItems = availableEquipment.map { available in
+        let equipmentItems = self.availableEquipment.map { available in
             EquipmentItem(
                 id: available.name,
                 name: available.name,
-                category: getCategoryForEquipment(available.name),
+                category: self.getCategoryForEquipment(available.name),
                 isSelected: equipment.contains { $0.name == available.name }
             )
         }
-        
+
         do {
-            try await userPreferencesService.saveEquipmentSelection(equipmentItems)
+            try await self.userPreferencesService.saveEquipmentSelection(equipmentItems)
         } catch {
-            preferencesError = error as? UserPreferencesError ?? 
+            self.preferencesError = error as? UserPreferencesError ??
                 UserPreferencesError.saveFailure(underlying: error.localizedDescription)
         }
     }
-    
+
     /// Saves workout plans to UserPreferencesService
     private func savePlans(_ plans: [Plan]) async {
         for plan in plans {
@@ -379,21 +383,21 @@ struct WorkoutSetupView: View {
                     orderIndex: index
                 )
             }
-            
+
             let planData = WorkoutPlanData(
                 name: plan.name,
                 exercises: exerciseData
             )
-            
+
             do {
-                try await userPreferencesService.savePlan(planData)
+                try await self.userPreferencesService.savePlan(planData)
             } catch {
-                preferencesError = error as? UserPreferencesError ?? 
+                self.preferencesError = error as? UserPreferencesError ??
                     UserPreferencesError.saveFailure(underlying: error.localizedDescription)
             }
         }
     }
-    
+
     /// Starts a workout with a newly created plan (automatically saves it first)
     private func startWorkoutWithNewPlan(_ plan: Plan) {
         Task {
@@ -408,71 +412,71 @@ struct WorkoutSetupView: View {
                     orderIndex: index
                 )
             }
-            
+
             let planData = WorkoutPlanData(
                 name: plan.name,
                 exercises: exerciseData
             )
-            
+
             do {
                 // Save the plan first
-                try await userPreferencesService.savePlan(planData)
-                
+                try await self.userPreferencesService.savePlan(planData)
+
                 // Start the workout
                 await MainActor.run {
-                    selectedPlanForWorkout = planData
-                    showingWorkoutExecution = true
+                    self.selectedPlanForWorkout = planData
+                    self.showingWorkoutExecution = true
                 }
             } catch {
-                preferencesError = error as? UserPreferencesError ?? 
+                self.preferencesError = error as? UserPreferencesError ??
                     UserPreferencesError.saveFailure(underlying: error.localizedDescription)
             }
         }
     }
-    
+
     /// Starts a workout with a saved plan
     private func startWorkoutWithSavedPlan(_ plan: WorkoutPlanData) {
-        selectedPlanForWorkout = plan
-        showingWorkoutExecution = true
+        self.selectedPlanForWorkout = plan
+        self.showingWorkoutExecution = true
     }
-    
+
     /// Formats a relative date string (e.g., "2 days ago")
     private func formatRelativeDate(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named
         return formatter.localizedString(for: date, relativeTo: Date())
     }
-    
+
     /// Gets icon name for equipment
     private func getIconForEquipment(_ name: String) -> String {
         switch name {
-        case "Dumbbells": return "dumbbell"
-        case "Resistance Bands": return "bolt.horizontal.circle"
-        case "Kettlebell": return "circle"
-        case "Barbell": return "dumbbell"
-        case "Weight Plates": return "circlebadge"
-        case "Pull-up Bar": return "figure.climbing"
-        case "Adjustable Bench": return "rectangle.portrait"
-        case "Yoga Mat": return "rectangle"
-        case "Jump Rope": return "figure.walk"
-        case "Foam Roller": return "capsule"
-        default: return "questionmark.circle"
+        case "Dumbbells": "dumbbell"
+        case "Resistance Bands": "bolt.horizontal.circle"
+        case "Kettlebell": "circle"
+        case "Barbell": "dumbbell"
+        case "Weight Plates": "circlebadge"
+        case "Pull-up Bar": "figure.climbing"
+        case "Adjustable Bench": "rectangle.portrait"
+        case "Yoga Mat": "rectangle"
+        case "Jump Rope": "figure.walk"
+        case "Foam Roller": "capsule"
+        default: "questionmark.circle"
         }
     }
-    
+
     /// Gets category for equipment
     private func getCategoryForEquipment(_ name: String) -> String {
         switch name {
-        case "Dumbbells", "Kettlebell", "Barbell", "Weight Plates": return "Weights"
-        case "Resistance Bands": return "Resistance"
-        case "Pull-up Bar": return "Bodyweight"
-        case "Adjustable Bench": return "Support"
-        case "Yoga Mat", "Foam Roller": return "Accessories"
-        case "Jump Rope": return "Cardio"
-        default: return "Other"
+        case "Dumbbells", "Kettlebell", "Barbell", "Weight Plates": "Weights"
+        case "Resistance Bands": "Resistance"
+        case "Pull-up Bar": "Bodyweight"
+        case "Adjustable Bench": "Support"
+        case "Yoga Mat", "Foam Roller": "Accessories"
+        case "Jump Rope": "Cardio"
+        default: "Other"
         }
     }
-    
+
     /// Available equipment list for reference
     private let availableEquipment: [Equipment] = [
         .init(name: "Dumbbells", icon: "dumbbell"),
@@ -487,6 +491,8 @@ struct WorkoutSetupView: View {
         .init(name: "Foam Roller", icon: "capsule")
     ]
 }
+
+// swiftlint:enable type_body_length
 
 struct EquipmentSetupView: View {
     let initialSelection: Set<String>
@@ -691,10 +697,10 @@ struct AddExerciseView: View {
                 HStack {
                     Spacer()
                     Button("Add \(self.selectedExercises.count)") {
-                        let selectedDisplayItems = self.exercisesWithHints.filter { 
-                            self.selectedExercises.contains($0.exercise.id) 
+                        let selectedDisplayItems = self.exercisesWithHints.filter {
+                            self.selectedExercises.contains($0.exercise.id)
                         }
-                        let legacyExercises = selectedDisplayItems.map { $0.exercise.legacyExercise }
+                        let legacyExercises = selectedDisplayItems.map(\.exercise.legacyExercise)
                         self.onAdd(self.selectedGroup, legacyExercises)
                         self.dismiss()
                     }
@@ -729,23 +735,27 @@ struct ExerciseRowView: View {
     let isSelected: Bool
     let onTap: () -> Void
     let onShowDetail: () -> Void
-    
+
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.m) {
             // Exercise icon
-            Image(systemName: displayItem.exercise.sfSymbolName)
-                .foregroundColor(displayItem.isAvailable ? DesignSystem.ColorRole.primary : DesignSystem.ColorRole.textSecondary)
+            Image(systemName: self.displayItem.exercise.sfSymbolName)
+                .foregroundColor(self.displayItem.isAvailable ? DesignSystem.ColorRole.primary : DesignSystem.ColorRole
+                    .textSecondary
+                )
                 .frame(width: 24, height: 24)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 // Exercise name
-                Text(displayItem.exercise.name)
+                Text(self.displayItem.exercise.name)
                     .font(DesignSystem.Typography.body)
-                    .foregroundColor(displayItem.isAvailable ? DesignSystem.ColorRole.textPrimary : DesignSystem.ColorRole.textSecondary)
-                
+                    .foregroundColor(self.displayItem.isAvailable ? DesignSystem.ColorRole.textPrimary : DesignSystem
+                        .ColorRole.textSecondary
+                    )
+
                 // Equipment status
                 HStack(spacing: DesignSystem.Spacing.s) {
-                    if displayItem.isAvailable {
+                    if self.displayItem.isAvailable {
                         // Available indicator
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark.circle.fill")
@@ -755,7 +765,7 @@ struct ExerciseRowView: View {
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.ColorRole.success)
                         }
-                    } else if displayItem.exercise.requiredEquipment.isEmpty {
+                    } else if self.displayItem.exercise.requiredEquipment.isEmpty {
                         // Bodyweight exercise
                         HStack(spacing: 4) {
                             Image(systemName: "figure.strengthtraining.traditional")
@@ -771,32 +781,34 @@ struct ExerciseRowView: View {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(DesignSystem.ColorRole.warning)
                                 .font(.caption)
-                            Text("Needs: \(displayItem.missingEquipment.sorted().joined(separator: ", "))")
+                            Text("Needs: \(self.displayItem.missingEquipment.sorted().joined(separator: ", "))")
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.ColorRole.warning)
                         }
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             // Info button for exercise details
-            Button(action: onShowDetail) {
+            Button(action: self.onShowDetail) {
                 Image(systemName: "info.circle")
                     .foregroundColor(DesignSystem.ColorRole.secondary)
                     .font(.title3)
             }
             .buttonStyle(.plain)
-            
+
             // Selection indicator
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .foregroundColor(isSelected ? DesignSystem.ColorRole.primary : DesignSystem.ColorRole.textSecondary)
+            Image(systemName: self.isSelected ? "checkmark.circle.fill" : "circle")
+                .foregroundColor(self.isSelected ? DesignSystem.ColorRole.primary : DesignSystem.ColorRole
+                    .textSecondary
+                )
                 .font(.title3)
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            onTap()
+            self.onTap()
         }
     }
 }

@@ -4,33 +4,33 @@ import SwiftUI
 struct VoltLiftApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject private var userPreferencesService = UserPreferencesService()
-    
+
     var body: some Scene {
         WindowGroup {
             MainTabView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .environmentObject(userPreferencesService)
+                .environment(\.managedObjectContext, self.persistenceController.container.viewContext)
+                .environmentObject(self.userPreferencesService)
                 .tint(DesignSystem.ColorRole.primary)
                 .preferredColorScheme(.dark)
-                .onAppear { 
+                .onAppear {
                     VLAppearance.applyBrandAppearance()
                     Task {
-                        await loadInitialPreferences()
+                        await self.loadInitialPreferences()
                     }
                 }
         }
     }
-    
+
     /// Loads initial user preferences on app launch
     private func loadInitialPreferences() async {
         do {
             // Check if setup is complete
             let isSetupComplete = try await userPreferencesService.checkSetupCompletion()
-            
+
             if isSetupComplete {
                 // Load equipment and plans if setup is complete
-                try await userPreferencesService.loadSelectedEquipment()
-                try await userPreferencesService.loadSavedPlans()
+                try await self.userPreferencesService.loadSelectedEquipment()
+                try await self.userPreferencesService.loadSavedPlans()
             }
         } catch {
             // Handle errors gracefully - the UI will show appropriate error states

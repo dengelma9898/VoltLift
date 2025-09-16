@@ -8,7 +8,7 @@ struct EquipmentItem: Identifiable, Codable, Equatable {
     let name: String
     let category: String
     var isSelected: Bool
-    
+
     init(id: String, name: String, category: String, isSelected: Bool = false) {
         self.id = id
         self.name = name
@@ -26,13 +26,19 @@ struct WorkoutPlanData: Identifiable, Codable, Equatable {
     let exercises: [ExerciseData]
     let createdDate: Date
     let lastUsedDate: Date?
-    
+
     /// Computed property for exercise count
     var exerciseCount: Int {
-        exercises.count
+        self.exercises.count
     }
-    
-    init(id: UUID = UUID(), name: String, exercises: [ExerciseData], createdDate: Date = Date(), lastUsedDate: Date? = nil) {
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        exercises: [ExerciseData],
+        createdDate: Date = Date(),
+        lastUsedDate: Date? = nil
+    ) {
         self.id = id
         self.name = name
         self.exercises = exercises
@@ -48,7 +54,7 @@ struct WorkoutPlanMetadata: Identifiable, Codable, Equatable {
     let exerciseCount: Int
     let createdDate: Date
     let lastUsedDate: Date?
-    
+
     init(id: UUID, name: String, exerciseCount: Int, createdDate: Date, lastUsedDate: Date? = nil) {
         self.id = id
         self.name = name
@@ -56,7 +62,7 @@ struct WorkoutPlanMetadata: Identifiable, Codable, Equatable {
         self.createdDate = createdDate
         self.lastUsedDate = lastUsedDate
     }
-    
+
     /// Creates metadata from a full WorkoutPlanData
     init(from planData: WorkoutPlanData) {
         self.id = planData.id
@@ -72,30 +78,30 @@ struct WorkoutPlanMetadata: Identifiable, Codable, Equatable {
 /// Represents the type of set within an exercise
 enum SetType: String, CaseIterable, Codable, Equatable {
     case warmUp = "warm_up"
-    case normal = "normal"
+    case normal
     case coolDown = "cool_down"
-    
+
     var displayName: String {
         switch self {
-        case .warmUp: return "Warm-up"
-        case .normal: return "Working Set"
-        case .coolDown: return "Cool-down"
+        case .warmUp: "Warm-up"
+        case .normal: "Working Set"
+        case .coolDown: "Cool-down"
         }
     }
-    
+
     var icon: String {
         switch self {
-        case .warmUp: return "thermometer.low"
-        case .normal: return "dumbbell.fill"
-        case .coolDown: return "leaf.fill"
+        case .warmUp: "thermometer.low"
+        case .normal: "dumbbell.fill"
+        case .coolDown: "leaf.fill"
         }
     }
-    
+
     var description: String {
         switch self {
-        case .warmUp: return "Preparation set with lighter weight"
-        case .normal: return "Main working set at target intensity"
-        case .coolDown: return "Recovery set with reduced intensity"
+        case .warmUp: "Preparation set with lighter weight"
+        case .normal: "Main working set at target intensity"
+        case .coolDown: "Recovery set with reduced intensity"
         }
     }
 }
@@ -109,7 +115,7 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
     let setType: SetType
     let isCompleted: Bool
     let completedAt: Date?
-    
+
     init(setNumber: Int, reps: Int = 10, weight: Double = 0.0, setType: SetType = .normal) {
         self.id = UUID()
         self.setNumber = setNumber
@@ -119,7 +125,7 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
         self.isCompleted = false
         self.completedAt = nil
     }
-    
+
     /// Creates a completed set with completion timestamp
     init(setNumber: Int, reps: Int, weight: Double, setType: SetType, completedAt: Date) {
         self.id = UUID()
@@ -130,7 +136,7 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
         self.isCompleted = true
         self.completedAt = completedAt
     }
-    
+
     /// Creates a copy of this set with updated completion status
     func withCompletion(isCompleted: Bool, completedAt: Date? = nil) -> ExerciseSet {
         ExerciseSet(
@@ -143,7 +149,7 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
             completedAt: isCompleted ? (completedAt ?? Date()) : nil
         )
     }
-    
+
     /// Creates a copy of this set with updated parameters
     func withUpdatedParameters(reps: Int? = nil, weight: Double? = nil, setType: SetType? = nil) -> ExerciseSet {
         ExerciseSet(
@@ -156,9 +162,17 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
             completedAt: self.completedAt
         )
     }
-    
+
     /// Private initializer for internal use with all parameters
-    private init(id: UUID, setNumber: Int, reps: Int, weight: Double, setType: SetType, isCompleted: Bool, completedAt: Date?) {
+    private init(
+        id: UUID,
+        setNumber: Int,
+        reps: Int,
+        weight: Double,
+        setType: SetType,
+        isCompleted: Bool,
+        completedAt: Date?
+    ) {
         self.id = id
         self.setNumber = setNumber
         self.reps = reps
@@ -176,46 +190,46 @@ struct ExerciseData: Identifiable, Codable, Equatable {
     let sets: [ExerciseSet]
     let restTime: Int
     let orderIndex: Int
-    
+
     // MARK: - Computed Properties for Backward Compatibility
-    
+
     /// Total number of sets in this exercise
     var totalSets: Int {
-        sets.count
+        self.sets.count
     }
-    
+
     /// Average repetitions across all sets
     var averageReps: Int {
-        guard !sets.isEmpty else { return 0 }
-        let totalReps = sets.map(\.reps).reduce(0, +)
-        return totalReps / sets.count
+        guard !self.sets.isEmpty else { return 0 }
+        let totalReps = self.sets.map(\.reps).reduce(0, +)
+        return totalReps / self.sets.count
     }
-    
+
     /// Average weight across all sets
     var averageWeight: Double {
-        guard !sets.isEmpty else { return 0.0 }
-        let totalWeight = sets.map(\.weight).reduce(0.0, +)
-        return totalWeight / Double(sets.count)
+        guard !self.sets.isEmpty else { return 0.0 }
+        let totalWeight = self.sets.map(\.weight).reduce(0.0, +)
+        return totalWeight / Double(self.sets.count)
     }
-    
+
     /// Number of completed sets
     var completedSets: Int {
-        sets.filter(\.isCompleted).count
+        self.sets.filter(\.isCompleted).count
     }
-    
+
     /// Progress percentage (0.0 to 1.0)
     var progressPercentage: Double {
-        guard !sets.isEmpty else { return 0.0 }
-        return Double(completedSets) / Double(totalSets)
+        guard !self.sets.isEmpty else { return 0.0 }
+        return Double(self.completedSets) / Double(self.totalSets)
     }
-    
+
     /// Whether all sets are completed
     var isCompleted: Bool {
-        !sets.isEmpty && sets.allSatisfy(\.isCompleted)
+        !self.sets.isEmpty && self.sets.allSatisfy(\.isCompleted)
     }
-    
+
     // MARK: - Initializers
-    
+
     /// Creates an exercise with detailed set configuration
     init(id: UUID = UUID(), name: String, sets: [ExerciseSet], restTime: Int, orderIndex: Int = 0) {
         self.id = id
@@ -224,22 +238,22 @@ struct ExerciseData: Identifiable, Codable, Equatable {
         self.restTime = restTime
         self.orderIndex = orderIndex
     }
-    
+
     /// Creates an exercise with simple parameters (backward compatibility)
     init(id: UUID = UUID(), name: String, sets: Int, reps: Int, weight: Double, restTime: Int, orderIndex: Int = 0) {
         self.id = id
         self.name = name
         self.restTime = restTime
         self.orderIndex = orderIndex
-        
+
         // Create ExerciseSet array from simple parameters
-        self.sets = (1...sets).map { setNumber in
+        self.sets = (1 ... sets).map { setNumber in
             ExerciseSet(setNumber: setNumber, reps: reps, weight: weight, setType: .normal)
         }
     }
-    
+
     // MARK: - Helper Methods
-    
+
     /// Creates a copy with updated sets
     func withUpdatedSets(_ newSets: [ExerciseSet]) -> ExerciseData {
         ExerciseData(
@@ -250,18 +264,18 @@ struct ExerciseData: Identifiable, Codable, Equatable {
             orderIndex: self.orderIndex
         )
     }
-    
+
     /// Gets sets grouped by type
     var setsByType: [SetType: [ExerciseSet]] {
-        Dictionary(grouping: sets, by: \.setType)
+        Dictionary(grouping: self.sets, by: \.setType)
     }
-    
+
     /// Gets sets in execution order (warm-up, normal, cool-down)
     var setsInExecutionOrder: [ExerciseSet] {
-        let warmUpSets = sets.filter { $0.setType == .warmUp }.sorted { $0.setNumber < $1.setNumber }
-        let normalSets = sets.filter { $0.setType == .normal }.sorted { $0.setNumber < $1.setNumber }
-        let coolDownSets = sets.filter { $0.setType == .coolDown }.sorted { $0.setNumber < $1.setNumber }
-        
+        let warmUpSets = self.sets.filter { $0.setType == .warmUp }.sorted { $0.setNumber < $1.setNumber }
+        let normalSets = self.sets.filter { $0.setType == .normal }.sorted { $0.setNumber < $1.setNumber }
+        let coolDownSets = self.sets.filter { $0.setType == .coolDown }.sorted { $0.setNumber < $1.setNumber }
+
         return warmUpSets + normalSets + coolDownSets
     }
 }
@@ -275,7 +289,7 @@ struct ErrorRecoveryOption: Identifiable {
     let description: String
     let action: () async -> Void
     let isDestructive: Bool
-    
+
     init(title: String, description: String, isDestructive: Bool = false, action: @escaping () async -> Void) {
         self.title = title
         self.description = description
@@ -299,132 +313,132 @@ enum UserPreferencesError: LocalizedError, Equatable {
     case operationTimeout
     case concurrentModification
     case migrationFailure(version: String)
-    
+
     var errorDescription: String? {
         switch self {
         case .saveFailure:
-            return "Failed to save your preferences. Please try again."
+            "Failed to save your preferences. Please try again."
         case .loadFailure:
-            return "Unable to load your saved data. Using defaults."
+            "Unable to load your saved data. Using defaults."
         case .dataCorruption:
-            return "Data corruption detected. Preferences will be reset."
-        case .invalidData(let field):
-            return "Invalid data detected in \(field). Please check your input."
+            "Data corruption detected. Preferences will be reset."
+        case let .invalidData(field):
+            "Invalid data detected in \(field). Please check your input."
         case .planNotFound:
-            return "The requested workout plan could not be found."
+            "The requested workout plan could not be found."
         case .equipmentNotFound:
-            return "The requested equipment item could not be found."
+            "The requested equipment item could not be found."
         case .networkUnavailable:
-            return "Network connection is unavailable. Some features may be limited."
+            "Network connection is unavailable. Some features may be limited."
         case .insufficientStorage:
-            return "Insufficient storage space. Please free up space and try again."
+            "Insufficient storage space. Please free up space and try again."
         case .operationTimeout:
-            return "The operation took too long to complete. Please try again."
+            "The operation took too long to complete. Please try again."
         case .concurrentModification:
-            return "Data was modified by another process. Please refresh and try again."
+            "Data was modified by another process. Please refresh and try again."
         case .migrationFailure:
-            return "Failed to migrate your data to the latest version."
+            "Failed to migrate your data to the latest version."
         }
     }
-    
+
     var failureReason: String? {
         switch self {
-        case .saveFailure(let underlying):
-            return "Save operation failed: \(underlying)"
-        case .loadFailure(let underlying):
-            return "Load operation failed: \(underlying)"
+        case let .saveFailure(underlying):
+            "Save operation failed: \(underlying)"
+        case let .loadFailure(underlying):
+            "Load operation failed: \(underlying)"
         case .dataCorruption:
-            return "Stored data is corrupted or in an invalid format"
-        case .invalidData(let field):
-            return "The \(field) contains invalid or missing data"
-        case .planNotFound(let id):
-            return "No workout plan found with ID: \(id)"
-        case .equipmentNotFound(let id):
-            return "No equipment found with ID: \(id)"
+            "Stored data is corrupted or in an invalid format"
+        case let .invalidData(field):
+            "The \(field) contains invalid or missing data"
+        case let .planNotFound(id):
+            "No workout plan found with ID: \(id)"
+        case let .equipmentNotFound(id):
+            "No equipment found with ID: \(id)"
         case .networkUnavailable:
-            return "Network connection is not available"
+            "Network connection is not available"
         case .insufficientStorage:
-            return "Device storage is full or nearly full"
+            "Device storage is full or nearly full"
         case .operationTimeout:
-            return "Operation exceeded the maximum allowed time"
+            "Operation exceeded the maximum allowed time"
         case .concurrentModification:
-            return "Data was changed while the operation was in progress"
-        case .migrationFailure(let version):
-            return "Failed to migrate data from version \(version)"
+            "Data was changed while the operation was in progress"
+        case let .migrationFailure(version):
+            "Failed to migrate data from version \(version)"
         }
     }
-    
+
     var recoverySuggestion: String? {
         switch self {
         case .saveFailure:
-            return "Check available storage space and try again. If the problem persists, restart the app."
+            "Check available storage space and try again. If the problem persists, restart the app."
         case .loadFailure:
-            return "Your preferences will be reset to defaults. You can reconfigure them in Settings."
+            "Your preferences will be reset to defaults. You can reconfigure them in Settings."
         case .dataCorruption:
-            return "Your preferences will be reset to defaults. You can reconfigure them in Settings."
+            "Your preferences will be reset to defaults. You can reconfigure them in Settings."
         case .invalidData:
-            return "Please verify your input and try again."
+            "Please verify your input and try again."
         case .planNotFound:
-            return "The plan may have been deleted. Please select a different plan."
+            "The plan may have been deleted. Please select a different plan."
         case .equipmentNotFound:
-            return "The equipment may have been removed. Please update your selection."
+            "The equipment may have been removed. Please update your selection."
         case .networkUnavailable:
-            return "Check your internet connection and try again. Some features work offline."
+            "Check your internet connection and try again. Some features work offline."
         case .insufficientStorage:
-            return "Delete unused apps or files to free up space, then try again."
+            "Delete unused apps or files to free up space, then try again."
         case .operationTimeout:
-            return "Check your connection and try again. Large operations may take longer."
+            "Check your connection and try again. Large operations may take longer."
         case .concurrentModification:
-            return "Refresh the data and try your operation again."
+            "Refresh the data and try your operation again."
         case .migrationFailure:
-            return "Your data may need to be reset. Contact support if this persists."
+            "Your data may need to be reset. Contact support if this persists."
         }
     }
-    
+
     /// Indicates the severity level of the error
     var severity: ErrorSeverity {
         switch self {
         case .networkUnavailable, .operationTimeout:
-            return .warning
+            .warning
         case .invalidData, .planNotFound, .equipmentNotFound, .concurrentModification:
-            return .error
+            .error
         case .saveFailure, .loadFailure:
-            return .error
+            .error
         case .dataCorruption, .insufficientStorage, .migrationFailure:
-            return .critical
+            .critical
         }
     }
-    
+
     /// Indicates whether the error is recoverable through user action
     var isRecoverable: Bool {
         switch self {
         case .networkUnavailable, .operationTimeout, .concurrentModification, .insufficientStorage:
-            return true
+            true
         case .invalidData, .planNotFound, .equipmentNotFound:
-            return true
+            true
         case .saveFailure, .loadFailure:
-            return true
+            true
         case .dataCorruption, .migrationFailure:
-            return false
+            false
         }
     }
-    
+
     /// Indicates whether the operation can be retried automatically
     var canRetry: Bool {
         switch self {
         case .networkUnavailable, .operationTimeout, .saveFailure, .loadFailure:
-            return true
+            true
         case .concurrentModification:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 }
 
 /// Represents the severity level of an error
 enum ErrorSeverity {
-    case warning    // Non-blocking, informational
-    case error      // Blocking, but recoverable
-    case critical   // Blocking, may require data reset
+    case warning // Non-blocking, informational
+    case error // Blocking, but recoverable
+    case critical // Blocking, may require data reset
 }

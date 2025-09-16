@@ -1,14 +1,15 @@
 import Foundation
 
+// swiftlint:disable file_length type_body_length
+
 // MARK: - Enhanced Exercise Catalog
 
 /// Enhanced exercise catalog with comprehensive exercise database and metadata
 enum EnhancedExerciseCatalog {
-    
     /// All exercises in the enhanced catalog with comprehensive metadata
     static let allExercises: [Exercise] = [
         // MARK: - Chest Exercises
-        
+
         Exercise(
             name: "Push-up",
             muscleGroup: .chest,
@@ -44,7 +45,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Dumbbell Bench Press",
             muscleGroup: .chest,
@@ -66,7 +67,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Incline Dumbbell Press",
             muscleGroup: .chest,
@@ -88,7 +89,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Band Chest Press",
             muscleGroup: .chest,
@@ -110,9 +111,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Back Exercises
-        
+
         Exercise(
             name: "Bent-over Row (Dumbbell)",
             muscleGroup: .back,
@@ -134,7 +135,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Bent-over Row (Barbell)",
             muscleGroup: .back,
@@ -156,7 +157,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Pull-up",
             muscleGroup: .back,
@@ -192,7 +193,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.climbing"
         ),
-        
+
         Exercise(
             name: "Band Row",
             muscleGroup: .back,
@@ -214,9 +215,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Shoulder Exercises
-        
+
         Exercise(
             name: "Overhead Press (Dumbbell)",
             muscleGroup: .shoulders,
@@ -238,7 +239,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Lateral Raise",
             muscleGroup: .shoulders,
@@ -260,7 +261,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Band Shoulder Press",
             muscleGroup: .shoulders,
@@ -282,9 +283,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Arm Exercises
-        
+
         Exercise(
             name: "Biceps Curl",
             muscleGroup: .arms,
@@ -306,7 +307,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Triceps Extension (Band)",
             muscleGroup: .arms,
@@ -328,7 +329,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         Exercise(
             name: "Triceps Dip",
             muscleGroup: .arms,
@@ -358,9 +359,9 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "rectangle.portrait"
         ),
-        
+
         // MARK: - Leg Exercises
-        
+
         Exercise(
             name: "Bodyweight Squat",
             muscleGroup: .legs,
@@ -396,7 +397,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Goblet Squat",
             muscleGroup: .legs,
@@ -418,7 +419,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Kettlebell Deadlift",
             muscleGroup: .legs,
@@ -440,7 +441,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "circle"
         ),
-        
+
         Exercise(
             name: "Lunge (Dumbbell)",
             muscleGroup: .legs,
@@ -476,9 +477,9 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "dumbbell"
         ),
-        
+
         // MARK: - Core Exercises
-        
+
         Exercise(
             name: "Plank",
             muscleGroup: .core,
@@ -514,7 +515,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Russian Twist",
             muscleGroup: .core,
@@ -536,7 +537,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Dead Bug",
             muscleGroup: .core,
@@ -558,9 +559,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         // MARK: - Full Body Exercises
-        
+
         Exercise(
             name: "Burpee",
             muscleGroup: .fullBody,
@@ -596,7 +597,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Kettlebell Swing",
             muscleGroup: .fullBody,
@@ -618,9 +619,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "circle"
         ),
-        
+
         // MARK: - Additional Chest Exercises
-        
+
         Exercise(
             name: "Chest Fly (Dumbbell)",
             muscleGroup: .chest,
@@ -642,7 +643,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Decline Push-up",
             muscleGroup: .chest,
@@ -664,7 +665,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Wall Push-up",
             muscleGroup: .chest,
@@ -686,9 +687,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         // MARK: - Additional Back Exercises
-        
+
         Exercise(
             name: "Single-arm Row (Dumbbell)",
             muscleGroup: .back,
@@ -710,7 +711,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Inverted Row",
             muscleGroup: .back,
@@ -740,7 +741,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Superman",
             muscleGroup: .back,
@@ -762,7 +763,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Face Pull (Band)",
             muscleGroup: .back,
@@ -784,9 +785,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Additional Shoulder Exercises
-        
+
         Exercise(
             name: "Front Raise",
             muscleGroup: .shoulders,
@@ -808,7 +809,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Rear Delt Fly",
             muscleGroup: .shoulders,
@@ -830,7 +831,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Pike Push-up",
             muscleGroup: .shoulders,
@@ -860,7 +861,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Band Lateral Raise",
             muscleGroup: .shoulders,
@@ -882,9 +883,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Additional Arm Exercises
-        
+
         Exercise(
             name: "Hammer Curl",
             muscleGroup: .arms,
@@ -906,7 +907,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Overhead Triceps Extension",
             muscleGroup: .arms,
@@ -928,7 +929,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Close-grip Push-up",
             muscleGroup: .arms,
@@ -950,7 +951,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Band Biceps Curl",
             muscleGroup: .arms,
@@ -972,9 +973,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Additional Leg Exercises
-        
+
         Exercise(
             name: "Single-leg Glute Bridge",
             muscleGroup: .legs,
@@ -996,7 +997,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Calf Raise",
             muscleGroup: .legs,
@@ -1026,7 +1027,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Wall Sit",
             muscleGroup: .legs,
@@ -1048,7 +1049,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Romanian Deadlift (Dumbbell)",
             muscleGroup: .legs,
@@ -1070,7 +1071,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Step-up",
             muscleGroup: .legs,
@@ -1100,7 +1101,7 @@ enum EnhancedExerciseCatalog {
             ],
             sfSymbolName: "rectangle.portrait"
         ),
-        
+
         Exercise(
             name: "Bulgarian Split Squat",
             muscleGroup: .legs,
@@ -1122,9 +1123,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .advanced,
             sfSymbolName: "rectangle.portrait"
         ),
-        
+
         // MARK: - Additional Core Exercises
-        
+
         Exercise(
             name: "Mountain Climber",
             muscleGroup: .core,
@@ -1146,7 +1147,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Bicycle Crunch",
             muscleGroup: .core,
@@ -1168,7 +1169,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Bird Dog",
             muscleGroup: .core,
@@ -1190,7 +1191,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .beginner,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Hollow Body Hold",
             muscleGroup: .core,
@@ -1212,7 +1213,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Pallof Press (Band)",
             muscleGroup: .core,
@@ -1234,9 +1235,9 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "bolt.horizontal.circle"
         ),
-        
+
         // MARK: - Additional Full Body Exercises
-        
+
         Exercise(
             name: "Thrusters (Dumbbell)",
             muscleGroup: .fullBody,
@@ -1258,7 +1259,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .advanced,
             sfSymbolName: "dumbbell"
         ),
-        
+
         Exercise(
             name: "Turkish Get-up (Kettlebell)",
             muscleGroup: .fullBody,
@@ -1280,7 +1281,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .advanced,
             sfSymbolName: "circle"
         ),
-        
+
         Exercise(
             name: "Bear Crawl",
             muscleGroup: .fullBody,
@@ -1302,7 +1303,7 @@ enum EnhancedExerciseCatalog {
             difficulty: .intermediate,
             sfSymbolName: "figure.strengthtraining.traditional"
         ),
-        
+
         Exercise(
             name: "Renegade Row",
             muscleGroup: .fullBody,
@@ -1326,3 +1327,5 @@ enum EnhancedExerciseCatalog {
         )
     ]
 }
+
+// swiftlint:enable file_length type_body_length

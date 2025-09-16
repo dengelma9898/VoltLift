@@ -10,20 +10,20 @@ enum ExerciseCatalog {
         guard let enhancedMuscleGroup = MuscleGroup(rawValue: group.rawValue) else {
             return []
         }
-        
+
         return ExerciseService.shared.getExercisesWithEquipmentHints(
             for: enhancedMuscleGroup,
             availableEquipment: availableEquipment
         )
     }
-    
+
     /// Legacy method for backward compatibility with existing code that still expects legacy exercises
     /// This method filters to only show available exercises (old behavior)
     static func forGroupLegacy(
         _ group: WorkoutSetupView.MuscleGroup,
         availableEquipment: Set<String>
     ) -> [WorkoutSetupView.Exercise] {
-        return ExerciseService.shared.getLegacyExercises(
+        ExerciseService.shared.getLegacyExercises(
             for: group,
             availableEquipment: availableEquipment
         )
