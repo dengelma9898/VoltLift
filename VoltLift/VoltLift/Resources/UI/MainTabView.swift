@@ -28,12 +28,14 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            Text("Settings")
-                .tabItem {
-                    Image(systemName: "gearshape.fill")
-                    Text("Settings")
-                }
-                .tag(3)
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Image(systemName: "gearshape.fill")
+                Text("Settings")
+            }
+            .tag(3)
         }
         .tint(DesignSystem.ColorRole.primary)
     }

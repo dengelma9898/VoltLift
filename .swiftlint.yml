@@ -48,6 +48,10 @@ excluded:
   - VoltLift/VoltLift.xcodeproj
   - VoltLift/VoltLift.xcodeproj/**
   - VoltLift/VoltLift.xcworkspace/**
+  - VoltLift/VoltLiftTests
+  - VoltLift/VoltLiftTests/**
+  - VoltLift/VoltLiftUITests
+  - VoltLift/VoltLiftUITests/**
 
 allow_zero_lintable_files: true
 strict: false
