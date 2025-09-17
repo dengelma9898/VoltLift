@@ -20,7 +20,7 @@ VoltLift ist eine iOS-App zum Starten und Tracken von Workouts – sowohl Kraftt
 
 ### Produktziele (12 Monate)
 - Hohe Datenqualität: Vollständige, korrekte Sätze in HealthKit (>99% Erfolgsrate beim Schreiben).
-- Start-zu-Tracking-Zeit < 3 Sekunden.
+- Selbsterklärende UX: Kernflows ohne Anleitung verständlich (Task-Success ≥ 95%; SUS ≥ 80).
 - Tägliche aktive Nutzer mit Wiederkehrrate Woche 4 ≥ 30%.
 - App Store Rating ≥ 4,6.
 
@@ -57,9 +57,10 @@ VoltLift ist eine iOS-App zum Starten und Tracken von Workouts – sowohl Kraftt
 5) Apple Watch: Workout auf der Watch starten → Live-Metriken sehen → Stopp → Synchronisierung mit iPhone/HealthKit.
 
 ### Metriken & Erfolgskriterien
-- Technisch: Schreibfehlerquote HealthKit, Crash-free Sessions, Zeit bis Start, GPS-Drift.
+- Technisch: Schreibfehlerquote HealthKit, Crash-free Sessions, GPS-Drift.
 - Nutzung: DAU/WAU, Workouts pro Nutzer/Woche, Abschlussrate begonnener Workouts, Retention D7/D28.
 - Qualität: Support-Tickets pro 1.000 Sessions, App Store Rating, opt-in Quote HealthKit.
+- UX: Task-Success in Kernflows ≥ 95%; System Usability Scale (SUS) ≥ 80; Editor-Abbruchrate < 10%.
 - AI: Opt-in-Rate, angenommene Vorschläge/Session, Einfluss auf Retention und Trainingsfrequenz.
 - Watch: Anteil der Workouts, die auf der Watch gestartet werden; WCSession-Verbindungsstabilität; Energieverbrauch.
 
