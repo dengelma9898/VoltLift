@@ -19,9 +19,9 @@
 - Include exact file paths in descriptions
 
 ## Phase 3.1: Setup
-- [ ] T001 Configure SwiftLint & SwiftFormat and verify locally (run in repo root)
+- [x] T001 Configure SwiftLint & SwiftFormat and verify locally (run in repo root)
   - Command: `swiftformat . && swiftlint`
-- [ ] T002 Update docs cross-links (add UX principles to quickstart)
+- [x] T002 Update docs cross-links (add UX principles to quickstart)
   - File: `/Users/dengelma/develop/private/VoltLift/specs/001-specify-fine-tune/quickstart.md`
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3

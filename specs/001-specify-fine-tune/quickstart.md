@@ -30,3 +30,4 @@
 ## Hinweise
 - Nur der laufende Workout-Plan ist während eines aktiven Workouts editierbar
 - Gewicht nur bei Equipment-Übungen, sonst Körpergewicht (keine Eingabe)
+ - UX-Prinzipien: Siehe `/Users/dengelma/develop/private/VoltLift/Docs/UX_PRINCIPLES.md`
