@@ -25,19 +25,19 @@
   - File: `/Users/dengelma/develop/private/VoltLift/specs/001-specify-fine-tune/quickstart.md`
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
-- [ ] T010 [P] Contract tests: Plan Editor use-cases (UC1–UC3)
+- [x] T010 [P] Contract tests: Plan Editor use-cases (UC1–UC3)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/PlanEditorUseCaseTests.swift`
   - Cover: Add/Remove/Reorder, Edit Set Attributes, Save Plan, validation errors
-- [ ] T011 [P] Contract tests: Workout Logging use-cases (UC4–UC5)
+- [x] T011 [P] Contract tests: Workout Logging use-cases (UC4–UC5)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutLoggingUseCaseTests.swift`
   - Cover: Record Set Weight (equipment-only), Per-Rep Difficulty (1–10), length mismatch
-- [ ] T012 [P] Integration UI tests: Plan-Editor Flows (Acceptance 1,2,6)
+- [x] T012 [P] Integration UI tests: Plan-Editor Flows (Acceptance 1,2,6)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLiftUITests/PlanEditorUITests.swift`
   - Steps: Manuell erstellten, equipment-basierten Plan öffnen → Editieren → Speichern/Abbruchdialog
-- [ ] T013 [P] Integration UI tests: Workout-Logging (Acceptance 7)
+- [x] T013 [P] Integration UI tests: Workout-Logging (Acceptance 7)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLiftUITests/WorkoutLoggingUITests.swift`
   - Steps: Aktives Workout → Gewicht (0,5 kg Schritte) und Schwierigkeit 1–10 erfassen → Beenden → Persistenz prüfen
-- [ ] T014 [P] Data-Model validation tests
+- [x] T014 [P] Data-Model validation tests
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/DataModelValidationTests.swift`
   - Cover: reps ≥ 0, setType Enum, unilateral nur wenn erlaubt, weight steps 0.5, difficulty 1..10
 
