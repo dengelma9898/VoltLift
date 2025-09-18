@@ -128,7 +128,8 @@ struct WorkoutSetupView: View {
                     }
                 }
 
-                if self.plans.isEmpty, !self.isLoadingPreferences { // Allow plan creation without equipment for testing
+                // Show creation card ONLY when there are no saved plans
+                if self.userPreferencesService.savedPlans.isEmpty, !self.isLoadingPreferences {
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             Text("Create your first plan")
@@ -245,26 +246,45 @@ struct WorkoutSetupView: View {
 
                     Spacer()
 
+                    // Add Plan
                     NavigationLink {
-                        SavedPlansView()
+                        PlanCreationView(selectedEquipmentNames: Set(self.currentSelectedEquipment
+                                .map(\.name)
+                        )) { newPlans in
+                            self.plans = newPlans
+                            Task {
+                                await self.savePlans(newPlans)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                                await MainActor.run { self.plans = [] }
+                            }
+                        }
                     } label: {
-                        Text("View All")
-                            .font(DesignSystem.Typography.caption)
+                        Image(systemName: "plus.circle")
                             .foregroundColor(DesignSystem.ColorRole.primary)
                     }
+
+                    // Removed "View All" as all plans are displayed here
                 }
 
                 ForEach(Array(self.userPreferencesService.savedPlans.prefix(3))) { plan in
-                    Button {
-                        self.startWorkoutWithSavedPlan(plan)
+                    NavigationLink {
+                        PlanDetailView(
+                            plan: plan,
+                            onStart: { self.startWorkoutWithSavedPlan(plan) },
+                            onEdit: { /* navigate to editor */ },
+                            onDelete: { Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            } }
+                        )
+                        .environmentObject(self.userPreferencesService)
                     } label: {
                         VLListRow(plan.name, subtitle: "\(plan.exerciseCount) exercises") {
                             Image(systemName: "bookmark.fill")
                                 .foregroundColor(DesignSystem.ColorRole.secondary)
                         } trailing: {
                             VStack(alignment: .trailing, spacing: 2) {
-                                Image(systemName: "play.fill")
-                                    .foregroundColor(DesignSystem.ColorRole.primary)
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
 
                                 if let lastUsed = plan.lastUsedDate {
                                     Text(self.formatRelativeDate(lastUsed))
@@ -275,6 +295,32 @@ struct WorkoutSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            self.startWorkoutWithSavedPlan(plan)
+                        } label: { Label("Start", systemImage: "play.fill") }
+                        Button {
+                            // Edit
+                        } label: { Label("Edit", systemImage: "pencil") }
+                        Button(role: .destructive) {
+                            Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            }
+                        } label: { Label("Delete", systemImage: "trash") }
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        Button {
+                            self.startWorkoutWithSavedPlan(plan)
+                        } label: { Label("Start", systemImage: "play.fill") }
+                            .tint(DesignSystem.ColorRole.primary)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            }
+                        } label: { Label("Delete", systemImage: "trash") }
+                    }
 
                     if plan.id != self.userPreferencesService.savedPlans.prefix(3).last?.id {
                         Divider().opacity(0.2)
@@ -327,20 +373,8 @@ struct WorkoutSetupView: View {
                 return Equipment(name: item.name, icon: self.getIconForEquipment(item.name))
             }
 
-            // Load saved plans
+            // Load saved plans (nicht in lokale `plans` spiegeln, um Duplikate zu vermeiden)
             try await self.userPreferencesService.loadSavedPlans()
-
-            // Convert WorkoutPlanData to local Plan struct
-            self.plans = self.userPreferencesService.savedPlans.map { planData in
-                let exercises = planData.exercises.map { exerciseData in
-                    Exercise(
-                        name: exerciseData.name,
-                        muscleGroup: MuscleGroup(rawValue: "Chest") ?? .chest, // Default for now
-                        requiredEquipment: Set<String>() // Default for now
-                    )
-                }
-                return Plan(name: planData.name, exercises: exercises)
-            }
 
         } catch {
             self.preferencesError = error as? UserPreferencesError ??
@@ -462,6 +496,36 @@ struct WorkoutSetupView: View {
         case "Foam Roller": "capsule"
         default: "questionmark.circle"
         }
+    }
+
+    /// Mappt einen gespeicherten Plan zu einem editierbaren Draft
+    private func mapToDraft(_ plan: WorkoutPlanData) -> PlanDraft {
+        PlanDraft(
+            id: plan.id,
+            name: plan.name,
+            exercises: plan.exercises.map { ex in
+                PlanExerciseDraft(
+                    id: ex.id,
+                    referenceExerciseId: ex.id.uuidString,
+                    displayName: ex.name,
+                    allowsUnilateral: false,
+                    sets: ex.sets.map { set in
+                        PlanSetDraft(
+                            reps: set.reps,
+                            setType: {
+                                switch set.setType {
+                                case .warmUp: .warmUp
+                                case .normal: .normal
+                                case .coolDown: .coolDown
+                                }
+                            }(),
+                            side: .both,
+                            comment: nil
+                        )
+                    }
+                )
+            }
+        )
     }
 
     /// Gets category for equipment
