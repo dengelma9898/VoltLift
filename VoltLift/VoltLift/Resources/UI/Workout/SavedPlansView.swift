@@ -19,6 +19,7 @@ struct SavedPlansView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var showingWorkoutExecution = false
+    @State private var editingPlanDraft: PlanDraft?
 
     var body: some View {
         NavigationStack {
@@ -75,6 +76,9 @@ struct SavedPlansView: View {
                     }
                     .environmentObject(self.userPreferencesService)
                 }
+            }
+            .navigationDestination(item: self.$editingPlanDraft) { draft in
+                PlanEditorView(plan: draft)
             }
         }
     }
@@ -136,9 +140,15 @@ struct SavedPlansView: View {
                         }
 
                         Button {
+                            self.editPlan(plan)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+
+                        Button {
                             self.showRenameAlert(for: plan)
                         } label: {
-                            Label("Rename", systemImage: "pencil")
+                            Label("Rename", systemImage: "square.and.pencil")
                         }
 
                         Button(role: .destructive) {
@@ -214,6 +224,32 @@ struct SavedPlansView: View {
         // Navigate to workout execution - the WorkoutExecutionView will handle marking the plan as used
         self.selectedPlanForWorkout = plan
         self.showingWorkoutExecution = true
+    }
+
+    private func editPlan(_ plan: WorkoutPlanData) {
+        // Map WorkoutPlanData to PlanDraft (read-only transform)
+        let draft = PlanDraft(
+            id: plan.id,
+            name: plan.name,
+            exercises: plan.exercises.map { ex in
+                PlanExerciseDraft(
+                    id: ex.id,
+                    referenceExerciseId: ex.id.uuidString,
+                    displayName: ex.name,
+                    allowsUnilateral: false, // kann später mit ExerciseService.allowsUnilateral angereichert werden
+                    sets: ex.sets.map { s in
+                        PlanSetDraft(
+                            id: s.id,
+                            reps: s.reps,
+                            setType: s.setType == .warmUp ? .warmUp : (s.setType == .coolDown ? .coolDown : .normal),
+                            side: .both,
+                            comment: nil
+                        )
+                    }
+                )
+            }
+        )
+        self.editingPlanDraft = draft
     }
 
     private func showRenameAlert(for plan: WorkoutPlanData) {

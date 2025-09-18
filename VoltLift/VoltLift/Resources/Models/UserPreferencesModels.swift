@@ -163,6 +163,19 @@ struct ExerciseSet: Identifiable, Codable, Equatable {
         )
     }
 
+    /// Creates a copy of this set with a different set number while preserving identity
+    func withSetNumber(_ newSetNumber: Int) -> ExerciseSet {
+        ExerciseSet(
+            id: self.id,
+            setNumber: newSetNumber,
+            reps: self.reps,
+            weight: self.weight,
+            setType: self.setType,
+            isCompleted: self.isCompleted,
+            completedAt: self.completedAt
+        )
+    }
+
     /// Private initializer for internal use with all parameters
     private init(
         id: UUID,

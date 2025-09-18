@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 enum ExerciseCatalog {
     /// Enhanced method that returns exercises with equipment availability status
     /// This method shows ALL exercises for the muscle group with appropriate equipment indicators

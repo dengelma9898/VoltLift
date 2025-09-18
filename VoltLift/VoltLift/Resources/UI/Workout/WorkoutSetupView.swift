@@ -128,7 +128,8 @@ struct WorkoutSetupView: View {
                     }
                 }
 
-                if self.plans.isEmpty, !self.isLoadingPreferences { // Allow plan creation without equipment for testing
+                // Show creation card ONLY when there are no saved plans
+                if self.userPreferencesService.savedPlans.isEmpty, !self.isLoadingPreferences {
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             Text("Create your first plan")
@@ -165,7 +166,7 @@ struct WorkoutSetupView: View {
                     self.plansSection
                 }
 
-                // Saved Plans Section
+                // Saved Plans Section (alle Pläne, keine Kürzung)
                 if !self.userPreferencesService.savedPlans.isEmpty {
                     self.savedPlansSection
                 }
@@ -245,26 +246,45 @@ struct WorkoutSetupView: View {
 
                     Spacer()
 
+                    // Add Plan
                     NavigationLink {
-                        SavedPlansView()
+                        PlanCreationView(selectedEquipmentNames: Set(self.currentSelectedEquipment
+                                .map(\.name)
+                        )) { newPlans in
+                            self.plans = newPlans
+                            Task {
+                                await self.savePlans(newPlans)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                                await MainActor.run { self.plans = [] }
+                            }
+                        }
                     } label: {
-                        Text("View All")
-                            .font(DesignSystem.Typography.caption)
+                        Image(systemName: "plus.circle")
                             .foregroundColor(DesignSystem.ColorRole.primary)
                     }
+
+                    // Removed "View All" as all plans are displayed here
                 }
 
-                ForEach(Array(self.userPreferencesService.savedPlans.prefix(3))) { plan in
-                    Button {
-                        self.startWorkoutWithSavedPlan(plan)
+                ForEach(self.userPreferencesService.savedPlans) { plan in
+                    NavigationLink {
+                        PlanDetailView(
+                            plan: plan,
+                            onStart: { self.startWorkoutWithSavedPlan(plan) },
+                            onEdit: { /* navigate to editor */ },
+                            onDelete: { Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            } }
+                        )
+                        .environmentObject(self.userPreferencesService)
                     } label: {
                         VLListRow(plan.name, subtitle: "\(plan.exerciseCount) exercises") {
                             Image(systemName: "bookmark.fill")
                                 .foregroundColor(DesignSystem.ColorRole.secondary)
                         } trailing: {
                             VStack(alignment: .trailing, spacing: 2) {
-                                Image(systemName: "play.fill")
-                                    .foregroundColor(DesignSystem.ColorRole.primary)
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
 
                                 if let lastUsed = plan.lastUsedDate {
                                     Text(self.formatRelativeDate(lastUsed))
@@ -275,8 +295,34 @@ struct WorkoutSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            self.startWorkoutWithSavedPlan(plan)
+                        } label: { Label("Start", systemImage: "play.fill") }
+                        Button {
+                            // Edit
+                        } label: { Label("Edit", systemImage: "pencil") }
+                        Button(role: .destructive) {
+                            Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            }
+                        } label: { Label("Delete", systemImage: "trash") }
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        Button {
+                            self.startWorkoutWithSavedPlan(plan)
+                        } label: { Label("Start", systemImage: "play.fill") }
+                            .tint(DesignSystem.ColorRole.primary)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            Task { try? await self.userPreferencesService.deletePlan(plan.id)
+                                try? await self.userPreferencesService.loadSavedPlans()
+                            }
+                        } label: { Label("Delete", systemImage: "trash") }
+                    }
 
-                    if plan.id != self.userPreferencesService.savedPlans.prefix(3).last?.id {
+                    if plan.id != self.userPreferencesService.savedPlans.last?.id {
                         Divider().opacity(0.2)
                     }
                 }
@@ -327,20 +373,8 @@ struct WorkoutSetupView: View {
                 return Equipment(name: item.name, icon: self.getIconForEquipment(item.name))
             }
 
-            // Load saved plans
+            // Load saved plans (nicht in lokale `plans` spiegeln, um Duplikate zu vermeiden)
             try await self.userPreferencesService.loadSavedPlans()
-
-            // Convert WorkoutPlanData to local Plan struct
-            self.plans = self.userPreferencesService.savedPlans.map { planData in
-                let exercises = planData.exercises.map { exerciseData in
-                    Exercise(
-                        name: exerciseData.name,
-                        muscleGroup: MuscleGroup(rawValue: "Chest") ?? .chest, // Default for now
-                        requiredEquipment: Set<String>() // Default for now
-                    )
-                }
-                return Plan(name: planData.name, exercises: exercises)
-            }
 
         } catch {
             self.preferencesError = error as? UserPreferencesError ??
@@ -464,6 +498,36 @@ struct WorkoutSetupView: View {
         }
     }
 
+    /// Mappt einen gespeicherten Plan zu einem editierbaren Draft
+    private func mapToDraft(_ plan: WorkoutPlanData) -> PlanDraft {
+        PlanDraft(
+            id: plan.id,
+            name: plan.name,
+            exercises: plan.exercises.map { ex in
+                PlanExerciseDraft(
+                    id: ex.id,
+                    referenceExerciseId: ex.id.uuidString,
+                    displayName: ex.name,
+                    allowsUnilateral: false,
+                    sets: ex.sets.map { set in
+                        PlanSetDraft(
+                            reps: set.reps,
+                            setType: {
+                                switch set.setType {
+                                case .warmUp: .warmUp
+                                case .normal: .normal
+                                case .coolDown: .coolDown
+                                }
+                            }(),
+                            side: .both,
+                            comment: nil
+                        )
+                    }
+                )
+            }
+        )
+    }
+
     /// Gets category for equipment
     private func getCategoryForEquipment(_ name: String) -> String {
         switch name {
@@ -521,29 +585,46 @@ struct EquipmentSetupView: View {
     ]
 
     var body: some View {
-        List {
-            ForEach(self.available) { item in
-                HStack {
-                    Image(systemName: item.icon)
-                        .foregroundColor(DesignSystem.ColorRole.primary)
-                    Text(item.name)
-                    Spacer()
-                    if self.tempSelection.contains(item.name) {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(DesignSystem.ColorRole.success)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if self.tempSelection.contains(item.name) {
-                        self.tempSelection.remove(item.name)
-                    } else {
-                        self.tempSelection.insert(item.name)
+        ScrollView {
+            VStack(spacing: DesignSystem.Spacing.l) {
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                        Text("Equipment")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
+                        ForEach(self.available) { item in
+                            HStack(spacing: DesignSystem.Spacing.m) {
+                                Image(systemName: item.icon)
+                                    .foregroundColor(DesignSystem.ColorRole.primary)
+                                Text(item.name)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                Spacer()
+                                Image(systemName: self.tempSelection
+                                    .contains(item.name) ? "checkmark.circle.fill" : "circle"
+                                )
+                                .foregroundColor(self.tempSelection.contains(item.name) ? DesignSystem.ColorRole
+                                    .success : DesignSystem.ColorRole.textSecondary
+                                )
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if self.tempSelection.contains(item.name) {
+                                    self.tempSelection.remove(item.name)
+                                } else {
+                                    self.tempSelection.insert(item.name)
+                                }
+                            }
+
+                            if item.id != self.available.last?.id {
+                                Divider().opacity(0.2)
+                            }
+                        }
                     }
                 }
             }
+            .padding(DesignSystem.Spacing.xl)
         }
-        .scrollContentBackground(.hidden)
         .vlBrandBackground()
         .navigationTitle("Equipment")
         .toolbar {
@@ -569,44 +650,79 @@ struct PlanCreationView: View {
     @State private var currentGroup: WorkoutSetupView.MuscleGroup = .chest
 
     var body: some View {
-        Form {
-            Section("Plan") {
-                TextField("Name", text: self.$planName)
-            }
-
-            Section("Exercises") {
-                if self.exercises.isEmpty {
-                    Text("No exercises yet").foregroundColor(DesignSystem.ColorRole.textSecondary)
-                } else {
-                    ForEach(self.exercises) { exercise in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(exercise.name)
-                                Text(exercise.muscleGroup.rawValue).font(.caption)
-                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                            }
-                            Spacer()
-                        }
+        ScrollView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+                        Text("Plan")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                        TextField("Name", text: self.$planName)
                     }
-                    .onDelete { idx in self.exercises.remove(atOffsets: idx) }
                 }
 
-                Button {
-                    self.showAddExercise = true
-                } label: {
-                    Label("Add Exercise", systemImage: "plus.circle")
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                        Text("Exercises")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
+                        if self.exercises.isEmpty {
+                            Text("No exercises yet")
+                                .font(DesignSystem.Typography.callout)
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            Divider().opacity(0.2)
+                        } else {
+                            ForEach(self.exercises) { exercise in
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(exercise.name)
+                                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                        Text(exercise.muscleGroup.rawValue)
+                                            .font(DesignSystem.Typography.caption)
+                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                                    }
+                                    Spacer()
+                                    Button(role: .destructive) {
+                                        if let idx = self.exercises
+                                            .firstIndex(of: exercise) { self.exercises.remove(at: idx) }
+                                    } label: { Image(systemName: "trash") }
+                                        .buttonStyle(.borderless)
+                                }
+                                if exercise.id != self.exercises.last?.id { Divider().opacity(0.2) }
+                            }
+                        }
+
+                        Button {
+                            self.showAddExercise = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus.circle")
+                                Text("Add Exercise")
+                            }
+                        }
+                        .tint(DesignSystem.ColorRole.primary)
+                    }
                 }
             }
-
-            Section {
+            .padding(DesignSystem.Spacing.xl)
+        }
+        .safeAreaInset(edge: .bottom) {
+            HStack(spacing: DesignSystem.Spacing.m) {
                 Button("Save") {
                     let name = self.planName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let new = WorkoutSetupView.Plan(name: name.isEmpty ? "My Plan" : name, exercises: self.exercises)
+                    let new = WorkoutSetupView.Plan(
+                        name: name.isEmpty ? "My Plan" : name,
+                        exercises: self.exercises
+                    )
                     self.onDone([new])
                     self.dismiss()
                 }
+                .buttonStyle(VLPrimaryButtonStyle())
                 .disabled(self.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
         .sheet(isPresented: self.$showAddExercise) {
             AddExerciseView(
@@ -617,7 +733,6 @@ struct PlanCreationView: View {
                 self.exercises.append(contentsOf: added)
             }
         }
-        .scrollContentBackground(.hidden)
         .vlBrandBackground()
         .navigationTitle("New Plan")
     }

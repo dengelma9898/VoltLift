@@ -95,4 +95,62 @@ VStack {
 .vlBrandBackground()
 ```
 
+## Seiten-Patterns (Cards statt List)
+
+- Detailseiten (z. B. PlanDetailView)
+  - Grundlayout: `ScrollView` + `VStack` mit `VLGlassCard`-Abschnitten; keine `List` mit grauem System-Hintergrund.
+  - Header-Card: Titel, Meta (Exercise-Count, Created, Last used) in einer `VLGlassCard`.
+  - Inhalt: Jede Übung als eigene `VLGlassCard` mit Titel und kompaktem Untertitel (z. B. Warm‑up/Working/Cool‑down‑Sets, Reps-Range inkl. Durchschnitt, Restzeit-Hinweis).
+  - Abstände: `DesignSystem.Spacing.l`–`xl` zwischen Cards, Außenabstand `padding(DesignSystem.Spacing.xl)`.
+
+- Listenübersichten (z. B. Saved Plans im Workout-Setup)
+  - Ein übergeordneter Card-Container pro Abschnitt (Titel, Add-Action), darin Zeilen als `VLListRow`.
+  - Für eigenständige Plan-Detaildarstellung: pro Plan eine `VLGlassCard` anstelle einer System-`List`.
+
+## Bottom-CTAs (HIG-konform, ohne grauen Container)
+
+- Primär: `ToolbarItem(placement: .bottomBar)` für Aktionen wie „Start Workout“/„Edit Plan“.
+- Alternativ (falls nötig): `safeAreaInset(edge: .bottom) { ... }` mit ausreichendem `padding` – ohne zusätzlichen Material/Grau-Container, damit keine Kollision mit TabBar entsteht.
+- Buttons: `VLButton`/`VLButtonLabel` nutzen, `.tint(DesignSystem.ColorRole.primary)` bzw. Sekundär/Destruktiv gemäß Design System.
+
+## Do / Don’t
+
+- Do: `ScrollView` + `VLGlassCard` für Abschnitte/Details verwenden.
+- Do: Brand-Background via `.vlBrandBackground()` global aktiv halten.
+- Do: Textfarben ausschließlich über `DesignSystem.ColorRole.text*` nutzen.
+- Don’t: System-`List`-Hintergründe/Grauflächen für Detailseiten.
+- Don’t: Zusätzliche graue Container unter Bottom-CTAs.
+
+## Beispiel: Plan-Detail (Skeleton)
+
+```swift
+struct PlanDetailView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: DesignSystem.Spacing.l) {
+                VLGlassCard { /* Header: Name, Created, Last used */ }
+                ForEach(exercises) { exercise in
+                    VLGlassCard {
+                        Text(exercise.name)
+                        Text(exercise.subtitle)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                }
+            }
+            .padding(DesignSystem.Spacing.xl)
+        }
+        .vlBrandBackground()
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                HStack(spacing: DesignSystem.Spacing.m) {
+                    VLButton("Edit Plan", style: .secondary) { /* ... */ }
+                    VLButton("Start Workout", style: .primary) { /* ... */ }
+                }
+            }
+        }
+    }
+}
+```
+
 

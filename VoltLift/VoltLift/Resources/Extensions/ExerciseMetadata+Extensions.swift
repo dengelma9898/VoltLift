@@ -85,3 +85,16 @@ extension ExerciseMetadata {
         return request
     }
 }
+
+// MARK: - Unilateral Heuristics
+
+extension Exercise {
+    /// Heuristik: Bestimmt, ob eine Übung sinnvoll einseitig ausgeführt werden kann
+    /// Regeln: Namen enthalten "Single-arm", "Single-leg", "Lunge", "Split", "Step-up"
+    /// Konservativ gehalten – erweitert werden kann dies später über eine Taxonomie-Tabelle
+    var allowsUnilateral: Bool {
+        let lower = name.lowercased()
+        let keywords = ["single-arm", "single leg", "single-leg", "lunge", "split", "step-up", "step up"]
+        return keywords.contains { lower.contains($0) }
+    }
+}

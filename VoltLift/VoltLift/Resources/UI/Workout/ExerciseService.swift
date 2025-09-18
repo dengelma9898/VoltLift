@@ -21,6 +21,7 @@ struct ExerciseDisplayItem: Identifiable, Hashable {
 // MARK: - ExerciseServiceProtocol
 
 /// Protocol defining the interface for exercise business logic operations
+@MainActor
 protocol ExerciseServiceProtocol {
     /// Returns all exercises in the database
     func getAllExercises() -> [Exercise]
@@ -51,15 +52,19 @@ protocol ExerciseServiceProtocol {
 
     /// Records exercise usage for metadata tracking
     func recordExerciseUsage(exerciseId: UUID) async
+
+    /// Heuristic: whether exercise is sensible to perform unilaterally
+    func allowsUnilateral(for exerciseId: UUID) -> Bool
 }
 
 // MARK: - ExerciseService Implementation
 
 /// Concrete implementation of ExerciseServiceProtocol
+@MainActor
 final class ExerciseService: ExerciseServiceProtocol {
     // MARK: - Properties
 
-    private let metadataService: ExerciseMetadataServiceProtocol
+    private let metadataService: any ExerciseMetadataServiceProtocol
 
     // MARK: - Singleton
 
@@ -68,13 +73,11 @@ final class ExerciseService: ExerciseServiceProtocol {
     private init() {
         // Initialize with main context - in production this should be injected
         let context = PersistenceController.shared.container.viewContext
-        self.metadataService = MainActor.assumeIsolated {
-            ExerciseMetadataService(context: context)
-        }
+        self.metadataService = ExerciseMetadataService(context: context)
     }
 
     /// Initializer for dependency injection (useful for testing)
-    init(metadataService: ExerciseMetadataServiceProtocol) {
+    init(metadataService: any ExerciseMetadataServiceProtocol) {
         self.metadataService = metadataService
     }
 
@@ -150,6 +153,11 @@ final class ExerciseService: ExerciseServiceProtocol {
     func recordExerciseUsage(exerciseId: UUID) async {
         guard let exercise = getExercise(by: exerciseId) else { return }
         await self.metadataService.updateLastUsed(for: exerciseId, name: exercise.name)
+    }
+
+    func allowsUnilateral(for exerciseId: UUID) -> Bool {
+        guard let exercise = getExercise(by: exerciseId) else { return false }
+        return exercise.allowsUnilateral
     }
 }
 

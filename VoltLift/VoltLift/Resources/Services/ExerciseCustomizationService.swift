@@ -8,6 +8,66 @@
 import Combine
 import Foundation
 
+// MARK: - Error Types
+
+enum ValidationError: LocalizedError, Equatable {
+    case invalidReps(value: Int, allowed: ClosedRange<Int>)
+    case invalidWeight(value: Double, allowed: ClosedRange<Double>)
+    case maximumSetsExceeded(maximum: Int)
+    case minimumSetsRequired(minimum: Int)
+    case invalidStructure(message: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .invalidReps(value, allowed):
+            "Repetitions \(value) out of allowed range \(allowed.lowerBound)-\(allowed.upperBound)."
+        case let .invalidWeight(value, allowed):
+            "Weight \(value) out of allowed range \(allowed.lowerBound)-\(allowed.upperBound)."
+        case let .maximumSetsExceeded(maximum):
+            "Maximum number of sets (\(maximum)) exceeded."
+        case let .minimumSetsRequired(minimum):
+            "At least \(minimum) set(s) required."
+        case let .invalidStructure(message):
+            message
+        }
+    }
+}
+
+enum ExerciseCustomizationError: LocalizedError, Equatable {
+    case validationFailed(errors: [ValidationError])
+    case exerciseNotFound(id: UUID)
+    case setNotFound(id: UUID)
+    case maximumSetsExceeded(maximum: Int)
+    case minimumSetsRequired(minimum: Int)
+    case invalidReorderOperation
+    case updateFailed(underlying: String)
+    case addSetFailed(underlying: String)
+    case removeSetFailed(underlying: String)
+    case reorderFailed(underlying: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .validationFailed(errors):
+            errors.compactMap(\.errorDescription).joined(separator: "\n")
+        case let .exerciseNotFound(id):
+            "Exercise not found: \(id)"
+        case let .setNotFound(id):
+            "Set not found: \(id)"
+        case let .maximumSetsExceeded(maximum):
+            "Maximum sets exceeded (\(maximum))."
+        case let .minimumSetsRequired(minimum):
+            "Minimum sets required (\(minimum))."
+        case .invalidReorderOperation:
+            "Invalid reorder operation."
+        case let .updateFailed(underlying),
+             let .addSetFailed(underlying),
+             let .removeSetFailed(underlying),
+             let .reorderFailed(underlying):
+            underlying
+        }
+    }
+}
+
 /// Service responsible for managing exercise customization operations
 /// Provides validation, modification, and management of exercise sets within workout plans
 @MainActor
@@ -351,5 +411,99 @@ class ExerciseCustomizationService: ObservableObject {
             handleError(customizationError)
             throw customizationError
         }
+    }
+}
+
+// MARK: - Private Helpers
+
+private extension ExerciseCustomizationService {
+    func setOperationInProgress(_ description: String) {
+        self.operationInProgress = description
+        self.isLoading = true
+    }
+
+    func clearOperationInProgress() {
+        self.operationInProgress = nil
+        self.isLoading = false
+    }
+
+    func clearError() {
+        self.lastError = nil
+    }
+
+    func handleError(_ error: ExerciseCustomizationError) {
+        self.lastError = error
+    }
+
+    func validateSetParameters(reps: Int, weight: Double) -> [ValidationError] {
+        var errors: [ValidationError] = []
+        if !self.validRepsRange.contains(reps) {
+            errors.append(.invalidReps(value: reps, allowed: self.validRepsRange))
+        }
+        if !self.validWeightRange.contains(weight) {
+            errors.append(.invalidWeight(value: weight, allowed: self.validWeightRange))
+        }
+        return errors
+    }
+
+    func validateExerciseStructure(_ exercise: ExerciseData) -> [ValidationError] {
+        var errors: [ValidationError] = []
+
+        if exercise.sets.count < self.minSetsPerExercise {
+            errors.append(.minimumSetsRequired(minimum: self.minSetsPerExercise))
+        }
+        if exercise.sets.count > self.maxSetsPerExercise {
+            errors.append(.maximumSetsExceeded(maximum: self.maxSetsPerExercise))
+        }
+
+        // Ensure set numbers start at 1 and are consecutive
+        let sorted = exercise.sets.sorted { $0.setNumber < $1.setNumber }
+        for (index, set) in sorted.enumerated() {
+            let expected = index + 1
+            if set.setNumber != expected {
+                errors.append(.invalidStructure(message: "Set numbering must be consecutive starting at 1."))
+                break
+            }
+            // Validate each set parameters
+            errors.append(contentsOf: self.validateSetParameters(reps: set.reps, weight: set.weight))
+        }
+
+        return errors
+    }
+
+    func renumberSets(_ sets: [ExerciseSet]) -> [ExerciseSet] {
+        let sorted = sets.sorted { $0.setNumber < $1.setNumber }
+        return sorted.enumerated().map { index, set in
+            set.withSetNumber(index + 1)
+        }
+    }
+
+    func calculateDefaultSetValues(from sets: [ExerciseSet]) -> (reps: Int, weight: Double, setType: SetType) {
+        guard let last = sets.sorted(by: { $0.setNumber < $1.setNumber }).last else {
+            return (reps: 10, weight: 0.0, setType: .normal)
+        }
+        // Heuristic: keep reps, slightly increase weight for progression within safe bounds
+        let nextWeight = min(max(self.validWeightRange.lowerBound, last.weight + 2.5), self.validWeightRange.upperBound)
+        return (reps: last.reps, weight: nextWeight, setType: last.setType)
+    }
+
+    func findPlanContainingExercise(_ exerciseId: UUID) async throws -> WorkoutPlanData? {
+        // Use cached plans first
+        if let plan = self.userPreferencesService.savedPlans.first(where: { plan in
+            plan.exercises.contains(where: { $0.id == exerciseId })
+        }) {
+            return plan
+        }
+
+        // Load plans if not already available
+        do {
+            try await self.userPreferencesService.loadSavedPlans()
+        } catch {
+            throw ExerciseCustomizationError.updateFailed(underlying: error.localizedDescription)
+        }
+
+        return self.userPreferencesService.savedPlans.first(where: { plan in
+            plan.exercises.contains(where: { $0.id == exerciseId })
+        })
     }
 }
