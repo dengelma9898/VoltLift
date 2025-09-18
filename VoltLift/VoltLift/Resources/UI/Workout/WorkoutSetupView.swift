@@ -166,7 +166,7 @@ struct WorkoutSetupView: View {
                     self.plansSection
                 }
 
-                // Saved Plans Section
+                // Saved Plans Section (alle Pläne, keine Kürzung)
                 if !self.userPreferencesService.savedPlans.isEmpty {
                     self.savedPlansSection
                 }
@@ -266,7 +266,7 @@ struct WorkoutSetupView: View {
                     // Removed "View All" as all plans are displayed here
                 }
 
-                ForEach(Array(self.userPreferencesService.savedPlans.prefix(3))) { plan in
+                ForEach(self.userPreferencesService.savedPlans) { plan in
                     NavigationLink {
                         PlanDetailView(
                             plan: plan,
@@ -322,7 +322,7 @@ struct WorkoutSetupView: View {
                         } label: { Label("Delete", systemImage: "trash") }
                     }
 
-                    if plan.id != self.userPreferencesService.savedPlans.prefix(3).last?.id {
+                    if plan.id != self.userPreferencesService.savedPlans.last?.id {
                         Divider().opacity(0.2)
                     }
                 }
