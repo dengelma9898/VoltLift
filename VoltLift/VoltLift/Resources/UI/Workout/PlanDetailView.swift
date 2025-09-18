@@ -13,6 +13,7 @@ struct PlanDetailView: View {
     @State private var showRenameSheet = false
     @State private var pendingName: String = ""
     @State private var overrideName: String?
+    @State private var goToSession = false
 
     private var exerciseCountText: String {
         "\(self.plan.exerciseCount) exercises"
@@ -54,17 +55,8 @@ struct PlanDetailView: View {
             HStack(spacing: DesignSystem.Spacing.m) {
                 Button { self.goToEditor = true } label: { VLButtonLabel("Edit Plan", style: .secondary) }
                 Button {
-                    // Default: starte Session für erste Übung
-                    if let first = self.plan.exercises.first {
-                        // Navigation: Push WorkoutSessionView
-                        // NOTE: Für Einfachheit nutzen wir hier einen Sheet-Push via NavigationLink in einem Hack;
-                        // im echten Code könnte das über Routing/Coordinator laufen.
-                        let _ = ()
-                        // Delegate an onStart für bestehende Navigation, falls gesetzt
-                        self.onStart?()
-                    } else {
-                        self.onStart?()
-                    }
+                    // Starte neue Session für die erste Übung dieses Plans
+                    self.goToSession = true
                 } label: { VLButtonLabel("Start Workout", style: .primary) }
             }
             .padding(.horizontal)
@@ -87,6 +79,20 @@ struct PlanDetailView: View {
                 isActive: self.$goToEditor
             )
             .hidden()
+        )
+        .background(
+            NavigationLink(isActive: self.$goToSession) {
+                if let first = self.plan.exercises.first {
+                    WorkoutSessionView(
+                        planId: self.plan.id,
+                        firstExerciseId: first.id,
+                        exerciseUsesEquipment: false
+                    )
+                } else {
+                    Text("No exercises in plan")
+                }
+            } label: { EmptyView() }
+                .hidden()
         )
         .sheet(isPresented: self.$showRenameSheet) {
             NavigationStack {

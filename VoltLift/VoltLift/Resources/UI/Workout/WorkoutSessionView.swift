@@ -19,6 +19,9 @@ struct WorkoutSessionView: View {
     @State private var weightKg: Double = 0
     @State private var reps: Int = 0
     @State private var difficulties: [Int] = []
+    @State private var showSummary = false
+    @State private var summaryType: WorkoutSummaryView.CompletionType = .finished
+    @State private var showPlanEdit = false
 
     var body: some View {
         VStack(spacing: 16) {
@@ -81,8 +84,17 @@ struct WorkoutSessionView: View {
                     )
                     self.repIndex += 1
                 }
-                Button("Cancel") { self.viewModel.cancel() }
-                Button("Finish") { self.viewModel.finish() }
+                Button("Plan ändern") { self.showPlanEdit = true }
+                Button("Cancel") {
+                    self.viewModel.cancel()
+                    self.summaryType = .canceled
+                    self.showSummary = true
+                }
+                Button("Finish") {
+                    self.viewModel.finish()
+                    self.summaryType = .finished
+                    self.showSummary = true
+                }
             }
         }
         .padding()
@@ -93,6 +105,27 @@ struct WorkoutSessionView: View {
             set: { _ in self.viewModel.lastError = nil }
         )) { wrapper in
             Alert(title: Text("Fehler"), message: Text(wrapper.message), dismissButton: .default(Text("OK")))
+        }
+        .sheet(isPresented: self.$showSummary) {
+            WorkoutSummaryView(completion: self.summaryType, entries: self.viewModel.entries)
+        }
+        .sheet(isPresented: self.$showPlanEdit) {
+            // Minimaler Platzhalter für Plan-Edit-Overlay während der Session
+            NavigationStack {
+                VStack(spacing: 16) {
+                    Text("Planänderungen während der Session")
+                        .font(DesignSystem.Typography.titleS)
+                    Text("Hier können Sätze/Reps geändert werden. Änderungen werden erst bei Finish übernommen.")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                }
+                .padding()
+                .navigationTitle("Plan bearbeiten")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) { Button("Fertig") { self.showPlanEdit = false } }
+                }
+                .vlBrandBackground()
+            }
         }
     }
 }
