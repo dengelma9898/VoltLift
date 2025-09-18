@@ -42,9 +42,9 @@ Data Model: `/Users/dengelma/develop/private/VoltLift/specs/002-description-star
 15. T015 Aktualisiere `WorkoutSetEntry` falls nötig, um Validierung/Constraints aus Datenmodell sicherzustellen (≥0, 0,5‑Schritte; Schwierigkeit 1–10, Länge == Reps) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/WorkoutExecutionModels.swift` (keine API‑Brüche, Tests grün machen). [DONE]
 
 Services & Timer & Haptik
-16. T016 Service implementieren: `WorkoutSessionService` (UC1–UC8) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionService.swift` (Swift Concurrency, protokollbasierte DI; keine UI‑Abhängigkeiten).
-17. T017 [P] Timer‑Service implementieren: `RestTimerService` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/RestTimerService.swift` (fix 120s, Start bei Rep‑Bestätigung, keine manuelle Steuerung; liefert Ticks/Completion).
-18. T018 [P] Haptik/Jingle‑Adapter implementieren: `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/HapticsService.swift` (CoreHaptics/AudioServices; einfache API `signalTimerEnd()`).
+16. T016 Service implementieren: `WorkoutSessionService` (UC1–UC8) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionService.swift` (Swift Concurrency, protokollbasierte DI; keine UI‑Abhängigkeiten). [DONE]
+17. T017 [P] Timer‑Service implementieren: `RestTimerService` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/RestTimerService.swift` (fix 120s, Start bei Rep‑Bestätigung, keine manuelle Steuerung; liefert Ticks/Completion). [DONE]
+18. T018 [P] Haptik/Jingle‑Adapter implementieren: `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/HapticsService.swift` (CoreHaptics/AudioServices; einfache API `signalTimerEnd()`). [DONE]
 
 Persistence (Core Data)
 19. T019 Core‑Data‑Model erweitern: Neue Modellversion `VoltLift 4.xcdatamodel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/VoltLift.xcdatamodeld/` mit Entities `WorkoutSession`, `WorkoutSetEntry`, `PlanChangeDuringSession` gemäß Datenmodell; Migrationspfad erstellen.
