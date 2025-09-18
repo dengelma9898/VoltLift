@@ -690,24 +690,22 @@ struct PlanCreationView: View {
             }
             .padding(DesignSystem.Spacing.xl)
         }
-        .toolbar {
-            ToolbarItem(placement: .bottomBar) {
-                HStack {
-                    Spacer()
-                    Button("Save") {
-                        let name = self.planName.trimmingCharacters(in: .whitespacesAndNewlines)
-                        let new = WorkoutSetupView.Plan(
-                            name: name.isEmpty ? "My Plan" : name,
-                            exercises: self.exercises
-                        )
-                        self.onDone([new])
-                        self.dismiss()
-                    }
-                    .buttonStyle(VLPrimaryButtonStyle())
-                    .disabled(self.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    Spacer()
+        .safeAreaInset(edge: .bottom) {
+            HStack(spacing: DesignSystem.Spacing.m) {
+                Button("Save") {
+                    let name = self.planName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let new = WorkoutSetupView.Plan(
+                        name: name.isEmpty ? "My Plan" : name,
+                        exercises: self.exercises
+                    )
+                    self.onDone([new])
+                    self.dismiss()
                 }
+                .buttonStyle(VLPrimaryButtonStyle())
+                .disabled(self.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
         .sheet(isPresented: self.$showAddExercise) {
             AddExerciseView(
