@@ -1,50 +1,67 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# VoltLift Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Apple-First, Einfachheit, Aktualität
+- Basis: Swift 6, SwiftUI (Xcode 26), iOS SDK 26; min iOS 18.6.
+- Apple Human Interface Guidelines (HIG) strikt befolgen.
+- Einfache, gut lesbare Lösungen bevorzugen (YAGNI, klare Verantwortung, wenige Abhängigkeiten).
+- Entscheidungen richten sich nach `PRODUCT_VISION.md` und dem Design-System in `Docs/DESIGN_SYSTEM.md`.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Architektur: Clean Architecture + MVVM + Concurrency
+- Clean Architecture mit klar getrennten Schichten: Domain/Use-Cases, UI, Adapter (z. B. HealthKit, Location).
+- MVVM in der UI; Protokoll-basierte Dependency Injection.
+- Swift Concurrency (async/await, Actors) als Standard.
+- Keine Demo- oder Placeholder-Views im Produkt: nur vollständig funktionsfähige Screens.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Tests & Qualitätsleitplanken
+- Tests dort, wo der Nutzen am höchsten ist: Domain/Use-Cases, HealthKit-/Location-Adapter, kritische UI-Flows.
+- Stabilität hat Priorität vor 100% Coverage.
+- SwiftFormat & SwiftLint verpflichtend:
+  - Lokal nach jeder größeren Änderung ausführen.
+  - Pre-Commit und CI müssen grün sein; PRs ohne grüne Checks werden nicht gemergt.
+- Vor Abschluss einer Aufgabe Simulator-Build verifizieren (Xcode MCP) und wichtigsten Flow manuell prüfen.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Daten & Persistenz während aktiver Entwicklung
+- Aktive Entwicklungsphase: Keine Migrationsszenarien erforderlich.
+- Core-Data-Modelle dürfen evolvieren; Persistenztests sichern Integrität (siehe Tests in `VoltLiftTests`).
+- Vor Release definieren wir eine Migration-Policy; bis dahin keine Migrationspflicht.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Corporate Design & Design System
+- Corporate Design konsequent anwenden (Farben, Typografie, Komponenten).
+- Quelle: `Docs/DESIGN_SYSTEM.md` und die Farb-/Asset-Tokens in `Assets.xcassets`.
+- Barrierefreiheit sicherstellen: Dynamic Type, ausreichender Kontrast, VoiceOver-Texte.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Sicherheit & Privatsphäre
+- Least-Privilege-Prinzip für HealthKit/Location.
+- Keine unnötigen Daten erheben; kein Tracking ohne klaren Zweck.
+- Lokale Daten sicher speichern; sensible Informationen schützen.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Zusätzliche Rahmenbedingungen
+- Zielplattformen orientieren sich an der aktuellen stabilen Xcode-Toolchain.
+- Performance: ruckelfreie UI, keine Blockaden im Main-Thread; asynchrone I/O und effiziente Datenflüsse.
+- Offline-freundliche UX, wo sinnvoll; robuste Fehlerdarstellung für Netzwerk-/Systemfehler.
+- Internationalisierung bei Bedarf; Texte zentral verwalten.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Entwicklungs-Workflow, Reviews, Quality Gates
+- Branch-Strategie: `feature/*` → PR → `main`.
+- Vor dem PR:
+  - SwiftFormat lokal ausführen.
+  - SwiftLint lokal ausführen.
+  - Unit-/Integrations-/relevante UI-Tests laufen lassen.
+  - Simulator-Build starten und Smoke-Test durchführen.
+- PR-Anforderungen:
+  - Alle CI-Checks grün (Format, Lint, Build, Tests).
+  - Review prüft Konformität zu `PRODUCT_VISION.md`, `Docs/DESIGN_SYSTEM.md` und dieser Constitution.
+  - Keine Demo-/WIP-Views, kein toter Code in `main`.
+- Definition of Done:
+  - Feature vollständig, produktionsreif, ohne Platzhalter.
+  - Relevante Dokumente (z. B. diese Constitution) aktualisiert.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- Diese Constitution hat Vorrang vor anderen Praktiken.
+- Änderungen erfordern Dokumentation, Review und klare Begründung.
+- Komplexität muss begründet werden; einfache Lösung bevorzugen.
+- Leitdokumente: `AGENTS.md`, `PRODUCT_VISION.md`, `Docs/DESIGN_SYSTEM.md`.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-09-17 | **Last Amended**: 2025-09-17

@@ -368,7 +368,7 @@ private extension UserPreferencesService {
     /// - Parameter equipment: Array of EquipmentItem to save
     /// - Throws: Error if save fails
     func saveEquipmentToCoreData(_ equipment: [EquipmentItem]) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let context = self.persistenceController.newBackgroundContext()
 
             context.perform {
@@ -545,7 +545,7 @@ private extension UserPreferencesService {
     /// - Parameter planId: UUID of the plan to delete
     /// - Throws: Error if deletion fails
     func deletePlanFromCoreData(_ planId: UUID) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let context = self.persistenceController.newBackgroundContext()
 
             context.perform {
@@ -577,7 +577,7 @@ private extension UserPreferencesService {
     ///   - newName: New name for the plan
     /// - Throws: Error if renaming fails
     func renamePlanInCoreData(_ planId: UUID, newName: String) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let context = self.persistenceController.newBackgroundContext()
 
             context.perform {
@@ -609,7 +609,7 @@ private extension UserPreferencesService {
     ///   - date: New last used date
     /// - Throws: Error if update fails
     func updatePlanLastUsedDate(_ planId: UUID, date: Date) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let context = self.persistenceController.newBackgroundContext()
 
             context.perform {
@@ -749,6 +749,14 @@ extension UserPreferencesService {
         }
 
         throw lastError ?? UserPreferencesError.operationTimeout
+    }
+
+    /// Void-specialized overload to aid type inference in callers
+    func performWithRetry(_ operation: @escaping () async throws -> Void) async throws {
+        try await self.performWithRetry { () -> Bool in
+            try await operation()
+            return true
+        }
     }
 
     /// Maps generic errors to UserPreferencesError

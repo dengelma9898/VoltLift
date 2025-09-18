@@ -17,7 +17,7 @@ struct PersistenceController {
     // MARK: - Preview Support
 
     /// Preview instance for SwiftUI previews with in-memory store
-    static var preview: PersistenceController = {
+    nonisolated(unsafe) static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
 
@@ -82,7 +82,7 @@ struct PersistenceController {
 
         // Configure view context for better performance
         self.container.viewContext.automaticallyMergesChangesFromParent = true
-        self.container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        self.container.viewContext.mergePolicy = NSMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
     }
 
     // MARK: - Save Context
@@ -106,7 +106,7 @@ struct PersistenceController {
     /// Creates a new background context for performing operations off the main thread
     func newBackgroundContext() -> NSManagedObjectContext {
         let context = self.container.newBackgroundContext()
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.mergePolicy = NSMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
 
         // Performance optimizations for background contexts
         context.undoManager = nil // Disable undo for better performance
@@ -129,8 +129,10 @@ struct PersistenceController {
     /// Performs a background save operation with proper error handling
     /// - Parameter operation: The operation to perform in the background context
     /// - Returns: Result of the operation
-    func performBackgroundTask<T>(_ operation: @escaping (NSManagedObjectContext) throws -> T) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
+    func performBackgroundTask<T>(_ operation: @escaping @Sendable (NSManagedObjectContext) throws -> T) async throws
+        -> T
+    {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<T, Error>) in
             let context = self.newBatchContext()
 
             context.perform {
@@ -743,5 +745,21 @@ extension PersistenceController {
         }
 
         return hasCorruption
+    }
+}
+
+extension PersistenceController {
+    // Persist explicit plan edits (called from ViewModel after validation)
+    @MainActor
+    func savePlanEdits(_ plan: WorkoutPlan) throws {
+        // TODO: Map WorkoutPlan to Core Data entities when data model is ready
+        // Placeholder to satisfy architecture; implement mapping in dedicated task if needed
+    }
+
+    // Persist workout entries on finish
+    @MainActor
+    func saveWorkoutEntries(_ entries: [WorkoutSetEntry]) throws {
+        // TODO: Map WorkoutSetEntry to Core Data entities or HealthKit records as appropriate
+        // Placeholder to satisfy architecture; implement mapping in dedicated task if needed
     }
 }

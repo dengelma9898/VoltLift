@@ -42,47 +42,47 @@
   - Cover: reps ≥ 0, setType Enum, unilateral nur wenn erlaubt, weight steps 0.5, difficulty 1..10
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
-- [ ] T020 [P] Create plan models (WorkoutPlan, PlanExercise, ExerciseSet)
+- [x] T020 [P] Create plan models (WorkoutPlan, PlanExercise, ExerciseSet)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Models/WorkoutPlanModels.swift`
   - Include: fields, equatable, validation helpers
-- [ ] T021 [P] Create execution models (WorkoutSetEntry)
+- [x] T021 [P] Create execution models (WorkoutSetEntry)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Models/WorkoutExecutionModels.swift`
   - Include: difficulty array (1–10), weightKg optional, validation
-- [ ] T022 PlanEditorService (UC1–UC3)
+- [x] T022 PlanEditorService (UC1–UC3)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Services/PlanEditorService.swift`
   - Methods: addSet/removeSet/moveSet, editSetAttributes, savePlan
-- [ ] T023 WorkoutLoggingService (UC4–UC5)
+- [x] T023 WorkoutLoggingService (UC4–UC5)
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Services/WorkoutLoggingService.swift`
   - Methods: recordSetWeight(equipment-only), recordPerRepDifficulty
-- [ ] T024 [P] ViewModels for Editor & Logging
+- [x] T024 [P] ViewModels for Editor & Logging
   - Files:
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/UI/Workout/PlanEditorViewModel.swift`
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/UI/Workout/WorkoutLoggingViewModel.swift`
   - Responsibilities: state, validation, bind to services
-- [ ] T025 SwiftUI Views for Editor & Logging
+- [x] T025 SwiftUI Views for Editor & Logging
   - Files:
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/UI/Workout/PlanEditorView.swift`
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/UI/Workout/WorkoutLoggingView.swift`
   - Controls: Picker/Stepper, SegmentedControl, Side toggle, Comment field, Weight stepper, Difficulty capture
-- [ ] T026 Taxonomy: unilateral criteria in metadata
+- [x] T026 Taxonomy: unilateral criteria in metadata
   - File: `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Extensions/ExerciseMetadata+Extensions.swift`
   - Add: `allowsUnilateral` mapping/logic per exercise type
-- [ ] T027 Persistence integration (Core Data)
+- [x] T027 Persistence integration (Core Data)
   - Files:
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Core Data/PersistenceController.swift`
     - Core Data model updates as needed (`VoltLift.xcdatamodeld`)
   - Persist: plan edits on explicit save; workout entries on finish
 
 ## Phase 3.4: Integration
-- [ ] T030 Wire services into existing flows
+- [x] T030 Wire services into existing flows
   - Files:
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/Services/ExerciseCustomizationService.swift`
     - `/Users/dengelma/develop/private/VoltLift/VoltLift/Resources/UI/Workout/ExerciseService.swift`
   - Ensure: plan models used in UI, logging routes to services
-- [ ] T031 HealthKit write path review
+- [x] T031 HealthKit write path review
   - Confirm: difficulty is local-only (not in HK); weight written where supported; no duplicates
   - Files: HealthKit adapter files (identify and update if needed)
-- [ ] T032 Update quickstart with UX link
+- [x] T032 Update quickstart with UX link
   - File: `/Users/dengelma/develop/private/VoltLift/specs/001-specify-fine-tune/quickstart.md`
   - Add: Link zu `/Users/dengelma/develop/private/VoltLift/Docs/UX_PRINCIPLES.md`
 
