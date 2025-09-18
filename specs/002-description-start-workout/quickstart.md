@@ -12,12 +12,12 @@
 4. Build & Run (⌘R)
 
 ## Smoke-Test
-1. Plan auswählen → "Start Workout" tippen.
-2. Erste Übung: Eine Wiederholung ausführen → Gewicht (0,5‑kg‑Schritte, ≥0 bei Equipment) und Schwierigkeit (1–10) wählen → "Bestätigen".
-3. 2:00‑Timer startet automatisch → nach Ablauf Haptik/Jingle → nächste Wiederholung.
-4. Letzte Wiederholung der Übung bestätigen → Auto‑Advance zur nächsten Übung (Swipen jederzeit möglich).
-5. Währenddessen einen Satz hinzufügen und Reps ändern → am Ende (Finish) prüfen, dass Planänderungen übernommen wurden.
-6. Abbruch‑Pfad: Workout starten, einige Reps loggen → "Cancel" → Zusammenfassung erscheint → prüfen, dass Ausführungsdaten gespeichert und Planänderungen verworfen wurden.
+1. Plan öffnen (`Saved Plans` → Plan wählen) → "Start Workout" tippen (navigiert zu `WorkoutSessionView`).
+2. Falls Equipment: Gewicht per Stepper wählen (0,5‑kg‑Schritte, ≥0). Reps festlegen und pro Wiederholung Schwierigkeit (1–10) wählen.
+3. "Bestätigen" tippen → 2:00‑Timer startet automatisch. Nach Ablauf Haptik/Jingle.
+4. Wiederholt bestätigen; optional "Plan ändern" öffnen (Overlay) und Änderungen simulieren.
+5. "Finish" → Zusammenfassung erscheint (alle Einträge sichtbar); App neu starten → Daten bestehen.
+6. "Cancel" → Zusammenfassung erscheint; Planänderungen werden verworfen (nur Ausführungsdaten gespeichert).
 
 ## Format & Lint
 - `swiftformat .` und `swiftlint` im Repo ausführen
@@ -25,5 +25,6 @@
 ## Hinweise
 - UI folgt `Docs/DESIGN_SYSTEM.md` (VLGlassCard, Brand‑Background, Bottom‑CTA ohne grauen Container).
 - Keine manuelle Timer‑Steuerung; Start bei Rep‑Bestätigung; Ende automatisch.
+- Screenshots: Session-Hauptscreen, Timer‑Anzeige, Plan‑Edit‑Overlay, Zusammenfassung.
 
 
