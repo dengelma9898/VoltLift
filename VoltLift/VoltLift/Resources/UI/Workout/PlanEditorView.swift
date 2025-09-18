@@ -10,49 +10,91 @@ struct PlanEditorView: View {
     }
 
     var body: some View {
-        List {
-            ForEach(self.viewModel.plan.exercises) { exercise in
-                Section(exercise.displayName) {
-                    // Sets edit list
-                    ForEach(exercise.sets.indices, id: \.self) { index in
-                        let set = exercise.sets[index]
-                        SetEditorRow(
-                            exerciseId: exercise.id,
-                            setIndex: index,
-                            allowsUnilateral: exercise.allowsUnilateral,
-                            set: set
-                        ) { reps, type, side, comment in
-                            self.viewModel.editSetAttributes(
-                                exerciseId: exercise.id,
-                                setIndex: index,
-                                reps: reps,
-                                setType: type,
-                                side: side,
-                                comment: comment
-                            )
-                        }
-                    }
-                    .onDelete { offsets in
-                        offsets.forEach { self.viewModel.removeSet(from: exercise.id, at: $0) }
-                    }
-                    .onMove { source, destination in
-                        if let from = source
-                            .first { self.viewModel.moveSet(in: exercise.id, from: from, to: destination) }
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+                ForEach(self.viewModel.plan.exercises) { exercise in
+                    VLGlassCard {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                            // Übungs-Header
+                            HStack {
+                                Text(exercise.displayName)
+                                    .font(DesignSystem.Typography.titleS)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                Spacer()
+                                Text("\(exercise.sets.count) Sets")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            }
 
-                    // Add set button
-                    Button {
-                        let newSet = PlanSetDraft(reps: 10, setType: .normal, side: .both, comment: nil)
-                        self.viewModel.addSet(to: exercise.id, newSet: newSet)
-                    } label: {
-                        Label("Satz hinzufügen", systemImage: "plus.circle")
+                            // Sets edit list
+                            ForEach(exercise.sets.indices, id: \.self) { index in
+                                let set = exercise.sets[index]
+                                VStack(alignment: .leading, spacing: 8) {
+                                    SetEditorRow(
+                                        exerciseId: exercise.id,
+                                        setIndex: index,
+                                        allowsUnilateral: exercise.allowsUnilateral,
+                                        set: set
+                                    ) { reps, type, side, comment in
+                                        self.viewModel.editSetAttributes(
+                                            exerciseId: exercise.id,
+                                            setIndex: index,
+                                            reps: reps,
+                                            setType: type,
+                                            side: side,
+                                            comment: comment
+                                        )
+                                    }
+
+                                    // Row-Actions (Move/Delete)
+                                    HStack(spacing: DesignSystem.Spacing.s) {
+                                        Button {
+                                            guard index > 0 else { return }
+                                            self.viewModel.moveSet(in: exercise.id, from: index, to: index - 1)
+                                        } label: { Image(systemName: "chevron.up") }
+                                            .buttonStyle(.plain)
+                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+
+                                        Button {
+                                            guard index < exercise.sets.count - 1 else { return }
+                                            self.viewModel.moveSet(in: exercise.id, from: index, to: index + 1)
+                                        } label: { Image(systemName: "chevron.down") }
+                                            .buttonStyle(.plain)
+                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+
+                                        Spacer()
+
+                                        Button(role: .destructive) {
+                                            self.viewModel.removeSet(from: exercise.id, at: index)
+                                        } label: {
+                                            Label("Löschen", systemImage: "trash")
+                                        }
+                                        .buttonStyle(.borderless)
+                                    }
+                                }
+
+                                if index < exercise.sets.count - 1 {
+                                    Divider().opacity(0.2)
+                                }
+                            }
+
+                            // Add set button
+                            Button {
+                                let newSet = PlanSetDraft(reps: 10, setType: .normal, side: .both, comment: nil)
+                                self.viewModel.addSet(to: exercise.id, newSet: newSet)
+                            } label: {
+                                Label("Satz hinzufügen", systemImage: "plus.circle")
+                            }
+                            .tint(DesignSystem.ColorRole.primary)
+                        }
                     }
                 }
             }
+            .padding(DesignSystem.Spacing.xl)
         }
+        .vlBrandBackground()
         .navigationTitle("Plan bearbeiten")
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) { EditButton() }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Speichern") {
                     // 1) Domain-Validierung

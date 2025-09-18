@@ -9,24 +9,31 @@ struct PlanDetailView: View {
     @EnvironmentObject private var userPreferencesService: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteConfirm = false
+    @State private var goToEditor = false
+    @State private var showRenameSheet = false
+    @State private var pendingName: String = ""
+    @State private var overrideName: String?
 
     private var exerciseCountText: String {
         "\(self.plan.exerciseCount) exercises"
     }
 
     var body: some View {
-        List {
-            self.headerSection
-            self.exercisesSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+                self.headerCard
+                self.exercisesList
+            }
+            .padding(DesignSystem.Spacing.xl)
         }
-        .scrollContentBackground(.hidden)
         .vlBrandBackground()
         .navigationTitle("Plan")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button("Rename", systemImage: "pencil") {
-                        // Optional: Rename flow (später)
+                        self.pendingName = self.overrideName ?? self.plan.name
+                        self.showRenameSheet = true
                     }
                     Button("Duplicate", systemImage: "plus.square.on.square") {
                         Task { await self.duplicatePlan() }
@@ -45,21 +52,11 @@ struct PlanDetailView: View {
         }
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: DesignSystem.Spacing.m) {
-                Button {
-                    self.onEdit?()
-                } label: {
-                    VLButtonLabel("Edit Plan", style: .secondary)
-                }
-
-                Button {
-                    self.onStart?()
-                } label: {
-                    VLButtonLabel("Start Workout", style: .primary)
-                }
+                Button { self.goToEditor = true } label: { VLButtonLabel("Edit Plan", style: .secondary) }
+                Button { self.onStart?() } label: { VLButtonLabel("Start Workout", style: .primary) }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
         }
         .alert("Delete this plan?", isPresented: self.$showDeleteConfirm) {
             Button("Delete", role: .destructive) {
@@ -70,17 +67,59 @@ struct PlanDetailView: View {
         } message: {
             Text("This action cannot be undone.")
         }
+        .background(
+            NavigationLink(
+                "",
+                destination: PlanEditorView(plan: self.mapToDraft(self.plan))
+                    .environmentObject(self.userPreferencesService),
+                isActive: self.$goToEditor
+            )
+            .hidden()
+        )
+        .sheet(isPresented: self.$showRenameSheet) {
+            NavigationStack {
+                Form {
+                    Section("Name") {
+                        TextField("Plan name", text: self.$pendingName)
+                    }
+                }
+                .navigationTitle("Rename Plan")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { self.showRenameSheet = false } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            let trimmed = self.pendingName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !trimmed.isEmpty else { self.showRenameSheet = false
+                                return
+                            }
+                            Task { @MainActor in
+                                do {
+                                    try await self.userPreferencesService.renamePlan(self.plan.id, newName: trimmed)
+                                    self.overrideName = trimmed
+                                    self.showRenameSheet = false
+                                } catch {
+                                    self.showRenameSheet = false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private var headerSection: some View {
+    private var headerCard: some View {
         let relativeFormatter = RelativeDateTimeFormatter()
-        return Section {
+        return VLGlassCard {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(self.plan.name)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(self.overrideName ?? self.plan.name)
                         .font(DesignSystem.Typography.titleM)
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     Text(self.exerciseCountText)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    Text("Created: " + self.formatCreated(self.plan.createdDate))
                         .font(DesignSystem.Typography.caption)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     if let last = self.plan.lastUsedDate {
@@ -95,15 +134,21 @@ struct PlanDetailView: View {
         }
     }
 
-    private var exercisesSection: some View {
-        Section("Exercises") {
+    private var exercisesList: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+            Text("Exercises")
+                .font(DesignSystem.Typography.titleS)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
             ForEach(self.plan.exercises, id: \.id) { exercise in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(exercise.name)
-                        .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                    Text("\(exercise.totalSets) x \(exercise.averageReps)")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(exercise.name)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                        Text(self.exerciseSubtitle(exercise))
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
                 }
             }
         }
@@ -123,5 +168,56 @@ struct PlanDetailView: View {
         } catch {
             // Error surfaced via service.lastError
         }
+    }
+
+    private func mapToDraft(_ plan: WorkoutPlanData) -> PlanDraft {
+        PlanDraft(
+            id: plan.id,
+            name: plan.name,
+            exercises: plan.exercises.map { exercise in
+                PlanExerciseDraft(
+                    id: exercise.id,
+                    referenceExerciseId: exercise.id.uuidString,
+                    displayName: exercise.name,
+                    allowsUnilateral: false,
+                    sets: exercise.sets.map { set in
+                        let mappedType: ExerciseSetType = switch set.setType {
+                        case .warmUp: .warmUp
+                        case .normal: .normal
+                        case .coolDown: .coolDown
+                        }
+                        return PlanSetDraft(reps: set.reps, setType: mappedType, side: .both, comment: nil)
+                    }
+                )
+            }
+        )
+    }
+
+    private func formatCreated(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateStyle = .medium
+        df.timeStyle = .none
+        return df.string(from: date)
+    }
+
+    // MARK: - Summaries
+
+    private func exerciseSubtitle(_ exercise: ExerciseData) -> String {
+        let warm = exercise.sets.count(where: { $0.setType == .warmUp })
+        let normal = exercise.sets.count(where: { $0.setType == .normal })
+        let cool = exercise.sets.count(where: { $0.setType == .coolDown })
+        var parts: [String] = []
+        if warm > 0 { parts.append("Warm-up: \(warm)") }
+        if normal > 0 { parts.append("Working: \(normal)") }
+        if cool > 0 { parts.append("Cool-down: \(cool)") }
+
+        let reps = exercise.sets.map(\.reps)
+        if let minR = reps.min(), let maxR = reps.max() {
+            let repsStr = (minR == maxR) ? "Reps: \(minR)" : "Reps: \(minR)–\(maxR) (avg \(exercise.averageReps))"
+            parts.append(repsStr)
+        }
+
+        parts.append("Rest: \(exercise.restTime)s")
+        return parts.joined(separator: "  •  ")
     }
 }
