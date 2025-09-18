@@ -24,15 +24,15 @@ Feature dir: `/Users/dengelma/develop/private/VoltLift/specs/002-description-sta
 ### Phase 3.2: Tests First (TDD) – Muss vor 3.3 fertig sein
 Contract: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-workout/contracts/workout-session.md`
 
-4. T004 [P] Contract-Test UC1 Start Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC1_StartWorkoutTests.swift` (Service-API, Fehlerfälle).
-5. T005 [P] Contract-Test UC2 Confirm Rep in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC2_ConfirmRepTests.swift` (Gewicht 0,5‑Schritt, ≥0; Schwierigkeit 1–10; NoEquipment).
-6. T006 [P] Contract-Test UC3 Rest Timer Elapsed in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC3_RestTimerElapsedTests.swift` (Timer 120s, Signal).
-7. T007 [P] Contract-Test UC4 Auto‑Advance After Exercise Complete in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC4_AutoAdvanceTests.swift`.
-8. T008 [P] Contract-Test UC5 Cancel Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC5_CancelWorkoutTests.swift` (Persistiert SetEntries; verwirft Planänderungen).
-9. T009 [P] Contract-Test UC6 Finish Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC6_FinishWorkoutTests.swift` (Persistiert und wendet Planänderungen an).
-10. T010 [P] Contract-Test UC7 Edit Plan During Session in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC7_EditPlanDuringSessionTests.swift`.
-11. T011 [P] Contract-Test UC8 Restrict Parallel Editing in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC8_RestrictParallelEditingTests.swift`.
-12. T012 [P] Integration-UI-Test „Quickstart Smoke-Test“ in `/Users/dengelma/develop/private/VoltLift/VoltLiftUITests/WorkoutSessionFlowUITests.swift` gemäß `quickstart.md` (Start → Rep bestätigen → Timer → Auto‑Advance → Finish/Cancel Pfade).
+4. T004 [P] Contract-Test UC1 Start Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC1_StartWorkoutTests.swift` (Service-API, Fehlerfälle). [DONE]
+5. T005 [P] Contract-Test UC2 Confirm Rep in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC2_ConfirmRepTests.swift` (Gewicht 0,5‑Schritt, ≥0; Schwierigkeit 1–10; NoEquipment). [DONE]
+6. T006 [P] Contract-Test UC3 Rest Timer Elapsed in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC3_RestTimerElapsedTests.swift` (Timer 120s, Signal). [DONE]
+7. T007 [P] Contract-Test UC4 Auto‑Advance After Exercise Complete in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC4_AutoAdvanceTests.swift`. [DONE]
+8. T008 [P] Contract-Test UC5 Cancel Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC5_CancelWorkoutTests.swift` (Persistiert SetEntries; verwirft Planänderungen). [DONE]
+9. T009 [P] Contract-Test UC6 Finish Workout in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC6_FinishWorkoutTests.swift` (Persistiert und wendet Planänderungen an). [DONE]
+10. T010 [P] Contract-Test UC7 Edit Plan During Session in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC7_EditPlanDuringSessionTests.swift`. [DONE]
+11. T011 [P] Contract-Test UC8 Restrict Parallel Editing in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/WorkoutSessionUC8_RestrictParallelEditingTests.swift`. [DONE]
+12. T012 [P] Integration-UI-Test „Quickstart Smoke-Test“ in `/Users/dengelma/develop/private/VoltLift/VoltLiftUITests/WorkoutSessionFlowUITests.swift` gemäß `quickstart.md` (Start → Rep bestätigen → Timer → Auto‑Advance → Finish/Cancel Pfade). [DONE]
 
 ### Phase 3.3: Core Implementation (nachdem Tests fehlschlagen)
 Data Model: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-workout/data-model.md`
