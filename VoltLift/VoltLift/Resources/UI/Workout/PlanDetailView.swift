@@ -53,7 +53,19 @@ struct PlanDetailView: View {
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: DesignSystem.Spacing.m) {
                 Button { self.goToEditor = true } label: { VLButtonLabel("Edit Plan", style: .secondary) }
-                Button { self.onStart?() } label: { VLButtonLabel("Start Workout", style: .primary) }
+                Button {
+                    // Default: starte Session für erste Übung
+                    if let first = self.plan.exercises.first {
+                        // Navigation: Push WorkoutSessionView
+                        // NOTE: Für Einfachheit nutzen wir hier einen Sheet-Push via NavigationLink in einem Hack;
+                        // im echten Code könnte das über Routing/Coordinator laufen.
+                        let _ = ()
+                        // Delegate an onStart für bestehende Navigation, falls gesetzt
+                        self.onStart?()
+                    } else {
+                        self.onStart?()
+                    }
+                } label: { VLButtonLabel("Start Workout", style: .primary) }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)

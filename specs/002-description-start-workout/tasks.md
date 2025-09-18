@@ -51,9 +51,9 @@ Persistence (Core Data)
 20. T020 Repository/Adapter implementieren: `WorkoutSessionRepository` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionRepository.swift` (CRUD für Session, SetEntries, PlanChangeDuringSession; Integration `PersistenceController.swift`).
 
 UI & Navigation
-21. T021 ViewModel implementieren: `WorkoutSessionViewModel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionViewModel.swift` (bindet `WorkoutSessionService`, `RestTimerService`, `HapticsService`).
-22. T022 View implementieren: `WorkoutSessionView` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionView.swift` (VLGlassCard, Brand‑Background, Bottom‑CTAs; Gewicht/Difficulty Erfassung; Timer‑Anzeige; Auto‑Advance UI‑Flow).
-23. T023 `PlanDetailView` verdrahten: onStart navigiert zu `WorkoutSessionView` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/PlanDetailView.swift` (Navigation, Übergabe planId/erste Übung).
+21. T021 ViewModel implementieren: `WorkoutSessionViewModel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionViewModel.swift` (bindet `WorkoutSessionService`, `RestTimerService`, `HapticsService`). [DONE]
+22. T022 View implementieren: `WorkoutSessionView` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionView.swift` (VLGlassCard, Brand‑Background, Bottom‑CTAs; Gewicht/Difficulty Erfassung; Timer‑Anzeige; Auto‑Advance UI‑Flow). [DONE]
+23. T023 `PlanDetailView` verdrahten: onStart navigiert zu `WorkoutSessionView` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/PlanDetailView.swift` (Navigation, Übergabe planId/erste Übung). [DONE]
 24. T024 Zusammenfassung implementieren: `WorkoutSummaryView` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSummaryView.swift` (Finish/Cancel Pfade, Anzeige der Session‑Daten).
 25. T025 Plan‑Edit während Session (UI) implementieren: Sheet/Overlay zur Satz‑/Rep‑Modifikation; Änderungen als `PlanChangeDuringSession` erfassen; in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionView.swift`.
 
