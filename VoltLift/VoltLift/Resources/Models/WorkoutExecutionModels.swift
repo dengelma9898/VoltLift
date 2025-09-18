@@ -38,6 +38,7 @@ public enum ExecutionValidation {
 
     public static func isValidDifficulties(_ difficulties: [Int], reps: Int) -> Bool {
         guard difficulties.count == reps else { return false }
+        guard reps >= 0 else { return false }
         return difficulties.allSatisfy { (1 ... 10).contains($0) }
     }
 }

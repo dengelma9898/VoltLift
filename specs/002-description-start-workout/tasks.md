@@ -37,9 +37,9 @@ Contract: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-
 ### Phase 3.3: Core Implementation (nachdem Tests fehlschlagen)
 Data Model: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-workout/data-model.md`
 
-13. T013 [P] Modell anlegen: `WorkoutSession` (Domain) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/WorkoutSessionModels.swift` (Felder: id, planId, startedAt, finishedAt?, status, currentExerciseIndex, setIndex, repIndex, restDurationSeconds=120, restTimerRemainingSeconds, hapticOnTimerEnd=true).
-14. T014 [P] Modell anlegen: `PlanChangeDuringSession` (Domain) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/PlanChangeDuringSessionModels.swift` (operation+payload opaque).
-15. T015 Aktualisiere `WorkoutSetEntry` falls nötig, um Validierung/Constraints aus Datenmodell sicherzustellen (≥0, 0,5‑Schritte; Schwierigkeit 1–10, Länge == Reps) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/WorkoutExecutionModels.swift` (keine API‑Brüche, Tests grün machen).
+13. T013 [P] Modell anlegen: `WorkoutSession` (Domain) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/WorkoutSessionModels.swift` (Felder: id, planId, startedAt, finishedAt?, status, currentExerciseIndex, setIndex, repIndex, restDurationSeconds=120, restTimerRemainingSeconds, hapticOnTimerEnd=true). [DONE]
+14. T014 [P] Modell anlegen: `PlanChangeDuringSession` (Domain) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/PlanChangeDuringSessionModels.swift` (operation+payload opaque). [DONE]
+15. T015 Aktualisiere `WorkoutSetEntry` falls nötig, um Validierung/Constraints aus Datenmodell sicherzustellen (≥0, 0,5‑Schritte; Schwierigkeit 1–10, Länge == Reps) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Models/WorkoutExecutionModels.swift` (keine API‑Brüche, Tests grün machen). [DONE]
 
 Services & Timer & Haptik
 16. T016 Service implementieren: `WorkoutSessionService` (UC1–UC8) in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionService.swift` (Swift Concurrency, protokollbasierte DI; keine UI‑Abhängigkeiten).
