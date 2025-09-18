@@ -39,11 +39,17 @@ public protocol WorkoutSessionHandling {
 }
 
 public struct WorkoutSessionService: WorkoutSessionHandling {
-    public init() {}
+    private let repository: WorkoutSessionRepository
+
+    public init(repository: WorkoutSessionRepository = WorkoutSessionRepository()) {
+        self.repository = repository
+    }
 
     public func start(planId: UUID) throws -> WorkoutSession {
         // In echter Implementierung: planId prüfen (Repository). Hier nur Domain-Objekt initialisieren.
-        WorkoutSession(planId: planId)
+        let session = WorkoutSession(planId: planId)
+        Task { try? await self.repository.createSession(from: session) }
+        return session
     }
 
     public func confirmRep(
@@ -77,25 +83,43 @@ public struct WorkoutSessionService: WorkoutSessionHandling {
         }
         session.repIndex = repIndex
         session.restTimerRemainingSeconds = session.restDurationSeconds
+        Task {
+            try? await self.repository.upsertEntry(
+                entries
+                    .first(where: { $0.planExerciseId == planExerciseId && $0.setIndex == setIndex }) ??
+                    WorkoutSetEntry(
+                        planExerciseId: planExerciseId,
+                        setIndex: setIndex,
+                        weightKg: weightKg,
+                        difficulties: difficulties
+                    ),
+                sessionId: session.id
+            )
+            try? await self.repository.updateSession(session)
+        }
     }
 
     public func restTimerElapsed(session: inout WorkoutSession) {
         session.restTimerRemainingSeconds = 0
+        Task { try? await self.repository.updateSession(session) }
     }
 
     public func autoAdvanceAfterExerciseComplete(session: inout WorkoutSession) {
         session.currentExerciseIndex += 1
         session.setIndex = 0
         session.repIndex = 0
+        Task { try? await self.repository.updateSession(session) }
     }
 
     public func cancel(session: inout WorkoutSession) {
         session.status = .canceled
         session.finishedAt = Date()
+        Task { try? await self.repository.updateSession(session) }
     }
 
     public func finish(session: inout WorkoutSession) {
         session.status = .finished
         session.finishedAt = Date()
+        Task { try? await self.repository.updateSession(session) }
     }
 }

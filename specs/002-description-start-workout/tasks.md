@@ -47,8 +47,8 @@ Services & Timer & Haptik
 18. T018 [P] Haptik/Jingle‑Adapter implementieren: `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/HapticsService.swift` (CoreHaptics/AudioServices; einfache API `signalTimerEnd()`). [DONE]
 
 Persistence (Core Data)
-19. T019 Core‑Data‑Model erweitern: Neue Modellversion `VoltLift 4.xcdatamodel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/VoltLift.xcdatamodeld/` mit Entities `WorkoutSession`, `WorkoutSetEntry`, `PlanChangeDuringSession` gemäß Datenmodell; Migrationspfad erstellen.
-20. T020 Repository/Adapter implementieren: `WorkoutSessionRepository` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionRepository.swift` (CRUD für Session, SetEntries, PlanChangeDuringSession; Integration `PersistenceController.swift`).
+19. T019 Core‑Data‑Model erweitern: Neue Modellversion `VoltLift 4.xcdatamodel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/VoltLift.xcdatamodeld/` mit Entities `WorkoutSession`, `WorkoutSetEntry`, `PlanChangeDuringSession` gemäß Datenmodell; Migrationspfad erstellen. [DONE]
+20. T020 Repository/Adapter implementieren: `WorkoutSessionRepository` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/Services/WorkoutSessionRepository.swift` (CRUD für Session, SetEntries, PlanChangeDuringSession; Integration `PersistenceController.swift`). [DONE]
 
 UI & Navigation
 21. T021 ViewModel implementieren: `WorkoutSessionViewModel` in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionViewModel.swift` (bindet `WorkoutSessionService`, `RestTimerService`, `HapticsService`). [DONE]
@@ -58,9 +58,9 @@ UI & Navigation
 25. T025 Plan‑Edit während Session (UI) implementieren: Sheet/Overlay zur Satz‑/Rep‑Modifikation; Änderungen als `PlanChangeDuringSession` erfassen; in `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/WorkoutSessionView.swift`. [DONE]
 
 ### Phase 3.4: Integration
-26. T026 Services mit Persistence verbinden: `WorkoutSessionService` nutzt `WorkoutSessionRepository` für Persistenz (Start, Confirm, Cancel, Finish) – Dateien siehe T016/T020.
-27. T027 [P] Haptik an Timer koppeln: `RestTimerService` Completion → `HapticsService.signalTimerEnd()` (Dateien T017/T018).
-28. T028 Fehlerbehandlung & Logging konsolidieren: Domain‑Errors → lokalisierte User‑Meldungen; Mapping im ViewModel (`lastError`) und UI‑Alerts; Pfade: `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/*` und Services.
+26. T026 Services mit Persistence verbinden: `WorkoutSessionService` nutzt `WorkoutSessionRepository` für Persistenz (Start, Confirm, Cancel, Finish) – Dateien siehe T016/T020. [DONE]
+27. T027 [P] Haptik an Timer koppeln: `RestTimerService` Completion → `HapticsService.signalTimerEnd()` (Dateien T017/T018). [DONE]
+28. T028 Fehlerbehandlung & Logging konsolidieren: Domain‑Errors → lokalisierte User‑Meldungen; Mapping im ViewModel (`lastError`) und UI‑Alerts; Pfade: `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/*` und Services. [DONE]
 
 ### Phase 3.5: Polish
 29. T029 [P] Zusätzliche Unit‑Tests: Validierung (`ExecutionValidation`), `WorkoutSessionService`, `RestTimerService`, `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/`.
