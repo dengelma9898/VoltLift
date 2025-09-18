@@ -633,43 +633,80 @@ struct PlanCreationView: View {
     @State private var currentGroup: WorkoutSetupView.MuscleGroup = .chest
 
     var body: some View {
-        Form {
-            Section("Plan") {
-                TextField("Name", text: self.$planName)
-            }
-
-            Section("Exercises") {
-                if self.exercises.isEmpty {
-                    Text("No exercises yet").foregroundColor(DesignSystem.ColorRole.textSecondary)
-                } else {
-                    ForEach(self.exercises) { exercise in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(exercise.name)
-                                Text(exercise.muscleGroup.rawValue).font(.caption)
-                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                            }
-                            Spacer()
-                        }
+        ScrollView {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.s) {
+                        Text("Plan")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                        TextField("Name", text: self.$planName)
                     }
-                    .onDelete { idx in self.exercises.remove(atOffsets: idx) }
                 }
 
-                Button {
-                    self.showAddExercise = true
-                } label: {
-                    Label("Add Exercise", systemImage: "plus.circle")
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                        Text("Exercises")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
+                        if self.exercises.isEmpty {
+                            Text("No exercises yet")
+                                .font(DesignSystem.Typography.callout)
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            Divider().opacity(0.2)
+                        } else {
+                            ForEach(self.exercises) { exercise in
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(exercise.name)
+                                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                        Text(exercise.muscleGroup.rawValue)
+                                            .font(DesignSystem.Typography.caption)
+                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                                    }
+                                    Spacer()
+                                    Button(role: .destructive) {
+                                        if let idx = self.exercises
+                                            .firstIndex(of: exercise) { self.exercises.remove(at: idx) }
+                                    } label: { Image(systemName: "trash") }
+                                        .buttonStyle(.borderless)
+                                }
+                                if exercise.id != self.exercises.last?.id { Divider().opacity(0.2) }
+                            }
+                        }
+
+                        Button {
+                            self.showAddExercise = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus.circle")
+                                Text("Add Exercise")
+                            }
+                        }
+                        .tint(DesignSystem.ColorRole.primary)
+                    }
                 }
             }
-
-            Section {
-                Button("Save") {
-                    let name = self.planName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let new = WorkoutSetupView.Plan(name: name.isEmpty ? "My Plan" : name, exercises: self.exercises)
-                    self.onDone([new])
-                    self.dismiss()
+            .padding(DesignSystem.Spacing.xl)
+        }
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                HStack {
+                    Spacer()
+                    Button("Save") {
+                        let name = self.planName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let new = WorkoutSetupView.Plan(
+                            name: name.isEmpty ? "My Plan" : name,
+                            exercises: self.exercises
+                        )
+                        self.onDone([new])
+                        self.dismiss()
+                    }
+                    .buttonStyle(VLPrimaryButtonStyle())
+                    .disabled(self.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Spacer()
                 }
-                .disabled(self.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
         .sheet(isPresented: self.$showAddExercise) {
@@ -681,7 +718,6 @@ struct PlanCreationView: View {
                 self.exercises.append(contentsOf: added)
             }
         }
-        .scrollContentBackground(.hidden)
         .vlBrandBackground()
         .navigationTitle("New Plan")
     }
