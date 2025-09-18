@@ -59,21 +59,21 @@ Als Nutzer möchte ich aus einem vorgeplanten Trainingsplan ein Workout starten,
 
 ### Acceptance Scenarios
 1. **Given** ein gespeicherter Plan, **When** ich "Start Workout" wähle, **Then** wird das Workout mit den vorgeplanten Übungen/Sätzen geladen und die erste Übung im Seitenlayout angezeigt.
-2. **Given** eine Übung mit geplanten Wiederholungen, **When** ich eine Wiederholung bestätige, **Then** kann ich Gewicht (in 0,5 kg Schritten, ≥ 0, nur bei Equipment-Übungen) und die Schwierigkeit (1–10) erfassen.
-3. **Given** ich bestätige eine Wiederholung, **When** ich die Eingabe speichere, **Then** startet automatisch ein Ruhe-Timer mit 2 Minuten Standarddauer. [NEEDS CLARIFICATION: Gilt der Timer zwischen Wiederholungen oder zwischen Sätzen?]
-4. **Given** der Ruhe-Timer läuft ab, **When** die Zeit abgelaufen ist, **Then** werde ich zur nächsten Wiederholung (bzw. nächstem Satz – siehe Klärung) aufgefordert.
+2. **Given** eine Übung mit geplanten Wiederholungen, **When** ich eine Wiederholung ausgeführt habe, **Then** wähle ich Gewicht (in 0,5 kg Schritten, ≥ 0, nur bei Equipment-Übungen) und Schwierigkeit (1–10) und **Then** bestätige ich diese Wiederholung.
+3. **Given** ich bestätige eine Wiederholung, **When** die Eingabe gespeichert ist, **Then** startet automatisch ein Ruhe‑Timer mit 2 Minuten (nicht editierbar) zwischen jeder Wiederholung sowie zwischen der letzten Wiederholung einer Übung und der ersten der nächsten Übung; nach der letzten Übung gibt es keinen weiteren Timer.
+4. **Given** der Ruhe‑Timer läuft ab, **When** die Zeit endet, **Then** gibt das Gerät haptisches Feedback oder spielt einen kurzen Jingle und fordert mich zur nächsten Wiederholung auf.
 5. **Given** alle Wiederholungen einer Übung sind bestätigt, **When** ich die letzte Wiederholung bestätige, **Then** wechselt die Ansicht automatisch zur nächsten Übung (Swipe nach rechts) und manuelles Swipen bleibt jederzeit möglich.
 6. **Given** ich nehme während des Workouts Plananpassungen vor (Sätze hinzufügen/entfernen/reihenfolgen/Attribute wie Reps/Typ/Seite), **When** ich das Workout normal abschließe (nach letzter Rep), **Then** werden diese Änderungen zurück in den zugrundeliegenden Plan gespeichert (ausgenommen reine Ausführungsdaten wie Gewicht/Schwierigkeit).  
-7. **Given** ich breche ein laufendes Workout ab, **When** ich "Cancel" wähle, **Then** sehe ich eine Zusammenfassung der bis dahin erfassten Ausführungsdaten, und **Then** werden keine Planänderungen gespeichert. [NEEDS CLARIFICATION: Sollen Ausführungsdaten eines abgebrochenen Workouts persistiert werden?]
+7. **Given** ich breche ein laufendes Workout ab, **When** ich "Cancel" wähle, **Then** sehe ich eine Zusammenfassung der bis dahin erfassten Ausführungsdaten, **and** diese Ausführungsdaten werden gespeichert, jedoch werden keine Planänderungen gespeichert.
 8. **Given** die Übungsansicht, **When** ich mich durch die Übungen bewege, **Then** sehe ich für jede Übung die Beschreibung/Instruktion klar dargestellt.
 9. **Given** das Design System, **When** ich das Workout durchlaufe, **Then** entspricht die UI den Patterns aus `Docs/DESIGN_SYSTEM.md` (Brand-Background, VLGlassCard-Abschnitte, HIG-konforme Bottom-CTAs).
 
 ### Edge Cases
-- Vorzeitiger Abbruch: Zusammenfassung anzeigen; keine Übernahme der Planänderungen; [KLÄRUNG] Umgang mit Ausführungsdaten.
+- Vorzeitiger Abbruch: Zusammenfassung anzeigen; Ausführungsdaten werden gespeichert; Planänderungen werden nicht übernommen.
 - Übungen ohne Equipment: Gewichtseingabe entfällt; Schwierigkeit bleibt erfassbar.
 - Manuelles Swipen jederzeit möglich; Auto-Advance nur beim Abschluss einer Übung.
-- Timer-Bedienung: [NEEDS CLARIFICATION] Pausieren/Überspringen/Neustart erlaubt?
-- Planänderungen während aktivem Workout: [NEEDS CLARIFICATION] Konfliktauflösung, falls derselbe Plan parallel anderweitig bearbeitet wird.
+- Timer-Bedienung: Zeit kann nicht manuell gesteuert werden; sie startet bei Bestätigung einer Wiederholung und endet automatisch.
+- Planänderungen während aktivem Workout: Kein paralleles Editieren anderer Pläne erlaubt; andere Pläne können erst nach Cancel/Finish bearbeitet werden.
 
 ## Requirements (mandatory)
 
@@ -81,13 +81,13 @@ Als Nutzer möchte ich aus einem vorgeplanten Trainingsplan ein Workout starten,
 - **FR-001**: Nutzer KÖNNEN ein Workout aus einem gespeicherten Plan starten (Plan wird vorab geladen).
 - **FR-002**: Die Workout-UI zeigt pro Übung eine eigene Seite mit Titel und Beschreibung; manuelles Swipen zwischen Übungen ist möglich; nach Abschluss aller Wiederholungen einer Übung erfolgt Auto-Advance zur nächsten Übung.
 - **FR-003**: Pro bestätigter Wiederholung werden Gewicht (nur bei Equipment-Übungen; Schrittweite 0,5 kg; Minimum 0) und Schwierigkeit (Integer 1–10) erfasst; bei Körpergewichtsübungen ist Gewicht null/nicht erforderlich.
-- **FR-004**: Nach Bestätigung startet ein Ruhe-Timer mit 2 Minuten Standarddauer, nicht editierbar.  
-  [NEEDS CLARIFICATION: Timer bezieht sich auf Pause zwischen Wiederholungen oder zwischen Sätzen? Bedienoptionen (Pause/Skip)?]
+- **FR-004**: Nach Bestätigung startet ein Ruhe‑Timer (2 Minuten, nicht editierbar) zwischen jeder Wiederholung und zwischen letzter Wiederholung einer Übung und der ersten der nächsten Übung; nach der letzten Übung gibt es keinen Timer. Der Timer startet automatisch mit der Bestätigung und endet automatisch; keine manuelle Steuerung.
 - **FR-005**: Nutzer KÖNNEN während des Workouts Planstrukturen dynamisch anpassen (Sätze hinzufügen/entfernen/verschieben; Reps, Set-Typ, Seite). Diese Planänderungen werden beim regulären Abschluss des Workouts in den Plan übernommen; bei Abbruch bleiben sie verworfen.
 - **FR-006**: Reine Ausführungsdaten (Gewicht, Schwierigkeit pro Wiederholung) werden lokal gespeichert und NICHT in HealthKit geschrieben (siehe `specs/001-specify-fine-tune/healthkit-review.md`).
 - **FR-007**: Beim regulären Abschluss (letzte Rep bestätigt) erscheint eine kompakte Zusammenfassung (Dauer, Anzahl Sätze/Repeats, Gewichts- und Schwierigkeitsstatistiken, Planänderungen), danach Navigation zurück zum Home-Screen.
-- **FR-008**: Beim Abbruch erscheint eine Zusammenfassung; es werden KEINE Planänderungen übernommen.  
-  [NEEDS CLARIFICATION: Persistenz der bis dahin erfassten Ausführungsdaten ja/nein?]
+- **FR-008**: Beim Abbruch erscheint eine Zusammenfassung; Ausführungsdaten bis dahin werden gespeichert; Planänderungen werden nicht übernommen.
+- **FR-011**: Während eines aktiven Workouts ist die Bearbeitung anderer Pläne gesperrt; Bearbeitung wird erst nach Cancel/Finish wieder erlaubt.
+- **FR-012**: Beim Ablauf des Timers erfolgt haptisches Feedback oder ein kurzer Jingle als Hinweis zum Fortfahren.
 - **FR-009**: UI folgt `Docs/DESIGN_SYSTEM.md`:  
   - Brand-Background via `.vlBrandBackground()`
   - Inhalte in `VLGlassCard`-Abschnitten (Titel, Meta, Eingaben)
@@ -95,8 +95,7 @@ Als Nutzer möchte ich aus einem vorgeplanten Trainingsplan ein Workout starten,
   - Typografie/Farben via `DesignSystem.Typography`/`DesignSystem.ColorRole`
 - **FR-010**: Accessibility: Dynamic Type, ausreichender Kontrast, klare Labels.
 
-### Key Entities (include if feature involves data)
-- **Workout (Active Session)**: id, planId, startTime, endTime?, status(active|finished|canceled), currentExerciseIndex, currentRepIndex/setIndex [NEEDS CLARIFICATION], restTimerRemaining.
+- **Workout (Active Session)**: id, planId, startTime, endTime?, status(active|finished|canceled), currentExerciseIndex, setIndex, repIndex, restTimerRemaining.
 - **WorkoutSetEntry**: id, planExerciseId, setIndex, repIndex, weightKg(decimal, step 0.5, ≥ 0)?, difficulty(Int 1..10), timestamp.
 - **PlanChangeDuringSession**: add/remove/move set operations; attribute edits (reps, setType, side); only persisted to Plan on workout completion.
 - **Summary**: duration, completed reps/sets, per-exercise aggregates (avg difficulty, used weights), list der Planänderungen.
