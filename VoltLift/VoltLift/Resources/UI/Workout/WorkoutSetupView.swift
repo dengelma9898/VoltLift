@@ -585,29 +585,46 @@ struct EquipmentSetupView: View {
     ]
 
     var body: some View {
-        List {
-            ForEach(self.available) { item in
-                HStack {
-                    Image(systemName: item.icon)
-                        .foregroundColor(DesignSystem.ColorRole.primary)
-                    Text(item.name)
-                    Spacer()
-                    if self.tempSelection.contains(item.name) {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(DesignSystem.ColorRole.success)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if self.tempSelection.contains(item.name) {
-                        self.tempSelection.remove(item.name)
-                    } else {
-                        self.tempSelection.insert(item.name)
+        ScrollView {
+            VStack(spacing: DesignSystem.Spacing.l) {
+                VLGlassCard {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                        Text("Equipment")
+                            .font(DesignSystem.Typography.titleS)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
+                        ForEach(self.available) { item in
+                            HStack(spacing: DesignSystem.Spacing.m) {
+                                Image(systemName: item.icon)
+                                    .foregroundColor(DesignSystem.ColorRole.primary)
+                                Text(item.name)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                Spacer()
+                                Image(systemName: self.tempSelection
+                                    .contains(item.name) ? "checkmark.circle.fill" : "circle"
+                                )
+                                .foregroundColor(self.tempSelection.contains(item.name) ? DesignSystem.ColorRole
+                                    .success : DesignSystem.ColorRole.textSecondary
+                                )
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if self.tempSelection.contains(item.name) {
+                                    self.tempSelection.remove(item.name)
+                                } else {
+                                    self.tempSelection.insert(item.name)
+                                }
+                            }
+
+                            if item.id != self.available.last?.id {
+                                Divider().opacity(0.2)
+                            }
+                        }
                     }
                 }
             }
+            .padding(DesignSystem.Spacing.xl)
         }
-        .scrollContentBackground(.hidden)
         .vlBrandBackground()
         .navigationTitle("Equipment")
         .toolbar {

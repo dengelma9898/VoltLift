@@ -49,111 +49,127 @@ struct EquipmentManagementView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Search and filter section
-                VStack(spacing: 12) {
-                    // Search bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
-
-                        TextField("Search equipment...", text: self.$searchText)
-                            .textFieldStyle(.plain)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(DesignSystem.ColorRole.surface)
-                    .cornerRadius(DesignSystem.Radius.m)
-
-                    // Category filter
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(self.categories, id: \.self) { category in
-                                Button {
-                                    self.selectedCategory = category
-                                } label: {
-                                    Text(category)
-                                        .font(.caption)
-                                        .fontWeight(.medium)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(
-                                            self.selectedCategory == category
-                                                ? DesignSystem.ColorRole.primary
-                                                : DesignSystem.ColorRole.surface
-                                        )
-                                        .foregroundColor(
-                                            self.selectedCategory == category
-                                                ? .white
-                                                : DesignSystem.ColorRole.textPrimary
-                                        )
-                                        .cornerRadius(DesignSystem.Radius.s)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
+            ScrollView {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
+                    self.searchAndFilterCard
+                    self.equipmentListCard
                 }
-                .padding(.vertical, 16)
-                .background(DesignSystem.ColorRole.background)
-
-                // Equipment list
-                List {
-                    ForEach(self.filteredEquipment) { equipment in
-                        EquipmentRow(
-                            equipment: equipment,
-                            isSelected: equipment.isSelected,
-                            onToggle: { isSelected in
-                                Task {
-                                    await self.toggleEquipment(equipment, isSelected: isSelected)
-                                }
-                            }
-                        )
-                        .listRowBackground(DesignSystem.ColorRole.surface)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                    }
-                }
-                .listStyle(.plain)
-                .background(DesignSystem.ColorRole.background)
-                .overlay {
-                    if self.filteredEquipment.isEmpty, !self.searchText.isEmpty {
-                        ContentUnavailableView(
-                            "No Equipment Found",
-                            systemImage: "magnifyingglass",
-                            description: Text("Try adjusting your search or category filter")
-                        )
-                    } else if self.filteredEquipment.isEmpty {
-                        ContentUnavailableView(
-                            "No Equipment Available",
-                            systemImage: "dumbbell",
-                            description: Text("Equipment data will appear here once loaded")
-                        )
-                    }
-                }
+                .padding(DesignSystem.Spacing.xl)
             }
+            .vlBrandBackground()
             .navigationTitle("Equipment Management")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
-                        self.dismiss()
-                    }
-                }
-
+                ToolbarItem(placement: .navigationBarLeading) { Button("Done") { self.dismiss() } }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if self.userPreferencesService.isLoading {
-                        ProgressView()
-                            .scaleEffect(0.8)
+                        ProgressView().scaleEffect(0.8)
                     } else {
                         Text("\(self.selectedCount) selected")
-                            .font(.caption)
+                            .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
                 }
             }
             .withErrorHandling(self.userPreferencesService)
+        }
+    }
+
+    private var searchAndFilterCard: some View {
+        VLGlassCard {
+            VStack(spacing: DesignSystem.Spacing.m) {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    TextField("Search equipment...", text: self.$searchText)
+                        .textFieldStyle(.plain)
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(self.categories, id: \.self) { category in
+                            Button { self.selectedCategory = category } label: {
+                                Text(category)
+                                    .font(DesignSystem.Typography.caption)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(self.selectedCategory == category ? DesignSystem.ColorRole
+                                        .primary : .clear
+                                    )
+                                    .foregroundColor(self.selectedCategory == category ? .white : DesignSystem.ColorRole
+                                        .textPrimary
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.Radius.s)
+                                            .stroke(DesignSystem.ColorRole.textSecondary.opacity(0.2))
+                                    )
+                                    .cornerRadius(DesignSystem.Radius.s)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var equipmentListCard: some View {
+        VLGlassCard {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                Text("Equipment")
+                    .font(DesignSystem.Typography.titleS)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+
+                if self.filteredEquipment.isEmpty {
+                    if self.searchText.isEmpty {
+                        Text("No Equipment Available")
+                            .font(DesignSystem.Typography.callout)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    } else {
+                        Text("No Equipment Found. Adjust search or filter.")
+                            .font(DesignSystem.Typography.callout)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                } else {
+                    ForEach(self.filteredEquipment) { equipment in
+                        HStack(spacing: DesignSystem.Spacing.m) {
+                            Button {
+                                Task { await self.toggleEquipment(equipment, isSelected: !equipment.isSelected) }
+                            } label: {
+                                Image(systemName: equipment.isSelected ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(
+                                        equipment.isSelected ? DesignSystem.ColorRole.primary : DesignSystem.ColorRole
+                                            .textSecondary
+                                    )
+                                    .font(.title2)
+                            }
+                            .buttonStyle(.plain)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(equipment.name)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                                Text(equipment.category)
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: self.iconForCategory(equipment.category))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                                .font(.title3)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            Task { await self.toggleEquipment(equipment, isSelected: !equipment.isSelected) }
+                        }
+
+                        if equipment.id != self.filteredEquipment.last?.id {
+                            Divider().opacity(0.2)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -165,6 +181,23 @@ struct EquipmentManagementView: View {
         } catch {
             // Error handling is managed by the UserPreferencesService and withErrorHandling modifier
             print("Failed to update equipment selection: \(error)")
+        }
+    }
+
+    private func iconForCategory(_ category: String) -> String {
+        switch category.lowercased() {
+        case "cardio":
+            "heart.fill"
+        case "strength", "weights":
+            "dumbbell.fill"
+        case "flexibility", "yoga":
+            "figure.yoga"
+        case "functional":
+            "figure.strengthtraining.functional"
+        case "accessories":
+            "gear"
+        default:
+            "dumbbell"
         }
     }
 }
