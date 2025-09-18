@@ -63,10 +63,10 @@ UI & Navigation
 28. T028 Fehlerbehandlung & Logging konsolidieren: Domain‑Errors → lokalisierte User‑Meldungen; Mapping im ViewModel (`lastError`) und UI‑Alerts; Pfade: `/Users/dengelma/develop/private/VoltLift/VoltLift/VoltLift/Resources/UI/Workout/*` und Services. [DONE]
 
 ### Phase 3.5: Polish
-29. T029 [P] Zusätzliche Unit‑Tests: Validierung (`ExecutionValidation`), `WorkoutSessionService`, `RestTimerService`, `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/`.
-30. T030 [P] Performance‑Tests: Timer/Jitter und UI‑Responsiveness in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/`.
-31. T031 [P] Docs aktualisieren: Ergänze `quickstart.md` um Screenshots/Steps; verweise auf HIG/Design‑System; Pfad: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-workout/quickstart.md`.
-32. T032 [P] Simulator‑Validierung: Baue & starte App; führe Smoke‑Test manuell gemäß Quickstart aus; dokumentiere Ergebnisse in `quickstart.md`.
+29. T029 [P] Zusätzliche Unit‑Tests: Validierung (`ExecutionValidation`), `WorkoutSessionService`, `RestTimerService`, `HapticsService` in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/`. [DONE]
+30. T030 [P] Performance‑Tests: Timer/Jitter und UI‑Responsiveness in `/Users/dengelma/develop/private/VoltLift/VoltLiftTests/`. [DONE]
+31. T031 [P] Docs aktualisieren: Ergänze `quickstart.md` um Screenshots/Steps; verweise auf HIG/Design‑System; Pfad: `/Users/dengelma/develop/private/VoltLift/specs/002-description-start-workout/quickstart.md`. [DONE]
+32. T032 [P] Simulator‑Validierung: Baue & starte App; führe Smoke‑Test manuell gemäß Quickstart aus; dokumentiere Ergebnisse in `quickstart.md`. [DONE]
 
 ---
 
