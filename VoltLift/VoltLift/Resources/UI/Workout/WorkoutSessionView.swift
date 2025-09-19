@@ -23,22 +23,25 @@ struct WorkoutSessionView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Workout Session")
-                .font(DesignSystem.Typography.titleM)
-                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+            HStack {
+                Text("Workout Session")
+                    .font(DesignSystem.Typography.titleM)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                Spacer()
+                topTimerView()
+            }
 
             TabView(selection: self.$pageIndex) {
-                ForEach(Array(self.plan.exercises.enumerated()), id: \.offset) { exerciseIdx, ex in
+                ForEach(Array(self.plan.exercises.enumerated()), id: \.offset) { exerciseIndex, exercise in
                     ScrollView {
                         VStack(spacing: 12) {
-                            header(for: ex)
-                            setsList(for: ex)
-                            timerView()
+                            header(for: exercise)
+                            setsList(for: exercise)
                             sessionActions()
                         }
                         .padding(.horizontal)
                     }
-                    .tag(exerciseIdx)
+                    .tag(exerciseIndex)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
@@ -95,12 +98,23 @@ private struct LocalizedErrorWrapper: Identifiable {
 // MARK: - Subviews & Helpers
 
 private extension WorkoutSessionView {
-    func header(for ex: ExerciseData) -> some View {
+    func topTimerView() -> some View {
+        let seconds = max(0, self.viewModel.timerRemainingSeconds)
+        let timeString = self.formatSeconds(seconds)
+        return Text("Rest: \(timeString)")
+            .font(DesignSystem.Typography.body)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(.ultraThinMaterial, in: Capsule())
+            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+    }
+
+    func header(for exercise: ExerciseData) -> some View {
         VStack(spacing: 12) {
-            Text(ex.name)
+            Text(exercise.name)
                 .font(DesignSystem.Typography.titleS)
                 .foregroundColor(DesignSystem.ColorRole.textPrimary)
-            Text(self.exerciseDescription(for: ex))
+            Text(self.exerciseDescription(for: exercise))
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 .multilineTextAlignment(.center)
@@ -108,17 +122,17 @@ private extension WorkoutSessionView {
         }
     }
 
-    func setsList(for ex: ExerciseData) -> some View {
+    func setsList(for exercise: ExerciseData) -> some View {
         VStack(spacing: 10) {
-            ForEach(Array(ex.sets.enumerated()), id: \.offset) { setIdx, planSet in
-                self.setCard(exerciseId: ex.id, setIdx: setIdx, planSet: planSet)
+            ForEach(Array(exercise.sets.enumerated()), id: \.offset) { setIndex, planSet in
+                self.setCard(exerciseId: exercise.id, setIdx: setIndex, planSet: planSet)
             }
         }
     }
 
     func setCard(exerciseId: UUID, setIdx: Int, planSet: ExerciseSet) -> some View {
         VLGlassCard {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Satz \(planSet.setNumber) • geplant: \(planSet.reps) Reps")
                         .font(DesignSystem.Typography.body)
@@ -130,39 +144,69 @@ private extension WorkoutSessionView {
                     }
                 }
 
-                if self.exerciseUsesEquipment(exerciseId: exerciseId) {
-                    Stepper(value: self.bindingWeight(for: setIdx), in: 0 ... 1_000, step: 0.5) {
-                        Text("Gewicht: \(String(format: "%.1f", self.weightPerSet[setIdx] ?? 0)) kg")
+                // Vereinheitlichte Dropdown-Auswahlen mit sichtbaren Labels
+                VStack(alignment: .leading, spacing: 12) {
+                    if self.exerciseUsesEquipment(exerciseId: exerciseId) {
+                        Text("Gewicht")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        Picker(selection: self.bindingWeight(for: setIdx)) {
+                            ForEach(self.weightOptions(), id: \.self) { value in
+                                Text(String(format: "%.1f kg", value)).tag(value as Double)
+                            }
+                        } label: {
+                            HStack { Text(String(format: "%.1f kg", self.weightPerSet[setIdx] ?? 0))
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    } else {
+                        Text("Körpergewicht")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
-                } else {
-                    Text("Körpergewicht")
+
+                    Text("Reps")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    Picker(selection: self.bindingReps(for: setIdx, defaultValue: planSet.reps)) {
+                        ForEach(self.repOptions(planned: planSet.reps), id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    } label: {
+                        HStack { Text("\(self.repsPerSetPerformed[setIdx] ?? planSet.reps)")
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    Text("Schwierigkeit")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    Picker(selection: self.bindingDifficulty(for: setIdx)) {
+                        ForEach(1 ... 10, id: \.self) { value in
+                            Text("\(value)")
+                                .tag(value)
+                        }
+                    } label: {
+                        let currentDifficulty = self.difficultyPerSet[setIdx] ?? 5
+                        HStack { Text("\(currentDifficulty) (\(self.difficultyDescriptor(for: currentDifficulty)))")
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    Text("1 = zu leicht • 10 = keine Wiederholung mehr möglich")
+                        .font(DesignSystem.Typography.caption)
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 }
-
-                Stepper(value: self.bindingReps(for: setIdx, defaultValue: planSet.reps), in: 0 ... 200) {
-                    Text("Ausgeführte Reps: \(self.repsPerSetPerformed[setIdx] ?? planSet.reps)")
-                }
-
-                Picker("Schwierigkeit (1–10)", selection: self.bindingDifficulty(for: setIdx)) {
-                    ForEach(1 ... 10, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .pickerStyle(.segmented)
 
                 Button(self.completedSets.contains(setIdx) ? "Erfasst" : "Satz bestätigen") {
                     self.confirmSet(exerciseId: exerciseId, setIdx: setIdx, fallbackReps: planSet.reps)
                 }
                 .disabled(self.completedSets.contains(setIdx))
-            }
-        }
-    }
-
-    func timerView() -> some View {
-        Group {
-            if self.viewModel.timerRemainingSeconds > 0 {
-                Text("Rest: \(self.viewModel.timerRemainingSeconds)s")
-                    .font(DesignSystem.Typography.titleS)
             }
         }
     }
@@ -206,6 +250,38 @@ private extension WorkoutSessionView {
         )
     }
 
+    // MARK: Options & Descriptions
+
+    func weightOptions() -> [Double] {
+        stride(from: 0.0, through: 200.0, by: 0.5).map { Double($0) }
+    }
+
+    func repOptions(planned: Int) -> [Int] {
+        let maxReps = max(20, planned + 20)
+        return Array(0 ... maxReps)
+    }
+
+    func difficultyDescriptor(for value: Int) -> String {
+        switch value {
+        case ...1: "zu leicht"
+        case 2: "leicht"
+        case 3: "moderat"
+        case 4: "mittelschwer"
+        case 5: "fordernd"
+        case 6: "sehr fordernd"
+        case 7: "hart"
+        case 8: "sehr hart"
+        case 9: "nahe Muskelversagen"
+        default: "keine Wiederholung mehr möglich"
+        }
+    }
+
+    func formatSeconds(_ totalSeconds: Int) -> String {
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
     // MARK: Actions
 
     func confirmSet(exerciseId: UUID, setIdx: Int, fallbackReps: Int) {
@@ -224,8 +300,8 @@ private extension WorkoutSessionView {
         )
         self.completedSets.insert(setIdx)
 
-        if let ex = self.plan.exercises.first(where: { $0.id == exerciseId }),
-           self.completedSets.count >= ex.sets.count
+        if let exercise = self.plan.exercises.first(where: { $0.id == exerciseId }),
+           self.completedSets.count >= exercise.sets.count
         {
             self.viewModel.autoAdvanceToNextExercise()
             self.pageIndex = min(self.pageIndex + 1, self.plan.exercises.count - 1)
