@@ -13,6 +13,7 @@ struct PlanDetailView: View {
     @State private var showRenameSheet = false
     @State private var pendingName: String = ""
     @State private var overrideName: String?
+    @State private var goToSession = false
 
     private var exerciseCountText: String {
         "\(self.plan.exerciseCount) exercises"
@@ -53,7 +54,10 @@ struct PlanDetailView: View {
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: DesignSystem.Spacing.m) {
                 Button { self.goToEditor = true } label: { VLButtonLabel("Edit Plan", style: .secondary) }
-                Button { self.onStart?() } label: { VLButtonLabel("Start Workout", style: .primary) }
+                Button {
+                    // Starte neue Session für die erste Übung dieses Plans
+                    self.goToSession = true
+                } label: { VLButtonLabel("Start Workout", style: .primary) }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -75,6 +79,16 @@ struct PlanDetailView: View {
                 isActive: self.$goToEditor
             )
             .hidden()
+        )
+        .background(
+            NavigationLink(isActive: self.$goToSession) {
+                if self.plan.exercises.isEmpty {
+                    Text("No exercises in plan")
+                } else {
+                    WorkoutSessionView(plan: self.plan)
+                }
+            } label: { EmptyView() }
+                .hidden()
         )
         .sheet(isPresented: self.$showRenameSheet) {
             NavigationStack {

@@ -1,12 +1,15 @@
 import Foundation
 
-public struct WorkoutSetEntry: Equatable, Identifiable {
+public struct WorkoutSetEntry: Equatable, Identifiable, Sendable {
     public let id: UUID
     public var planExerciseId: UUID
     public var setIndex: Int
     public var weightKg: Double? // nil bei Körpergewicht
     public var difficulties: [Int] // pro Wiederholung 1..10
     public var timestamp: Date
+    // Optional: Metadaten für Darstellung
+    public var planExerciseName: String?
+    public var setTypeDisplayName: String?
 
     public init(
         id: UUID = UUID(),
@@ -14,7 +17,9 @@ public struct WorkoutSetEntry: Equatable, Identifiable {
         setIndex: Int,
         weightKg: Double?,
         difficulties: [Int],
-        timestamp: Date = Date()
+        timestamp: Date = Date(),
+        planExerciseName: String? = nil,
+        setTypeDisplayName: String? = nil
     ) {
         self.id = id
         self.planExerciseId = planExerciseId
@@ -22,6 +27,8 @@ public struct WorkoutSetEntry: Equatable, Identifiable {
         self.weightKg = weightKg
         self.difficulties = difficulties
         self.timestamp = timestamp
+        self.planExerciseName = planExerciseName
+        self.setTypeDisplayName = setTypeDisplayName
     }
 }
 
@@ -38,6 +45,7 @@ public enum ExecutionValidation {
 
     public static func isValidDifficulties(_ difficulties: [Int], reps: Int) -> Bool {
         guard difficulties.count == reps else { return false }
+        guard reps >= 0 else { return false }
         return difficulties.allSatisfy { (1 ... 10).contains($0) }
     }
 }
