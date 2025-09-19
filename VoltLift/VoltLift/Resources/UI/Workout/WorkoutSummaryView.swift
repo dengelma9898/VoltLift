@@ -9,11 +9,18 @@ struct WorkoutSummaryView: View {
     let completion: CompletionType
     let entries: [WorkoutSetEntry]
     let onExit: (() -> Void)?
+    let planExercises: [ExerciseData]
 
-    init(completion: CompletionType, entries: [WorkoutSetEntry], onExit: (() -> Void)? = nil) {
+    init(
+        completion: CompletionType,
+        entries: [WorkoutSetEntry],
+        onExit: (() -> Void)? = nil,
+        planExercises: [ExerciseData] = []
+    ) {
         self.completion = completion
         self.entries = entries
         self.onExit = onExit
+        self.planExercises = planExercises
     }
 
     var body: some View {
@@ -133,6 +140,9 @@ private extension WorkoutSummaryView {
                     Text(entry.weightKg.map { String(format: "%.1f kg", $0) } ?? "Körpergewicht")
                     Text("Reps: \(entry.difficulties.count)")
                     Text("Ø Schwierigkeit: \(self.averageDifficulty(of: entry))")
+                    if let setType = self.setTypeDisplay(for: entry) {
+                        Text(setType)
+                    }
                 }
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
@@ -142,10 +152,15 @@ private extension WorkoutSummaryView {
     }
 
     func exerciseName(for id: UUID) -> String {
-        if let ex = ExerciseService.shared.getExercise(by: id) {
-            return ex.name
-        }
+        if let planName = self.planExercises.first(where: { $0.id == id })?.name { return planName }
+        if let ex = ExerciseService.shared.getExercise(by: id) { return ex.name }
         return "Exercise: \(id.uuidString.prefix(6))…"
+    }
+
+    func setTypeDisplay(for entry: WorkoutSetEntry) -> String? {
+        guard let exercise = self.planExercises.first(where: { $0.id == entry.planExerciseId }) else { return nil }
+        guard entry.setIndex >= 0, entry.setIndex < exercise.sets.count else { return nil }
+        return exercise.sets[entry.setIndex].setType.displayName
     }
 
     func averageDifficulty(of entry: WorkoutSetEntry) -> String {
