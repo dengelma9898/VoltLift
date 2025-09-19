@@ -270,7 +270,7 @@ private extension WorkoutSessionView {
                     } label: {
                         Image(systemName: "trash")
                     }
-                    .disabled(self.planData.exercises.first(where: { $0.id == exerciseId })?.sets.count ?? 0 <= 1)
+                    .disabled(self.planData.exercises.first(where: { $0.id == exerciseId })?.sets.isEmpty == true)
                 }
             }
         }
@@ -295,10 +295,19 @@ private extension WorkoutSessionView {
                 self.showSummary = true
             }
             Button("Finish") {
-                self.viewModel.finish()
-                self.summaryType = .finished
-                self.showSummary = true
+                Task { @MainActor in
+                    do {
+                        let prefs = UserPreferencesService()
+                        try await prefs.savePlan(self.planData)
+                        self.viewModel.finish()
+                        self.summaryType = .finished
+                        self.showSummary = true
+                    } catch {
+                        self.viewModel.lastError = error.localizedDescription
+                    }
+                }
             }
+            .disabled(!self.allExercisesCompleted())
         }
     }
 
@@ -375,17 +384,23 @@ private extension WorkoutSessionView {
         )
         self.completedSets.insert(setIdx)
 
+        // Auto-Advance nur, wenn es eine nächste Übung gibt. Auf der letzten Seite Markierungen behalten.
         if let exercise = self.planData.exercises.first(where: { $0.id == exerciseId }),
            self.completedSets.count >= exercise.sets.count
         {
-            self.viewModel.autoAdvanceToNextExercise()
-            withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.85)) {
-                self.pageIndex = min(self.pageIndex + 1, self.planData.exercises.count - 1)
+            guard let currentIndex = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
+            let isLastExercise = currentIndex >= (self.planData.exercises.count - 1)
+            if !isLastExercise {
+                self.viewModel.autoAdvanceToNextExercise()
+                withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.85)) {
+                    self.pageIndex = min(self.pageIndex + 1, self.planData.exercises.count - 1)
+                }
+                // Für die neue Übung lokale Eingaben zurücksetzen
+                self.completedSets.removeAll(keepingCapacity: false)
+                self.weightPerSet.removeAll(keepingCapacity: false)
+                self.repsPerSetPerformed.removeAll(keepingCapacity: false)
+                self.difficultyPerSet.removeAll(keepingCapacity: false)
             }
-            self.completedSets.removeAll(keepingCapacity: false)
-            self.weightPerSet.removeAll(keepingCapacity: false)
-            self.repsPerSetPerformed.removeAll(keepingCapacity: false)
-            self.difficultyPerSet.removeAll(keepingCapacity: false)
         }
     }
 
@@ -479,6 +494,19 @@ private extension WorkoutSessionView {
             return !enhanced.requiredEquipment.isEmpty
         }
         return false
+    }
+
+    // MARK: Completion Helpers
+
+    func isExerciseCompleted(_ exercise: ExerciseData) -> Bool {
+        let confirmedSetIndices = Set(self.viewModel.entries.filter { $0.planExerciseId == exercise.id }
+            .map(\.setIndex)
+        )
+        return !exercise.sets.isEmpty && confirmedSetIndices.count >= exercise.sets.count
+    }
+
+    func allExercisesCompleted() -> Bool {
+        !self.planData.exercises.isEmpty && self.planData.exercises.allSatisfy { self.isExerciseCompleted($0) }
     }
 
     func exerciseInfoView(_ exercise: ExerciseData) -> some View {
