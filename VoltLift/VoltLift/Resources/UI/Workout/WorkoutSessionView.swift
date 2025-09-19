@@ -209,6 +209,11 @@ private extension WorkoutSessionView {
                 .disabled(self.completedSets.contains(setIdx))
             }
         }
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
+                .stroke(DesignSystem.ColorRole.success, lineWidth: 2)
+                .opacity(self.completedSets.contains(setIdx) ? 1 : 0)
+        )
     }
 
     func sessionActions() -> some View {
