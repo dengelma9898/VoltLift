@@ -6,6 +6,7 @@ final class WorkoutSessionViewModel: ObservableObject {
     @Published private(set) var entries: [WorkoutSetEntry] = []
     @Published var lastError: String?
     @Published var timerRemainingSeconds: Int = 0
+    @Published private(set) var timerEndDate: Date?
 
     private let sessionService: WorkoutSessionHandling
     private let timerService: RestTimerHandling
@@ -57,14 +58,18 @@ final class WorkoutSessionViewModel: ObservableObject {
 
     private func startRestTimer() {
         let duration = self.session.restDurationSeconds
-        self.timerService.start(durationSeconds: duration, onTick: { [weak self] remaining in
-            Task { @MainActor in self?.timerRemainingSeconds = remaining }
+        // Setze Enddatum einmalig; UI nutzt TimelineView für lokale Aktualisierung
+        self.timerEndDate = Date().addingTimeInterval(TimeInterval(duration))
+        self.timerRemainingSeconds = duration
+        self.timerService.start(durationSeconds: duration, onTick: { _ in
+            // keine Sekundenticks mehr ins UI publizieren
         }, onCompleted: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
                 self.sessionService.restTimerElapsed(session: &self.session)
                 self.haptics.signalTimerEnd()
                 self.timerRemainingSeconds = 0
+                self.timerEndDate = nil
             }
         })
     }
@@ -72,10 +77,12 @@ final class WorkoutSessionViewModel: ObservableObject {
     func cancel() {
         self.sessionService.cancel(session: &self.session)
         self.timerService.cancel()
+        self.timerEndDate = nil
     }
 
     func finish() {
         self.sessionService.finish(session: &self.session)
         self.timerService.cancel()
+        self.timerEndDate = nil
     }
 }

@@ -18,26 +18,33 @@ public final class RestTimerService: RestTimerHandling {
         onTick: @escaping (_ remaining: Int) -> Void,
         onCompleted: @escaping () -> Void
     ) {
+        // Stop any running timer first
         self.cancel()
+
+        // Normalize and store input
         self.remaining = max(0, durationSeconds)
         self.isRunning = self.remaining > 0
+
+        // If there is no time to wait, immediately complete
         guard self.isRunning else {
             onCompleted()
             return
         }
+
+        // Provide an initial value to UI if desired, but avoid per-second ticks
         onTick(self.remaining)
-        self.timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+
+        // Schedule a single-shot timer for the entire remaining duration
+        let fireInterval = TimeInterval(self.remaining)
+        self.timer = Timer.scheduledTimer(withTimeInterval: fireInterval, repeats: false) { [weak self] _ in
             guard let self else { return }
-            self.remaining -= 1
-            if self.remaining > 0 {
-                onTick(self.remaining)
-            } else {
-                timer.invalidate()
-                self.timer = nil
-                self.isRunning = false
-                onCompleted()
-            }
+            self.timer?.invalidate()
+            self.timer = nil
+            self.isRunning = false
+            self.remaining = 0
+            onCompleted()
         }
+
         if let activeTimer = self.timer {
             RunLoop.main.add(activeTimer, forMode: .common)
         }

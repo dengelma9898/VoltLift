@@ -120,14 +120,42 @@ private struct LocalizedErrorWrapper: Identifiable {
 
 private extension WorkoutSessionView {
     func topTimerView() -> some View {
-        let seconds = max(0, self.viewModel.timerRemainingSeconds)
-        let timeString = self.formatSeconds(seconds)
-        return Text("Rest: \(timeString)")
-            .font(DesignSystem.Typography.body)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.ultraThinMaterial, in: Capsule())
-            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+        RestTimerPill(endDate: self.viewModel.timerEndDate, fallbackSeconds: self.viewModel.timerRemainingSeconds)
+    }
+
+    struct RestTimerPill: View {
+        let endDate: Date?
+        let fallbackSeconds: Int
+
+        @State private var now: Date = .init()
+        private let ticker = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+
+        var body: some View {
+            let remaining = self.computeRemainingSeconds()
+            let timeString = self.formatSeconds(remaining)
+            return Text("Rest: \(timeString)")
+                .font(DesignSystem.Typography.body)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.ultraThinMaterial, in: Capsule())
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                .onReceive(self.ticker) { date in
+                    self.now = date
+                }
+        }
+
+        private func computeRemainingSeconds() -> Int {
+            if let endDate {
+                return max(0, Int(endDate.timeIntervalSince(self.now).rounded()))
+            }
+            return max(0, self.fallbackSeconds)
+        }
+
+        private func formatSeconds(_ totalSeconds: Int) -> String {
+            let minutes = totalSeconds / 60
+            let seconds = totalSeconds % 60
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
     }
 
     func header(for exercise: ExerciseData) -> some View {
