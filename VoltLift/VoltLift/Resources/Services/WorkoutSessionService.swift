@@ -38,21 +38,21 @@ public protocol WorkoutSessionHandling {
     func finish(session: inout WorkoutSession)
 }
 
-public struct WorkoutSessionService: WorkoutSessionHandling {
+struct WorkoutSessionService: WorkoutSessionHandling {
     private let repository: WorkoutSessionRepository
 
-    public init(repository: WorkoutSessionRepository = WorkoutSessionRepository()) {
+    init(repository: WorkoutSessionRepository = WorkoutSessionRepository()) {
         self.repository = repository
     }
 
-    public func start(planId: UUID) throws -> WorkoutSession {
+    func start(planId: UUID) throws -> WorkoutSession {
         // In echter Implementierung: planId prüfen (Repository). Hier nur Domain-Objekt initialisieren.
         let session = WorkoutSession(planId: planId)
         Task { try? await self.repository.createSession(from: session) }
         return session
     }
 
-    public func confirmRep(
+    func confirmRep(
         session: inout WorkoutSession,
         entries: inout [WorkoutSetEntry],
         planExerciseId: UUID,
@@ -83,43 +83,44 @@ public struct WorkoutSessionService: WorkoutSessionHandling {
         }
         session.repIndex = repIndex
         session.restTimerRemainingSeconds = session.restDurationSeconds
-        Task {
-            try? await self.repository.upsertEntry(
-                entries
-                    .first(where: { $0.planExerciseId == planExerciseId && $0.setIndex == setIndex }) ??
-                    WorkoutSetEntry(
-                        planExerciseId: planExerciseId,
-                        setIndex: setIndex,
-                        weightKg: weightKg,
-                        difficulties: difficulties
-                    ),
-                sessionId: session.id
+        let entryToPersist = entries
+            .first(where: { $0.planExerciseId == planExerciseId && $0.setIndex == setIndex }) ??
+            WorkoutSetEntry(
+                planExerciseId: planExerciseId,
+                setIndex: setIndex,
+                weightKg: weightKg,
+                difficulties: difficulties
             )
-            try? await self.repository.updateSession(session)
-        }
+        let sessionSnapshot = session
+        Task { try? await self.repository.upsertEntry(entryToPersist, sessionId: sessionSnapshot.id) }
+        Task { try? await self.repository.updateSession(sessionSnapshot) }
     }
 
-    public func restTimerElapsed(session: inout WorkoutSession) {
+    func restTimerElapsed(session: inout WorkoutSession) {
         session.restTimerRemainingSeconds = 0
-        Task { try? await self.repository.updateSession(session) }
+        let snapshot = session
+        Task { try? await self.repository.updateSession(snapshot) }
     }
 
-    public func autoAdvanceAfterExerciseComplete(session: inout WorkoutSession) {
+    func autoAdvanceAfterExerciseComplete(session: inout WorkoutSession) {
         session.currentExerciseIndex += 1
         session.setIndex = 0
         session.repIndex = 0
-        Task { try? await self.repository.updateSession(session) }
+        let snapshot = session
+        Task { try? await self.repository.updateSession(snapshot) }
     }
 
-    public func cancel(session: inout WorkoutSession) {
+    func cancel(session: inout WorkoutSession) {
         session.status = .canceled
         session.finishedAt = Date()
-        Task { try? await self.repository.updateSession(session) }
+        let snapshot = session
+        Task { try? await self.repository.updateSession(snapshot) }
     }
 
-    public func finish(session: inout WorkoutSession) {
+    func finish(session: inout WorkoutSession) {
         session.status = .finished
         session.finishedAt = Date()
-        Task { try? await self.repository.updateSession(session) }
+        let snapshot = session
+        Task { try? await self.repository.updateSession(snapshot) }
     }
 }

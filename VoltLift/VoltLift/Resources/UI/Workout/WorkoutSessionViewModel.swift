@@ -51,6 +51,10 @@ final class WorkoutSessionViewModel: ObservableObject {
         }
     }
 
+    func autoAdvanceToNextExercise() {
+        self.sessionService.autoAdvanceAfterExerciseComplete(session: &self.session)
+    }
+
     private func startRestTimer() {
         let duration = self.session.restDurationSeconds
         self.timerService.start(durationSeconds: duration, onTick: { [weak self] remaining in

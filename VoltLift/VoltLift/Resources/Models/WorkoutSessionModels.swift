@@ -1,12 +1,12 @@
 import Foundation
 
-public enum WorkoutSessionStatus: String, Equatable, CaseIterable {
+public enum WorkoutSessionStatus: String, Equatable, CaseIterable, Sendable {
     case active
     case finished
     case canceled
 }
 
-public struct WorkoutSession: Equatable, Identifiable {
+public struct WorkoutSession: Equatable, Identifiable, Sendable {
     public let id: UUID
     public var planId: UUID
     public var startedAt: Date

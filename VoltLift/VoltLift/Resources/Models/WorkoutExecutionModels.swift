@@ -1,6 +1,6 @@
 import Foundation
 
-public struct WorkoutSetEntry: Equatable, Identifiable {
+public struct WorkoutSetEntry: Equatable, Identifiable, Sendable {
     public let id: UUID
     public var planExerciseId: UUID
     public var setIndex: Int

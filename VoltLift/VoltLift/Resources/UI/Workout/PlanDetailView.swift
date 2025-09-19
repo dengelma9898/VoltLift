@@ -82,14 +82,10 @@ struct PlanDetailView: View {
         )
         .background(
             NavigationLink(isActive: self.$goToSession) {
-                if let first = self.plan.exercises.first {
-                    WorkoutSessionView(
-                        planId: self.plan.id,
-                        firstExerciseId: first.id,
-                        exerciseUsesEquipment: false
-                    )
-                } else {
+                if self.plan.exercises.isEmpty {
                     Text("No exercises in plan")
+                } else {
+                    WorkoutSessionView(plan: self.plan)
                 }
             } label: { EmptyView() }
                 .hidden()
