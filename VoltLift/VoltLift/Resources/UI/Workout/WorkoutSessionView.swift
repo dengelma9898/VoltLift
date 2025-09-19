@@ -6,9 +6,13 @@ struct WorkoutSessionView: View {
 
     let plan: WorkoutPlanData
 
+    // Laufzeitkopie des Plans, um Sätze lokal hinzufügen/entfernen zu können
+    @State private var planData: WorkoutPlanData
+
     init(plan: WorkoutPlanData) {
         self.plan = plan
         _viewModel = StateObject(wrappedValue: WorkoutSessionViewModel(planId: plan.id))
+        _planData = State(initialValue: plan)
     }
 
     // Per‑Satz Eingaben/Zustände
@@ -20,6 +24,7 @@ struct WorkoutSessionView: View {
     @State private var showSummary = false
     @State private var summaryType: WorkoutSummaryView.CompletionType = .finished
     @State private var showPlanEdit = false
+    @State private var infoExercise: ExerciseData?
 
     var body: some View {
         VStack(spacing: 16) {
@@ -32,12 +37,12 @@ struct WorkoutSessionView: View {
             }
 
             TabView(selection: self.$pageIndex) {
-                ForEach(Array(self.plan.exercises.enumerated()), id: \.offset) { exerciseIndex, exercise in
+                ForEach(Array(self.planData.exercises.enumerated()), id: \.offset) { exerciseIndex, exercise in
                     ScrollView {
                         VStack(spacing: 12) {
                             header(for: exercise)
                             setsList(for: exercise)
-                            sessionActions()
+                            sessionActions(for: exercise)
                         }
                         .padding(.horizontal)
                     }
@@ -70,7 +75,7 @@ struct WorkoutSessionView: View {
                 }
             )
         }
-        .sheet(isPresented: self.$showPlanEdit) {
+        .sheet(isPresented: self.$showPlanEdit) { // bleibt vorerst, wird aber nicht mehr verlinkt
             NavigationStack {
                 VStack(spacing: 16) {
                     Text("Planänderungen während der Session")
@@ -86,6 +91,9 @@ struct WorkoutSessionView: View {
                 }
                 .vlBrandBackground()
             }
+        }
+        .sheet(item: self.$infoExercise) { ex in
+            exerciseInfoView(ex)
         }
     }
 }
@@ -110,15 +118,31 @@ private extension WorkoutSessionView {
     }
 
     func header(for exercise: ExerciseData) -> some View {
-        VStack(spacing: 12) {
-            Text(exercise.name)
-                .font(DesignSystem.Typography.titleS)
-                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Text(exercise.name)
+                    .font(DesignSystem.Typography.titleS)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                Button {
+                    self.infoExercise = exercise
+                } label: {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                }
+                Spacer()
+                Button {
+                    self.addSet(to: exercise.id)
+                } label: {
+                    Label("Satz hinzufügen", systemImage: "plus")
+                        .labelStyle(.iconOnly)
+                }
+                .buttonStyle(.plain)
+            }
+
             Text(self.exerciseDescription(for: exercise))
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                .multilineTextAlignment(.leading)
         }
     }
 
@@ -138,10 +162,13 @@ private extension WorkoutSessionView {
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     Spacer()
-                    if self.completedSets.contains(setIdx) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(DesignSystem.ColorRole.success)
-                    }
+                    // Set-Typ Badge
+                    Label(planSet.setType.displayName, systemImage: planSet.setType.icon)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.white.opacity(0.06), in: Capsule())
                 }
 
                 // Vereinheitlichte Dropdown-Auswahlen mit sichtbaren Labels
@@ -203,10 +230,21 @@ private extension WorkoutSessionView {
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 }
 
-                Button(self.completedSets.contains(setIdx) ? "Erfasst" : "Satz bestätigen") {
-                    self.confirmSet(exerciseId: exerciseId, setIdx: setIdx, fallbackReps: planSet.reps)
+                HStack {
+                    Button(self.completedSets.contains(setIdx) ? "Erfasst" : "Satz bestätigen") {
+                        self.confirmSet(exerciseId: exerciseId, setIdx: setIdx, fallbackReps: planSet.reps)
+                    }
+                    .disabled(self.completedSets.contains(setIdx))
+
+                    Spacer()
+
+                    Button(role: .destructive) {
+                        self.removeSet(from: exerciseId, setIndex: setIdx)
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .disabled(self.planData.exercises.first(where: { $0.id == exerciseId })?.sets.count ?? 0 <= 1)
                 }
-                .disabled(self.completedSets.contains(setIdx))
             }
         }
         .overlay(
@@ -222,9 +260,9 @@ private extension WorkoutSessionView {
         )
     }
 
-    func sessionActions() -> some View {
+    func sessionActions(for exercise: ExerciseData) -> some View {
         HStack(spacing: DesignSystem.Spacing.m) {
-            Button("Plan ändern") { self.showPlanEdit = true }
+            // Entfernt: Button "Plan ändern"
             Button("Cancel") {
                 self.viewModel.cancel()
                 self.summaryType = .canceled
@@ -311,16 +349,63 @@ private extension WorkoutSessionView {
         )
         self.completedSets.insert(setIdx)
 
-        if let exercise = self.plan.exercises.first(where: { $0.id == exerciseId }),
+        if let exercise = self.planData.exercises.first(where: { $0.id == exerciseId }),
            self.completedSets.count >= exercise.sets.count
         {
             self.viewModel.autoAdvanceToNextExercise()
-            self.pageIndex = min(self.pageIndex + 1, self.plan.exercises.count - 1)
+            self.pageIndex = min(self.pageIndex + 1, self.planData.exercises.count - 1)
             self.completedSets.removeAll(keepingCapacity: false)
             self.weightPerSet.removeAll(keepingCapacity: false)
             self.repsPerSetPerformed.removeAll(keepingCapacity: false)
             self.difficultyPerSet.removeAll(keepingCapacity: false)
         }
+    }
+
+    func addSet(to exerciseId: UUID) {
+        guard let index = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
+        var exercise = self.planData.exercises[index]
+        let last = exercise.sets.sorted { $0.setNumber < $1.setNumber }.last
+        let newSetNumber = (exercise.sets.map(\.setNumber).max() ?? 0) + 1
+        let defaultReps = last?.reps ?? 10
+        let defaultWeight = (last?.weight ?? 0.0) + 2.5
+        let defaultType = last?.setType ?? .normal
+        let newSet = ExerciseSet(
+            setNumber: newSetNumber,
+            reps: defaultReps,
+            weight: defaultWeight,
+            setType: defaultType
+        )
+        var newSets = exercise.sets + [newSet]
+        newSets = newSets.enumerated().map { idx, s in s.withSetNumber(idx + 1) }
+        exercise = exercise.withUpdatedSets(newSets)
+        var exercises = self.planData.exercises
+        exercises[index] = exercise
+        self.planData = WorkoutPlanData(
+            id: self.planData.id,
+            name: self.planData.name,
+            exercises: exercises,
+            createdDate: self.planData.createdDate,
+            lastUsedDate: self.planData.lastUsedDate
+        )
+    }
+
+    func removeSet(from exerciseId: UUID, setIndex: Int) {
+        guard let exIndex = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
+        var exercise = self.planData.exercises[exIndex]
+        guard exercise.sets.indices.contains(setIndex), exercise.sets.count > 1 else { return }
+        var sets = exercise.sets
+        sets.remove(at: setIndex)
+        sets = sets.enumerated().map { idx, s in s.withSetNumber(idx + 1) }
+        exercise = exercise.withUpdatedSets(sets)
+        var exercises = self.planData.exercises
+        exercises[exIndex] = exercise
+        self.planData = WorkoutPlanData(
+            id: self.planData.id,
+            name: self.planData.name,
+            exercises: exercises,
+            createdDate: self.planData.createdDate,
+            lastUsedDate: self.planData.lastUsedDate
+        )
     }
 
     func exerciseDescription(for ex: ExerciseData) -> String {
@@ -335,5 +420,26 @@ private extension WorkoutSessionView {
             return !enhanced.requiredEquipment.isEmpty
         }
         return false
+    }
+
+    func exerciseInfoView(_ ex: ExerciseData) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(ex.name).font(DesignSystem.Typography.titleS)
+            if let info = ExerciseService.shared.getExercise(by: ex.id) {
+                Text(info.description)
+                if !info.instructions.isEmpty {
+                    Text("Anleitung").font(DesignSystem.Typography.body.weight(.semibold))
+                    ForEach(info.instructions, id: \.self) { step in Text("• \(step)") }
+                }
+                if !info.safetyTips.isEmpty {
+                    Text("Sicherheitshinweise").font(DesignSystem.Typography.body.weight(.semibold))
+                    ForEach(info.safetyTips, id: \.self) { tip in Text("• \(tip)") }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding()
+        .navigationTitle("Übungsinfo")
+        .vlBrandBackground()
     }
 }
