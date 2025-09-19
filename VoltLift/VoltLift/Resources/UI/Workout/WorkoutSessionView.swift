@@ -211,8 +211,14 @@ private extension WorkoutSessionView {
         }
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
-                .stroke(DesignSystem.ColorRole.success, lineWidth: 2)
+                .fill(DesignSystem.ColorRole.success.opacity(0.17))
                 .opacity(self.completedSets.contains(setIdx) ? 1 : 0)
+                .animation(.easeInOut(duration: 0.2), value: self.completedSets)
+        )
+        .shadow(
+            color: DesignSystem.ColorRole.success.opacity(self.completedSets.contains(setIdx) ? 0.25 : 0),
+            radius: 14,
+            y: 6
         )
     }
 
