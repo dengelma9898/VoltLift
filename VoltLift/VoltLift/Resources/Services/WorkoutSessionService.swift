@@ -70,6 +70,7 @@ struct WorkoutSessionService: WorkoutSessionHandling {
         if weightKg != nil, !exerciseUsesEquipment {
             throw WorkoutLoggingError.noEquipment
         }
+
         if let idx = entries.firstIndex(where: { $0.planExerciseId == planExerciseId && $0.setIndex == setIndex }) {
             entries[idx].weightKg = weightKg
             entries[idx].difficulties = difficulties

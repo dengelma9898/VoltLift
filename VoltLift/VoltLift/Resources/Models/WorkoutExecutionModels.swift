@@ -7,6 +7,9 @@ public struct WorkoutSetEntry: Equatable, Identifiable, Sendable {
     public var weightKg: Double? // nil bei Körpergewicht
     public var difficulties: [Int] // pro Wiederholung 1..10
     public var timestamp: Date
+    // Optional: Metadaten für Darstellung
+    public var planExerciseName: String?
+    public var setTypeDisplayName: String?
 
     public init(
         id: UUID = UUID(),
@@ -14,7 +17,9 @@ public struct WorkoutSetEntry: Equatable, Identifiable, Sendable {
         setIndex: Int,
         weightKg: Double?,
         difficulties: [Int],
-        timestamp: Date = Date()
+        timestamp: Date = Date(),
+        planExerciseName: String? = nil,
+        setTypeDisplayName: String? = nil
     ) {
         self.id = id
         self.planExerciseId = planExerciseId
@@ -22,6 +27,8 @@ public struct WorkoutSetEntry: Equatable, Identifiable, Sendable {
         self.weightKg = weightKg
         self.difficulties = difficulties
         self.timestamp = timestamp
+        self.planExerciseName = planExerciseName
+        self.setTypeDisplayName = setTypeDisplayName
     }
 }
 

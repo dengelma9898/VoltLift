@@ -126,7 +126,7 @@ private extension WorkoutSummaryView {
 
     func setRow(_ entry: WorkoutSetEntry) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: DesignSystem.Spacing.m) {
-            Text("Set \(entry.setIndex)")
+            Text("Set \(entry.setIndex + 1)")
                 .frame(width: 56, alignment: .leading)
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 12) {
