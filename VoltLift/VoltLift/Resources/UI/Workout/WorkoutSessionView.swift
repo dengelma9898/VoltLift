@@ -82,8 +82,11 @@ struct WorkoutSessionView: View {
                             self.dismiss()
                         }
                     }
-                }
+                },
+                planExercises: self.planData.exercises
             )
+            .interactiveDismissDisabled(true)
+            .presentationDragIndicator(.hidden)
         }
         .sheet(isPresented: self.$showPlanEdit) { // bleibt vorerst, wird aber nicht mehr verlinkt
             NavigationStack {
@@ -297,6 +300,36 @@ private extension WorkoutSessionView {
             Button("Finish") {
                 Task { @MainActor in
                     do {
+                        // Übernehme bestätigte Einträge in den Plan (Reps & ggf. Satztyp)
+                        var exercises = self.planData.exercises
+                        for (index, ex) in exercises.enumerated() {
+                            let confirmedForExercise = self.viewModel.entries
+                                .filter { $0.planExerciseId == ex.id }
+                            guard !confirmedForExercise.isEmpty else { continue }
+                            var updatedSets = ex.sets
+                            for entry in confirmedForExercise {
+                                if entry.setIndex >= 0, entry.setIndex < updatedSets.count {
+                                    // Aktualisiere Reps aus der Anzahl der bestätigten Schwierigkeiten
+                                    let newReps = entry.difficulties.count
+                                    let current = updatedSets[entry.setIndex]
+                                    updatedSets[entry.setIndex] = ExerciseSet(
+                                        setNumber: current.setNumber,
+                                        reps: newReps,
+                                        weight: current.weight,
+                                        setType: current.setType
+                                    )
+                                }
+                            }
+                            exercises[index] = ex.withUpdatedSets(updatedSets)
+                        }
+                        self.planData = WorkoutPlanData(
+                            id: self.planData.id,
+                            name: self.planData.name,
+                            exercises: exercises,
+                            createdDate: self.planData.createdDate,
+                            lastUsedDate: self.planData.lastUsedDate
+                        )
+
                         let prefs = UserPreferencesService()
                         try await prefs.savePlan(self.planData)
                         self.viewModel.finish()

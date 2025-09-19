@@ -37,12 +37,10 @@ struct WorkoutSummaryView: View {
 
                 ScrollView {
                     VStack(spacing: DesignSystem.Spacing.m) {
-                        ForEach(
-                            self.groupedByExercise.keys.sorted(by: { $0.uuidString < $1.uuidString }),
-                            id: \.self
-                        ) { exerciseId in
-                            if let group = self.groupedByExercise[exerciseId] {
-                                sectionCard(for: exerciseId, sets: group)
+                        // Reihenfolge gemäß Plan beibehalten; nur Übungen mit Einträgen anzeigen
+                        ForEach(self.planExercises, id: \.id) { exercise in
+                            if let group = self.groupedByExercise[exercise.id] {
+                                sectionCard(for: exercise.id, sets: group)
                             }
                         }
                     }
