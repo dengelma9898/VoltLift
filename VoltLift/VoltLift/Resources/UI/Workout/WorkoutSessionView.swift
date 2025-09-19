@@ -38,13 +38,23 @@ struct WorkoutSessionView: View {
 
             TabView(selection: self.$pageIndex) {
                 ForEach(Array(self.planData.exercises.enumerated()), id: \.offset) { exerciseIndex, exercise in
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            header(for: exercise)
-                            setsList(for: exercise)
-                            sessionActions(for: exercise)
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                header(for: exercise)
+                                setsList(for: exercise)
+                                sessionActions(for: exercise)
+                            }
+                            .padding(.horizontal)
+                            .id("top-\(exercise.id)")
                         }
-                        .padding(.horizontal)
+                        .onChange(of: self.pageIndex) { newIndex in
+                            if newIndex == exerciseIndex {
+                                withAnimation(.easeInOut) {
+                                    proxy.scrollTo("top-\(exercise.id)", anchor: .top)
+                                }
+                            }
+                        }
                     }
                     .tag(exerciseIndex)
                 }
@@ -369,7 +379,9 @@ private extension WorkoutSessionView {
            self.completedSets.count >= exercise.sets.count
         {
             self.viewModel.autoAdvanceToNextExercise()
-            self.pageIndex = min(self.pageIndex + 1, self.planData.exercises.count - 1)
+            withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.85)) {
+                self.pageIndex = min(self.pageIndex + 1, self.planData.exercises.count - 1)
+            }
             self.completedSets.removeAll(keepingCapacity: false)
             self.weightPerSet.removeAll(keepingCapacity: false)
             self.repsPerSetPerformed.removeAll(keepingCapacity: false)
