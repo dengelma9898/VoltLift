@@ -92,8 +92,8 @@ struct WorkoutSessionView: View {
                 .vlBrandBackground()
             }
         }
-        .sheet(item: self.$infoExercise) { ex in
-            exerciseInfoView(ex)
+        .sheet(item: self.$infoExercise) { selectedExercise in
+            exerciseInfoView(selectedExercise)
         }
     }
 }
@@ -123,20 +123,11 @@ private extension WorkoutSessionView {
                 Text(exercise.name)
                     .font(DesignSystem.Typography.titleS)
                     .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                Button {
-                    self.infoExercise = exercise
-                } label: {
+                Button { self.infoExercise = exercise } label: {
                     Image(systemName: "info.circle")
                         .foregroundColor(DesignSystem.ColorRole.textSecondary)
                 }
                 Spacer()
-                Button {
-                    self.addSet(to: exercise.id)
-                } label: {
-                    Label("Satz hinzufügen", systemImage: "plus")
-                        .labelStyle(.iconOnly)
-                }
-                .buttonStyle(.plain)
             }
 
             Text(self.exerciseDescription(for: exercise))
@@ -151,24 +142,50 @@ private extension WorkoutSessionView {
             ForEach(Array(exercise.sets.enumerated()), id: \.offset) { setIndex, planSet in
                 self.setCard(exerciseId: exercise.id, setIdx: setIndex, planSet: planSet)
             }
+
+            Button {
+                self.addSet(to: exercise.id)
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Satz hinzufügen")
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(DesignSystem.ColorRole.primary)
+            .padding(.top, DesignSystem.Spacing.s)
         }
     }
 
     func setCard(exerciseId: UUID, setIdx: Int, planSet: ExerciseSet) -> some View {
         VLGlassCard {
             VStack(alignment: .leading, spacing: 10) {
-                HStack {
+                HStack(spacing: 8) {
                     Text("Satz \(planSet.setNumber) • geplant: \(planSet.reps) Reps")
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     Spacer()
-                    // Set-Typ Badge
-                    Label(planSet.setType.displayName, systemImage: planSet.setType.icon)
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.06), in: Capsule())
+
+                    // Satztyp-Auswahl per Menü
+                    Menu {
+                        ForEach(SetType.allCases, id: \.self) { choice in
+                            Button(action: { self.updateSetType(
+                                exerciseId: exerciseId,
+                                setIndex: setIdx,
+                                newType: choice
+                            ) }) {
+                                Label(choice.displayName, systemImage: choice.icon)
+                            }
+                        }
+                    } label: {
+                        Label(planSet.setType.displayName, systemImage: planSet.setType.icon)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.white.opacity(0.06), in: Capsule())
+                    }
                 }
 
                 // Vereinheitlichte Dropdown-Auswahlen mit sichtbaren Labels
@@ -262,7 +279,6 @@ private extension WorkoutSessionView {
 
     func sessionActions(for exercise: ExerciseData) -> some View {
         HStack(spacing: DesignSystem.Spacing.m) {
-            // Entfernt: Button "Plan ändern"
             Button("Cancel") {
                 self.viewModel.cancel()
                 self.summaryType = .canceled
@@ -390,15 +406,15 @@ private extension WorkoutSessionView {
     }
 
     func removeSet(from exerciseId: UUID, setIndex: Int) {
-        guard let exIndex = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
-        var exercise = self.planData.exercises[exIndex]
+        guard let exerciseIndex = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
+        var exercise = self.planData.exercises[exerciseIndex]
         guard exercise.sets.indices.contains(setIndex), exercise.sets.count > 1 else { return }
         var sets = exercise.sets
         sets.remove(at: setIndex)
         sets = sets.enumerated().map { idx, s in s.withSetNumber(idx + 1) }
         exercise = exercise.withUpdatedSets(sets)
         var exercises = self.planData.exercises
-        exercises[exIndex] = exercise
+        exercises[exerciseIndex] = exercise
         self.planData = WorkoutPlanData(
             id: self.planData.id,
             name: self.planData.name,
@@ -408,8 +424,33 @@ private extension WorkoutSessionView {
         )
     }
 
-    func exerciseDescription(for ex: ExerciseData) -> String {
-        if let enhanced = ExerciseService.shared.getExercise(by: ex.id) {
+    func updateSetType(exerciseId: UUID, setIndex: Int, newType: SetType) {
+        guard let exerciseIndex = self.planData.exercises.firstIndex(where: { $0.id == exerciseId }) else { return }
+        var exercise = self.planData.exercises[exerciseIndex]
+        guard exercise.sets.indices.contains(setIndex) else { return }
+        var sets = exercise.sets
+        sets[setIndex] = sets[setIndex].withUpdatedParameters(setType: newType)
+        exercise = exercise.withUpdatedSets(sets)
+        var exercises = self.planData.exercises
+        exercises[exerciseIndex] = exercise
+        self.planData = WorkoutPlanData(
+            id: self.planData.id,
+            name: self.planData.name,
+            exercises: exercises,
+            createdDate: self.planData.createdDate,
+            lastUsedDate: self.planData.lastUsedDate
+        )
+    }
+
+    // Info helpers
+    func enhancedExercise(for exercise: ExerciseData) -> Exercise? {
+        if let exerciseExact = ExerciseService.shared.getExercise(by: exercise.id) { return exerciseExact }
+        // Fallback: Name-Match (case-insensitive)
+        return ExerciseService.shared.getAllExercises().first { $0.name.lowercased() == exercise.name.lowercased() }
+    }
+
+    func exerciseDescription(for exercise: ExerciseData) -> String {
+        if let enhanced = enhancedExercise(for: exercise) {
             return enhanced.description
         }
         return ""
@@ -419,27 +460,66 @@ private extension WorkoutSessionView {
         if let enhanced = ExerciseService.shared.getExercise(by: exerciseId) {
             return !enhanced.requiredEquipment.isEmpty
         }
+        // Fallback by name (find in current page)
+        if let exercise = self.planData.exercises.first(where: { $0.id == exerciseId }),
+           let enhanced = enhancedExercise(for: exercise)
+        {
+            return !enhanced.requiredEquipment.isEmpty
+        }
         return false
     }
 
-    func exerciseInfoView(_ ex: ExerciseData) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(ex.name).font(DesignSystem.Typography.titleS)
-            if let info = ExerciseService.shared.getExercise(by: ex.id) {
-                Text(info.description)
-                if !info.instructions.isEmpty {
-                    Text("Anleitung").font(DesignSystem.Typography.body.weight(.semibold))
-                    ForEach(info.instructions, id: \.self) { step in Text("• \(step)") }
+    func exerciseInfoView(_ exercise: ExerciseData) -> some View {
+        let info = self.enhancedExercise(for: exercise)
+        return NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: info?.sfSymbolName ?? "figure.strengthtraining.traditional")
+                        Text(exercise.name).font(DesignSystem.Typography.titleS)
+                    }
+                    if let info {
+                        if !info.targetMuscles.isEmpty {
+                            Text("Zielmuskeln").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(info.targetMuscles.joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.secondaryMuscles.isEmpty {
+                            Text("Sekundäre Muskeln").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(info.secondaryMuscles.joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        Text("Beschreibung").font(DesignSystem.Typography.body.weight(.semibold))
+                        Text(info.description)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        if !info.instructions.isEmpty {
+                            Text("Anleitung").font(DesignSystem.Typography.body.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(info.instructions, id: \.self) { step in Text("• \(step)") }
+                            }
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.safetyTips.isEmpty {
+                            Text("Sicherheitshinweise").font(DesignSystem.Typography.body.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(info.safetyTips, id: \.self) { tip in Text("• \(tip)") }
+                            }
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.requiredEquipment.isEmpty {
+                            Text("Equipment").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(Array(info.requiredEquipment).sorted().joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                    } else {
+                        Text("Keine weiteren Informationen gefunden.")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
                 }
-                if !info.safetyTips.isEmpty {
-                    Text("Sicherheitshinweise").font(DesignSystem.Typography.body.weight(.semibold))
-                    ForEach(info.safetyTips, id: \.self) { tip in Text("• \(tip)") }
-                }
+                .padding()
             }
-            Spacer(minLength: 0)
+            .navigationTitle("Übungsinfo")
+            .vlBrandBackground()
         }
-        .padding()
-        .navigationTitle("Übungsinfo")
-        .vlBrandBackground()
     }
 }
