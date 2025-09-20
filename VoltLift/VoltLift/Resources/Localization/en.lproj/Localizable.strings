@@ -13,5 +13,8 @@
 "action.skip_countdown" = "Start now";
 "hint.activity_running" = "Activity running";
 "action.stop" = "Stop";
+"label.elapsed_time" = "Time";
+"label.distance" = "Distance";
+"label.pace" = "Pace";
 
 

@@ -1,3 +1,4 @@
+import CoreLocation
 import MapKit
 import SwiftUI
 
@@ -12,6 +13,13 @@ struct OutdoorActivityView: View {
     @State private var isActivityRunning = false
     @State private var countdownActivity: ActivityType?
 
+    // Metrics tracking
+    @State private var activityStartDate: Date?
+    @State private var elapsedSeconds: Int = 0
+    @State private var totalDistanceMeters: Double = 0
+    @State private var lastTrackLocation: CLLocation?
+    @State private var activityTimerTask: Task<Void, Never>?
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Map(coordinateRegion: self.$region, showsUserLocation: true)
@@ -20,16 +28,36 @@ struct OutdoorActivityView: View {
             VStack(spacing: DesignSystem.Spacing.m) {
                 if self.isActivityRunning {
                     VLGlassCard {
-                        HStack(spacing: DesignSystem.Spacing.m) {
-                            Image(systemName: "play.circle.fill").foregroundColor(.white)
-                            Text(String(localized: "hint.activity_running"))
-                                .font(DesignSystem.Typography.body)
-                                .foregroundColor(.white)
-                            Spacer()
-                            Button(String(localized: "action.stop")) {
-                                self.isActivityRunning = false
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+                            HStack(spacing: DesignSystem.Spacing.m) {
+                                Image(systemName: "play.circle.fill").foregroundColor(.white)
+                                Text(String(localized: "hint.activity_running"))
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Button(String(localized: "action.stop")) {
+                                    self.stopActivity()
+                                }
+                                .buttonStyle(VLSecondaryButtonStyle())
                             }
-                            .buttonStyle(VLSecondaryButtonStyle())
+
+                            HStack(spacing: DesignSystem.Spacing.xl) {
+                                self.metricItem(
+                                    titleKey: "label.elapsed_time",
+                                    value: self.formattedDuration(self.elapsedSeconds)
+                                )
+                                self.metricItem(
+                                    titleKey: "label.distance",
+                                    value: self.formattedDistance(self.totalDistanceMeters)
+                                )
+                                self.metricItem(
+                                    titleKey: "label.pace",
+                                    value: self.formattedPace(
+                                        seconds: self.elapsedSeconds,
+                                        meters: self.totalDistanceMeters
+                                    )
+                                )
+                            }
                         }
                     }
                 } else {
@@ -59,8 +87,7 @@ struct OutdoorActivityView: View {
         }
         .sheet(item: self.$countdownActivity) { activity in
             OutdoorCountdownView(activity: activity) {
-                self.locationService.requestPreciseLocationIfNeeded()
-                self.isActivityRunning = true
+                self.startActivity()
             }
             .presentationDetents([.medium])
             .presentationCornerRadius(DesignSystem.Radius.l)
@@ -75,9 +102,15 @@ struct OutdoorActivityView: View {
         }
         .onChange(of: self.locationService.currentLocation) { _, newLocation in
             guard let newLocation else { return }
-            withAnimation(.easeInOut) {
-                self.region.center = newLocation.coordinate
-                self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            if self.isActivityRunning {
+                if let last = self.lastTrackLocation {
+                    self.totalDistanceMeters += newLocation.distance(from: last)
+                }
+                self.lastTrackLocation = newLocation
+                withAnimation(.easeInOut) {
+                    self.region.center = newLocation.coordinate
+                    self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                }
             }
         }
     }
@@ -100,6 +133,66 @@ struct OutdoorActivityView: View {
         } else {
             self.locationService.startUpdatingLocation()
         }
+    }
+
+    private func startActivity() {
+        self.locationService.requestPreciseLocationIfNeeded()
+        self.isActivityRunning = true
+        self.activityStartDate = Date()
+        self.elapsedSeconds = 0
+        self.totalDistanceMeters = 0
+        self.lastTrackLocation = self.locationService.currentLocation
+        self.activityTimerTask?.cancel()
+        self.activityTimerTask = Task { @MainActor in
+            while self.isActivityRunning {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                if !self.isActivityRunning { break }
+                self.elapsedSeconds += 1
+            }
+        }
+    }
+
+    private func stopActivity() {
+        self.isActivityRunning = false
+        self.activityTimerTask?.cancel()
+        self.activityTimerTask = nil
+    }
+
+    @ViewBuilder
+    private func metricItem(titleKey: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(LocalizedStringKey(titleKey))
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+            Text(value)
+                .font(DesignSystem.Typography.titleS)
+                .foregroundColor(.white)
+        }
+    }
+
+    private func formattedDuration(_ seconds: Int) -> String {
+        let hrs = seconds / 3_600
+        let mins = (seconds % 3_600) / 60
+        let secs = seconds % 60
+        if hrs > 0 {
+            return String(format: "%d:%02d:%02d", hrs, mins, secs)
+        } else {
+            return String(format: "%02d:%02d", mins, secs)
+        }
+    }
+
+    private func formattedDistance(_ meters: Double) -> String {
+        let km = meters / 1_000.0
+        return String(format: "%.2f km", km)
+    }
+
+    private func formattedPace(seconds: Int, meters: Double) -> String {
+        let km = meters / 1_000.0
+        guard km > 0 else { return "-" }
+        let paceSecPerKm = Int(Double(seconds) / km)
+        let mins = paceSecPerKm / 60
+        let secs = paceSecPerKm % 60
+        return String(format: "%d:%02d /km", mins, secs)
     }
 }
 
