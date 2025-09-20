@@ -38,12 +38,12 @@ struct ActivityPickerView: View {
                     self.selected = activity
                     self.onSelect?(activity)
                 }) {
-                    HStack(spacing: DesignSystem.Spacing.m) {
+                    VStack(spacing: 6) {
                         Image(systemName: activity.symbolName)
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                         Text(activity.title)
-                            .font(DesignSystem.Typography.body.weight(.semibold))
+                            .font(DesignSystem.Typography.caption)
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)

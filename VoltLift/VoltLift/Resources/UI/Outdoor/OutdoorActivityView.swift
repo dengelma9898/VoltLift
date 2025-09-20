@@ -18,7 +18,7 @@ struct OutdoorActivityView: View {
                 // future: adjust metrics/filters per activity
             }
             .padding(.horizontal, DesignSystem.Spacing.xl)
-            .padding(.bottom, DesignSystem.Spacing.l + 56) // nearer to tab bar
+            .padding(.bottom, DesignSystem.Spacing.s + 40) // even closer to tab bar
         }
         .navigationTitle(String(localized: "title.outdoor_activity"))
         .navigationBarTitleDisplayMode(.inline)
