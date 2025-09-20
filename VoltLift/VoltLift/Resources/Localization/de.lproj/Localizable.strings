@@ -16,5 +16,10 @@
 "label.elapsed_time" = "Zeit";
 "label.distance" = "Distanz";
 "label.pace" = "Pace";
+"title.confirm_stop" = "Aktivität beenden?";
+"action.cancel" = "Abbrechen";
+"action.close" = "Schließen";
+"label.splits" = "Splits";
+"label.partial" = "Teilabschnitt";
 
 

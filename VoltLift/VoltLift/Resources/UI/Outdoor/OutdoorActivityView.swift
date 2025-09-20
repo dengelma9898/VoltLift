@@ -20,6 +20,10 @@ struct OutdoorActivityView: View {
     @State private var totalDistanceMeters: Double = 0
     @State private var lastTrackLocation: CLLocation?
     @State private var activityTimerTask: Task<Void, Never>?
+    @State private var splitsSeconds: [Int] = []
+    @State private var lastSplitStartSeconds: Int = 0
+    @State private var showStopConfirm = false
+    @State private var summary: OutdoorActivitySummary?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -37,7 +41,7 @@ struct OutdoorActivityView: View {
                                     .foregroundColor(.white)
                                 Spacer()
                                 Button(String(localized: "action.stop")) {
-                                    self.stopActivity()
+                                    self.showStopConfirm = true
                                 }
                                 .buttonStyle(VLSecondaryButtonStyle())
                             }
@@ -100,6 +104,25 @@ struct OutdoorActivityView: View {
             .presentationDetents([.medium])
             .presentationCornerRadius(DesignSystem.Radius.l)
         }
+        .confirmationDialog(
+            String(localized: "title.confirm_stop"),
+            isPresented: self.$showStopConfirm,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "action.stop"), role: .destructive) {
+                let built = self.buildSummary()
+                self.stopActivity()
+                self.summary = built
+            }
+            Button(String(localized: "action.cancel"), role: .cancel) {}
+        }
+        .sheet(item: self.$summary) { summary in
+            OutdoorSummaryView(summary: summary) {
+                self.summary = nil
+            }
+            .presentationDetents([.medium, .large])
+            .presentationCornerRadius(DesignSystem.Radius.l)
+        }
         .onAppear {
             self.locationService.requestWhenInUsePermission()
         }
@@ -115,6 +138,12 @@ struct OutdoorActivityView: View {
                     self.totalDistanceMeters += newLocation.distance(from: last)
                 }
                 self.lastTrackLocation = newLocation
+                let completedKm = Int(self.totalDistanceMeters / 1_000.0)
+                while self.splitsSeconds.count < completedKm {
+                    let split = self.elapsedSeconds - self.lastSplitStartSeconds
+                    self.splitsSeconds.append(max(split, 0))
+                    self.lastSplitStartSeconds = self.elapsedSeconds
+                }
                 withAnimation(.easeInOut) {
                     self.region.center = newLocation.coordinate
                     self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
@@ -151,6 +180,8 @@ struct OutdoorActivityView: View {
         self.totalDistanceMeters = 0
         self.lastTrackLocation = self.locationService.currentLocation
         self.activeActivity = self.selectedActivity
+        self.splitsSeconds = []
+        self.lastSplitStartSeconds = 0
         self.activityTimerTask?.cancel()
         self.activityTimerTask = Task { @MainActor in
             while self.isActivityRunning {
@@ -166,6 +197,21 @@ struct OutdoorActivityView: View {
         self.activityTimerTask?.cancel()
         self.activityTimerTask = nil
         self.activeActivity = nil
+    }
+
+    private func buildSummary() -> OutdoorActivitySummary {
+        let kmCompleted = Int(self.totalDistanceMeters / 1_000.0)
+        let perKm = Array(self.splitsSeconds.prefix(kmCompleted))
+        let remainderMeters = self.totalDistanceMeters - Double(kmCompleted) * 1_000.0
+        let partial = remainderMeters > 1 ? (self.elapsedSeconds - self.lastSplitStartSeconds) : nil
+        return OutdoorActivitySummary(
+            activity: self.activeActivity ?? self.selectedActivity,
+            totalSeconds: self.elapsedSeconds,
+            totalMeters: self.totalDistanceMeters,
+            perKmSeconds: perKm,
+            lastPartialSeconds: partial,
+            startDate: self.activityStartDate ?? Date()
+        )
     }
 
     @ViewBuilder
