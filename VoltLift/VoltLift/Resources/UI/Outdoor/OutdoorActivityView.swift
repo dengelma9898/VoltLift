@@ -60,6 +60,11 @@ struct OutdoorActivityView: View {
                             }
                         }
                     }
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous))
+                    #if os(visionOS)
+                        .glassBackgroundEffect()
+                    #endif
                 } else {
                     ActivityPickerView(
                         activities: ActivityType.defaultSet,
@@ -165,7 +170,7 @@ struct OutdoorActivityView: View {
                 .font(DesignSystem.Typography.caption)
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
             Text(value)
-                .font(DesignSystem.Typography.titleS)
+                .font(DesignSystem.Typography.titleS.monospacedDigit())
                 .foregroundColor(.white)
         }
     }
