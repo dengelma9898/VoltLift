@@ -1,0 +1,10 @@
+/* Outdoor Activity */
+"title.outdoor_activity" = "Outdoor-Aktivität";
+"action.locate_me" = "Position zentrieren";
+
+/* Activities */
+"activity.running" = "Laufen";
+"activity.biking" = "Radfahren";
+"activity.hiking" = "Wandern";
+
+

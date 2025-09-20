@@ -39,12 +39,17 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    VLActionCard(
-                        icon: "tree.fill",
-                        title: "Outdoor Activity",
-                        subtitle: "Connect with nature",
-                        gradient: DesignSystem.Gradient.tealBlue
-                    )
+                    NavigationLink {
+                        OutdoorActivityView()
+                    } label: {
+                        VLActionCard(
+                            icon: "tree.fill",
+                            title: "Outdoor Activity",
+                            subtitle: "Connect with nature",
+                            gradient: DesignSystem.Gradient.tealBlue
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 // Placeholder for sections

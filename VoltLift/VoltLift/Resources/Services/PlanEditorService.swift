@@ -112,4 +112,29 @@ public struct PlanEditorService {
         }
         return plan
     }
+
+    // UC4: Add/Remove Exercises
+    func addExercise(to plan: PlanDraft, from exercise: Exercise) throws -> PlanDraft {
+        var updated = plan
+        // Default: three normal sets with 10 reps
+        let defaultSets: [PlanSetDraft] = (0 ..< 3).map { _ in
+            PlanSetDraft(reps: 10, setType: .normal, side: exercise.allowsUnilateral ? .both : .both, comment: nil)
+        }
+        let newExercise = PlanExerciseDraft(
+            id: UUID(),
+            referenceExerciseId: exercise.id.uuidString,
+            displayName: exercise.name,
+            allowsUnilateral: exercise.allowsUnilateral,
+            sets: defaultSets
+        )
+        updated.exercises.append(newExercise)
+        return updated
+    }
+
+    func removeExercise(from plan: PlanDraft, exerciseId: UUID) throws -> PlanDraft {
+        var updated = plan
+        guard updated.exercises.contains(where: { $0.id == exerciseId }) else { throw PlanEditorError.indexOutOfRange }
+        updated.exercises.removeAll { $0.id == exerciseId }
+        return updated
+    }
 }

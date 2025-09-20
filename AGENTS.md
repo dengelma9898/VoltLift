@@ -16,3 +16,42 @@ Geltungsbereich: iOS- und watchOS-Code dieses Repos. Entscheidungen richten sich
 - Simulator-Build verifizieren: Bevor eine Aufgabe abgeschlossen wird, stets den Xcode MCP nutzen, um auf dem Simulator zu bauen/zu starten und sicherzustellen, dass die App wie erwartet funktioniert.
 
 
+### Lokalisierung (L10n)
+
+- Pflicht: Alle user-sichtbaren Texte (inkl. Accessibility-Labels/Values/Hints) werden über `Localizable.strings` lokalisiert. Keine Hardcoded-Strings in Views.
+- Aktuelle Sprachen: Deutsch (`de.lproj/Localizable.strings`) und Englisch (`en.lproj/Localizable.strings`).
+- Verwendung: `String(localized: "<key>")` oder `Text(String(localized: "<key>"))` in SwiftUI. Für Format-Strings Platzhalter nach Apple-Guidelines verwenden.
+- Schlüssel-Konvention: dot-notiert und semantisch, z. B. `title.outdoor_activity`, `action.locate_me`, `activity.running`.
+- Review-Kriterium: PRs müssen neue/angepasste Keys in beiden Sprachen enthalten.
+
+### Tooling & Qualitätssicherung
+
+- SwiftFormat: Vor Commit/Push ausführen (automatische Formatierung). In CI verpflichtend.
+- SwiftLint: Vor Commit/Push ausführen (statische Analyse). In CI verpflichtend.
+- Simulator-Build: Jede Aufgabe wird vor Abschluss mit einem Simulator-Build getestet. Verwende das VoltLift-Scheme im Workspace und einen iOS-Simulator (z. B. iPhone 16).
+- Tests: Dort schreiben, wo sinnvoll (Domain/Use-Cases, Adapter, kritische UI-Flows). PRs ohne grüne Checks werden nicht gemergt.
+
+### UI/Design-System Richtlinien
+
+- Apple HIG und Corporate Design strikt befolgen (Farben, Typografie, Komponenten).
+- Bevorzugte Komponenten: z. B. `VLGlassCard`, `VLPrimaryButtonStyle`, `VLSecondaryButtonStyle`, `VLIconButtonStyle` für Icon-Aktionen.
+- Konsistente Abstände/Ecken/Schatten über `DesignSystem` nutzen (Spacing/Radius/Shadow/Gradient/ColorRole/Typography).
+
+### Privacy & Berechtigungen
+
+- Benötigte Berechtigungen früh klären. Info.plist-Keys hinzufügen (bevorzugt via Build-Settings `INFOPLIST_KEY_*`).
+- Beispiel Standort: `NSLocationWhenInUseUsageDescription` mit nutzerfreundlichem, lokalisiertem Grund.
+
+### Abschluss-Checkliste je Task
+
+1. Anforderungen geklärt, HIG/Corporate Design eingehalten.
+2. UI-Komponenten aus dem Design System verwendet.
+3. Alle neuen Texte lokalisiert (`Localizable.strings` de/en), keine Hardcoded-Strings.
+4. SwiftFormat ausgeführt, SwiftLint sauber.
+5. Simulator-Build gestartet und manuell geprüft (Navigationsfluss, States, Permissions, A11y-Labels).
+6. Relevante Tests ergänzt/aktualisiert.
+
+### Hinweise zur Erweiterbarkeit (Beispiel Outdoor-Aktivitäten)
+
+- Aktivitätsauswahl modular halten (Enum + View-Komponente), damit neue Aktivitäten mit minimalen Änderungen (Enum-Fall + Lokalisierung + Symbol) hinzugefügt werden können.
+

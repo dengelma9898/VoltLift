@@ -360,6 +360,14 @@ private extension WorkoutSessionView {
 
                         let prefs = UserPreferencesService()
                         try await prefs.savePlan(self.planData)
+
+                        // Markiere Planverwendung und berechne Summary für Historie
+                        try await prefs.markPlanAsUsed(self.planData.id)
+                        _ = WorkoutHistoryService.buildSummary(
+                            for: self.viewModel.session,
+                            entries: self.viewModel.entries
+                        )
+
                         self.viewModel.finish()
                         self.summaryType = .finished
                         self.showSummary = true

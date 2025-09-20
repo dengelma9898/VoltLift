@@ -77,4 +77,22 @@ final class PlanEditorViewModel: ObservableObject {
             self.lastError = error.localizedDescription
         }
     }
+
+    func addExercise(from exercise: Exercise) {
+        do {
+            self.plan = try self.service.addExercise(to: self.plan, from: exercise)
+            self.lastError = nil
+        } catch {
+            self.lastError = error.localizedDescription
+        }
+    }
+
+    func removeExercise(exerciseId: UUID) {
+        do {
+            self.plan = try self.service.removeExercise(from: self.plan, exerciseId: exerciseId)
+            self.lastError = nil
+        } catch {
+            self.lastError = error.localizedDescription
+        }
+    }
 }

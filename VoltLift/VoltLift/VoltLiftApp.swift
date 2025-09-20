@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 
 @main
@@ -12,6 +13,10 @@ struct VoltLiftApp: App {
                 .environmentObject(self.userPreferencesService)
                 .tint(DesignSystem.ColorRole.primary)
                 .preferredColorScheme(.dark)
+                .onAppear {
+                    // Ensure CoreLocation permission prompt can be shown when needed
+                    _ = CLLocationManager()
+                }
                 .onAppear {
                     VLAppearance.applyBrandAppearance()
                     Task {

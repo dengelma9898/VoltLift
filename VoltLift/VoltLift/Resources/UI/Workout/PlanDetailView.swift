@@ -14,6 +14,9 @@ struct PlanDetailView: View {
     @State private var pendingName: String = ""
     @State private var overrideName: String?
     @State private var goToSession = false
+    @State private var summaries: [WorkoutSessionSummary] = []
+    @State private var isLoadingHistory = false
+    @State private var infoExercise: ExerciseData?
 
     private var exerciseCountText: String {
         "\(self.plan.exerciseCount) exercises"
@@ -24,6 +27,7 @@ struct PlanDetailView: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
                 self.headerCard
                 self.exercisesList
+                self.insightsEntry
             }
             .padding(DesignSystem.Spacing.xl)
         }
@@ -120,6 +124,9 @@ struct PlanDetailView: View {
                 }
             }
         }
+        .sheet(item: self.$infoExercise) { selected in
+            self.exerciseInfoView(selected)
+        }
     }
 
     private var headerCard: some View {
@@ -157,10 +164,44 @@ struct PlanDetailView: View {
             ForEach(self.plan.exercises, id: \.id) { exercise in
                 VLGlassCard {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(exercise.name)
-                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                        HStack(spacing: 8) {
+                            Text(exercise.name)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                            Button { self.infoExercise = exercise } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            }
+                            Spacer()
+                        }
                         Text(self.exerciseSubtitle(exercise))
                             .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                }
+            }
+        }
+    }
+
+    private var insightsEntry: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
+            Text("Verlauf & Insights")
+                .font(DesignSystem.Typography.titleS)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+            NavigationLink {
+                PlanInsightsView(plan: self.plan)
+            } label: {
+                VLGlassCard {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Öffne Insights")
+                                .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
+                            Text("Verlauf, Volumen, Trends und mehr")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                     }
                 }
@@ -233,5 +274,68 @@ struct PlanDetailView: View {
 
         parts.append("Rest: \(exercise.restTime)s")
         return parts.joined(separator: "  •  ")
+    }
+
+    // MARK: - Exercise Info Sheet
+
+    @ViewBuilder
+    private func exerciseInfoView(_ exercise: ExerciseData) -> some View {
+        let info = self.enhancedExercise(for: exercise)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: info?.sfSymbolName ?? "figure.strengthtraining.traditional")
+                        Text(exercise.name).font(DesignSystem.Typography.titleS)
+                    }
+                    if let info {
+                        if !info.targetMuscles.isEmpty {
+                            Text("Zielmuskeln").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(info.targetMuscles.joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.secondaryMuscles.isEmpty {
+                            Text("Sekundäre Muskeln").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(info.secondaryMuscles.joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        Text("Beschreibung").font(DesignSystem.Typography.body.weight(.semibold))
+                        Text(info.description)
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        if !info.instructions.isEmpty {
+                            Text("Anleitung").font(DesignSystem.Typography.body.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(info.instructions, id: \.self) { step in Text("• \(step)") }
+                            }
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.safetyTips.isEmpty {
+                            Text("Sicherheitshinweise").font(DesignSystem.Typography.body.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(info.safetyTips, id: \.self) { tip in Text("• \(tip)") }
+                            }
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                        if !info.requiredEquipment.isEmpty {
+                            Text("Equipment").font(DesignSystem.Typography.body.weight(.semibold))
+                            Text(Array(info.requiredEquipment).sorted().joined(separator: ", "))
+                                .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                        }
+                    } else {
+                        Text("Keine weiteren Informationen gefunden.")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Übungsinfo")
+            .vlBrandBackground()
+        }
+    }
+
+    private func enhancedExercise(for exercise: ExerciseData) -> Exercise? {
+        if let exerciseExact = ExerciseService.shared.getExercise(by: exercise.id) { return exerciseExact }
+        // Fallback: Name-Match (case-insensitive)
+        return ExerciseService.shared.getAllExercises().first { $0.name.lowercased() == exercise.name.lowercased() }
     }
 }

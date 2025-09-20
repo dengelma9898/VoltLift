@@ -9,6 +9,10 @@ struct PlanEditorView: View {
         _viewModel = StateObject(wrappedValue: PlanEditorViewModel(plan: plan))
     }
 
+    @State private var showExercisePicker = false
+    @State private var showRemoveExerciseConfirm = false
+    @State private var pendingExerciseToRemove: PlanExerciseDraft?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
@@ -16,7 +20,7 @@ struct PlanEditorView: View {
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             // Übungs-Header
-                            HStack {
+                            HStack(spacing: DesignSystem.Spacing.s) {
                                 Text(exercise.displayName)
                                     .font(DesignSystem.Typography.titleS)
                                     .foregroundColor(DesignSystem.ColorRole.textPrimary)
@@ -24,6 +28,14 @@ struct PlanEditorView: View {
                                 Text("\(exercise.sets.count) Sets")
                                     .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                                Button(role: .destructive) {
+                                    self.pendingExerciseToRemove = exercise
+                                    self.showRemoveExerciseConfirm = true
+                                } label: {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.plain)
+                                .foregroundColor(DesignSystem.ColorRole.danger)
                             }
 
                             // Sets edit list
@@ -46,35 +58,24 @@ struct PlanEditorView: View {
                                         )
                                     }
 
-                                    // Row-Actions (Move/Delete)
-                                    HStack(spacing: DesignSystem.Spacing.s) {
-                                        Button {
-                                            guard index > 0 else { return }
-                                            self.viewModel.moveSet(in: exercise.id, from: index, to: index - 1)
-                                        } label: { Image(systemName: "chevron.up") }
-                                            .buttonStyle(.plain)
-                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
-
-                                        Button {
-                                            guard index < exercise.sets.count - 1 else { return }
-                                            self.viewModel.moveSet(in: exercise.id, from: index, to: index + 1)
-                                        } label: { Image(systemName: "chevron.down") }
-                                            .buttonStyle(.plain)
-                                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
-
+                                    // Set-level actions: delete only
+                                    HStack {
                                         Spacer()
-
                                         Button(role: .destructive) {
                                             self.viewModel.removeSet(from: exercise.id, at: index)
                                         } label: {
-                                            Label("Löschen", systemImage: "trash")
+                                            Label("Satz löschen", systemImage: "trash")
                                         }
                                         .buttonStyle(.borderless)
                                     }
                                 }
 
                                 if index < exercise.sets.count - 1 {
-                                    Divider().opacity(0.2)
+                                    Rectangle()
+                                        .fill(DesignSystem.ColorRole.textSecondary.opacity(0.14))
+                                        .frame(height: 1)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 6)
                                 }
                             }
 
@@ -89,11 +90,45 @@ struct PlanEditorView: View {
                         }
                     }
                 }
+                // Global: Add exercise at bottom
+                HStack {
+                    Spacer()
+                    Button {
+                        self.showExercisePicker = true
+                    } label: {
+                        Label("Übung hinzufügen", systemImage: "plus")
+                    }
+                    .tint(DesignSystem.ColorRole.primary)
+                }
             }
             .padding(DesignSystem.Spacing.xl)
         }
         .vlBrandBackground()
         .navigationTitle("Plan bearbeiten")
+        .sheet(isPresented: self.$showExercisePicker) {
+            // Equipment-basiert & nach Muskelgruppen gruppiert (bestehender Flow)
+            let available = Set(self.userPreferencesService.selectedEquipment.filter(\.isSelected).map(\.name))
+            AddExerciseView(
+                availableEquipment: available,
+                initialGroup: .chest
+            ) { _, added in
+                // Mappe Legacy-Exercise zu Enhanced Exercise per Namen
+                let all = ExerciseService.shared.getAllExercises()
+                for legacy in added {
+                    if let enhanced = all.first(where: { $0.name.lowercased() == legacy.name.lowercased() }) {
+                        self.viewModel.addExercise(from: enhanced)
+                    }
+                }
+            }
+        }
+        .alert("Übung entfernen?", isPresented: self.$showRemoveExerciseConfirm) {
+            Button("Löschen", role: .destructive) {
+                if let ex = self.pendingExerciseToRemove { self.viewModel.removeExercise(exerciseId: ex.id) }
+            }
+            Button("Abbrechen", role: .cancel) {}
+        } message: {
+            Text("Diese Aktion kann nicht rückgängig gemacht werden.")
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Speichern") {
@@ -186,38 +221,53 @@ private struct SetEditorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
+            // Line 1: Set number ---- <Type of set>
+            HStack(alignment: .firstTextBaseline) {
                 Text("Satz \(self.setIndex + 1)")
                 Spacer()
-                Text("\(self.reps)x").foregroundColor(.secondary)
+                Picker(selection: self.$type) {
+                    ForEach(ExerciseSetType.allCases, id: \.self) { typeOption in
+                        Text(self.displayName(for: typeOption)).tag(typeOption)
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(self.displayName(for: self.type))
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                }
+                .pickerStyle(.menu)
+                .onChange(of: self.type) { _, newValue in
+                    self.emitChange(reps: self.reps, type: newValue, side: self.side, comment: self.comment)
+                }
             }
 
-            Stepper(value: self.$reps, in: 0 ... 200) { Text("Wiederholungen") }
+            // Line 2: Reps ---- <Number of reps>
+            HStack(alignment: .firstTextBaseline) {
+                Text("Reps")
+                Spacer()
+                Picker(selection: self.$reps) {
+                    ForEach(0 ... 200, id: \.self) { value in
+                        Text("\(value)").tag(value)
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text("\(self.reps)")
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                    }
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                }
+                .pickerStyle(.menu)
                 .onChange(of: self.reps) { _, newValue in
                     self.emitChange(reps: newValue, type: self.type, side: self.side, comment: self.comment)
                 }
-
-            Picker("Typ", selection: self.$type) {
-                ForEach(ExerciseSetType.allCases, id: \.self) { typeOption in
-                    Text(self.displayName(for: typeOption)).tag(typeOption)
-                }
-            }
-            .pickerStyle(.segmented)
-            .onChange(of: self.type) { _, newValue in
-                self.emitChange(reps: self.reps, type: newValue, side: self.side, comment: self.comment)
             }
 
-            if self.allowsUnilateral {
-                Picker("Seite", selection: self.$side) {
-                    Text("Beidseitig").tag(ExecutionSide.both)
-                    Text("Einseitig").tag(ExecutionSide.unilateral)
-                }
-                .pickerStyle(.segmented)
-                .onChange(of: self.side) { _, newValue in
-                    self.emitChange(reps: self.reps, type: self.type, side: newValue, comment: self.comment)
-                }
-            }
-
+            // Line 3: Commentary
             TextField("Kommentar (optional)", text: self.$comment)
                 .onSubmit { self.emitChange(reps: self.reps, type: self.type, side: self.side, comment: self.comment) }
         }
