@@ -12,5 +12,6 @@
 "action.add_10s" = "+10s";
 "action.skip_countdown" = "Jetzt starten";
 "hint.activity_running" = "Aktivität läuft";
+"action.stop" = "Stopp";
 
 

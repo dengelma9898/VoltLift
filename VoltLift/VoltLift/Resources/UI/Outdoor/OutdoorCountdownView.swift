@@ -10,7 +10,7 @@ struct OutdoorCountdownView: View {
     @State private var secondsRemaining: Int
     @State private var isActive = true
 
-    init(activity: ActivityType, initialSeconds: Int = 10, onStart: (() -> Void)? = nil) {
+    init(activity: ActivityType, initialSeconds: Int = 20, onStart: (() -> Void)? = nil) {
         self.activity = activity
         self.initialSeconds = initialSeconds
         self.onStart = onStart

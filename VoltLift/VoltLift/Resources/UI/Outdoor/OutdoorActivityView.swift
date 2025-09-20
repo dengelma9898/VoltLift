@@ -26,20 +26,23 @@ struct OutdoorActivityView: View {
                                 .font(DesignSystem.Typography.body)
                                 .foregroundColor(.white)
                             Spacer()
-                            Button(String(localized: "Stop")) {
+                            Button(String(localized: "action.stop")) {
                                 self.isActivityRunning = false
                             }
                             .buttonStyle(VLSecondaryButtonStyle())
                         }
                     }
+                } else {
+                    ActivityPickerView(
+                        activities: ActivityType.defaultSet,
+                        selected: self.$selectedActivity
+                    ) { activity in
+                        self.selectedActivity = activity
+                        self.countdownActivity = activity
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.bottom, DesignSystem.Spacing.s + 40)
                 }
-
-                ActivityPickerView(activities: ActivityType.defaultSet, selected: self.$selectedActivity) { activity in
-                    self.selectedActivity = activity
-                    self.countdownActivity = activity
-                }
-                .padding(.horizontal, DesignSystem.Spacing.xl)
-                .padding(.bottom, DesignSystem.Spacing.s + 40)
             }
         }
         .navigationTitle(String(localized: "title.outdoor_activity"))
