@@ -10,11 +10,15 @@ struct OutdoorActivityView: View {
     @State private var selectedActivity: ActivityType = .running
 
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .bottom) {
             Map(coordinateRegion: self.$region, showsUserLocation: true)
-                .ignoresSafeArea(edges: [.horizontal])
+                .ignoresSafeArea()
 
-            Color.clear.frame(height: 0)
+            ActivityPickerView(activities: ActivityType.defaultSet, selected: self.$selectedActivity) { _ in
+                // future: adjust metrics/filters per activity
+            }
+            .padding(.horizontal, DesignSystem.Spacing.xl)
+            .padding(.bottom, DesignSystem.Spacing.l + 56) // nearer to tab bar
         }
         .navigationTitle(String(localized: "title.outdoor_activity"))
         .navigationBarTitleDisplayMode(.inline)
@@ -42,14 +46,6 @@ struct OutdoorActivityView: View {
                 self.region.center = newLocation.coordinate
                 self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            ActivityPickerView(activities: ActivityType.defaultSet, selected: self.$selectedActivity) { _ in
-                // future: adjust metrics/filters per activity
-            }
-            .padding(.horizontal, DesignSystem.Spacing.xl)
-            .padding(.bottom, DesignSystem.Spacing.xl)
-            .background(.clear)
         }
     }
 
