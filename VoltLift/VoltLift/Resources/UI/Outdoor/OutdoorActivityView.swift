@@ -12,6 +12,7 @@ struct OutdoorActivityView: View {
     @State private var isCountdownPresented = false
     @State private var isActivityRunning = false
     @State private var countdownActivity: ActivityType?
+    @State private var activeActivity: ActivityType?
 
     // Metrics tracking
     @State private var activityStartDate: Date?
@@ -31,7 +32,7 @@ struct OutdoorActivityView: View {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             HStack(spacing: DesignSystem.Spacing.m) {
                                 Image(systemName: "play.circle.fill").foregroundColor(.white)
-                                Text(String(localized: "hint.activity_running"))
+                                Text(self.activeActivity?.title ?? String(localized: "hint.activity_running"))
                                     .font(DesignSystem.Typography.body)
                                     .foregroundColor(.white)
                                 Spacer()
@@ -65,6 +66,8 @@ struct OutdoorActivityView: View {
                     #if os(visionOS)
                         .glassBackgroundEffect()
                     #endif
+                        .padding(.horizontal, DesignSystem.Spacing.xl)
+                        .padding(.bottom, DesignSystem.Spacing.s + 40)
                 } else {
                     ActivityPickerView(
                         activities: ActivityType.defaultSet,
@@ -147,6 +150,7 @@ struct OutdoorActivityView: View {
         self.elapsedSeconds = 0
         self.totalDistanceMeters = 0
         self.lastTrackLocation = self.locationService.currentLocation
+        self.activeActivity = self.selectedActivity
         self.activityTimerTask?.cancel()
         self.activityTimerTask = Task { @MainActor in
             while self.isActivityRunning {
@@ -161,6 +165,7 @@ struct OutdoorActivityView: View {
         self.isActivityRunning = false
         self.activityTimerTask?.cancel()
         self.activityTimerTask = nil
+        self.activeActivity = nil
     }
 
     @ViewBuilder
