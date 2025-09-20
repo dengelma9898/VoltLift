@@ -8,17 +8,39 @@ struct OutdoorActivityView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var selectedActivity: ActivityType = .running
+    @State private var isCountdownPresented = false
+    @State private var isActivityRunning = false
+    @State private var countdownActivity: ActivityType?
 
     var body: some View {
         ZStack(alignment: .bottom) {
             Map(coordinateRegion: self.$region, showsUserLocation: true)
                 .ignoresSafeArea()
 
-            ActivityPickerView(activities: ActivityType.defaultSet, selected: self.$selectedActivity) { _ in
-                // future: adjust metrics/filters per activity
+            VStack(spacing: DesignSystem.Spacing.m) {
+                if self.isActivityRunning {
+                    VLGlassCard {
+                        HStack(spacing: DesignSystem.Spacing.m) {
+                            Image(systemName: "play.circle.fill").foregroundColor(.white)
+                            Text(String(localized: "hint.activity_running"))
+                                .font(DesignSystem.Typography.body)
+                                .foregroundColor(.white)
+                            Spacer()
+                            Button(String(localized: "Stop")) {
+                                self.isActivityRunning = false
+                            }
+                            .buttonStyle(VLSecondaryButtonStyle())
+                        }
+                    }
+                }
+
+                ActivityPickerView(activities: ActivityType.defaultSet, selected: self.$selectedActivity) { activity in
+                    self.selectedActivity = activity
+                    self.countdownActivity = activity
+                }
+                .padding(.horizontal, DesignSystem.Spacing.xl)
+                .padding(.bottom, DesignSystem.Spacing.s + 40)
             }
-            .padding(.horizontal, DesignSystem.Spacing.xl)
-            .padding(.bottom, DesignSystem.Spacing.s + 40) // even closer to tab bar
         }
         .navigationTitle(String(localized: "title.outdoor_activity"))
         .navigationBarTitleDisplayMode(.inline)
@@ -31,6 +53,14 @@ struct OutdoorActivityView: View {
                 .accessibilityLabel(Text(String(localized: "action.locate_me")))
                 .disabled(!self.isLocateEnabled)
             }
+        }
+        .sheet(item: self.$countdownActivity) { activity in
+            OutdoorCountdownView(activity: activity) {
+                self.locationService.requestPreciseLocationIfNeeded()
+                self.isActivityRunning = true
+            }
+            .presentationDetents([.medium])
+            .presentationCornerRadius(DesignSystem.Radius.l)
         }
         .onAppear {
             self.locationService.requestWhenInUsePermission()
