@@ -4,12 +4,12 @@ public enum DesignSystem {
     public enum ColorRole {
         public static var primary: Color { Color("VLPrimary") }
         public static var secondary: Color { Color("VLSecondary") }
-        // Brand background matches the Home screen base
-        public static var background: Color { Color(red: 0.07, green: 0.09, blue: 0.16) }
+        // Brand background (aus Assets, Light/Dark via ColorSet)
+        public static var background: Color { Color("VLBackground") }
         public static var surface: Color { Color("VLSurface") }
-        // Brand text colors optimized for dark background accessibility
-        public static var textPrimary: Color { .white }
-        public static var textSecondary: Color { .white.opacity(0.85) }
+        // Textfarben aus Assets (Light/Dark abgestimmt)
+        public static var textPrimary: Color { Color("VLTextPrimary") }
+        public static var textSecondary: Color { Color("VLTextSecondary") }
         public static var success: Color { Color("VLSuccess") }
         public static var warning: Color { Color("VLWarning") }
         public static var danger: Color { Color("VLDanger") }
