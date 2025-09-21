@@ -41,19 +41,19 @@ public enum DesignSystem {
     }
 
     public enum Shadow {
-        public static var smallColor: Color { .black.opacity(0.08) }
+        public static var smallColor: Color { Color.black.opacity(0.08) }
         public static let smallRadius: CGFloat = 8
         public static let smallY: CGFloat = 4
 
-        public static var mediumColor: Color { .black.opacity(0.12) }
+        public static var mediumColor: Color { Color.black.opacity(0.12) }
         public static let mediumRadius: CGFloat = 16
         public static let mediumY: CGFloat = 8
     }
 
     public enum Gradient {
-        private static var brandPurple: Color { Color(red: 0.55, green: 0.36, blue: 0.96) } // ~#8B5CF6
-        private static var brandIndigo: Color { Color(red: 0.23, green: 0.39, blue: 0.98) } // ~#3B63FA
-        private static var brandTeal: Color { Color(red: 0.08, green: 0.72, blue: 0.66) } // ~#14B8A6
+        private static var brandPurple: Color { DesignSystem.ColorRole.secondary } // mapped via assets if desired
+        private static var brandIndigo: Color { DesignSystem.ColorRole.primary.opacity(0.9) }
+        private static var brandTeal: Color { DesignSystem.ColorRole.primary }
 
         public static var primary: LinearGradient { // purple → indigo
             LinearGradient(colors: [brandPurple, brandIndigo], startPoint: .topLeading, endPoint: .bottomTrailing)

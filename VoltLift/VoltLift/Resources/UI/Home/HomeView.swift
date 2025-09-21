@@ -8,7 +8,7 @@ struct HomeView: View {
                     Circle()
                         .fill(DesignSystem.Gradient.primary)
                         .frame(width: 44, height: 44)
-                        .overlay(Image(systemName: "bolt.fill").foregroundColor(.white))
+                        .overlay(Image(systemName: "bolt.fill").foregroundColor(DesignSystem.ColorRole.textPrimary))
                     VLWordmark(size: .l)
                     Spacer()
                 }
@@ -86,10 +86,10 @@ private struct VLStatCard: View {
             VStack(spacing: 4) {
                 Text(self.value)
                     .font(DesignSystem.Typography.titleM)
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                 Text(self.label)
                     .font(DesignSystem.Typography.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
             }
             .frame(maxWidth: .infinity)
         }
@@ -107,15 +107,15 @@ private struct VLActionCard: View {
             Circle()
                 .fill(self.gradient)
                 .frame(width: 56, height: 56)
-                .overlay(Image(systemName: self.icon).foregroundColor(.white))
+                .overlay(Image(systemName: self.icon).foregroundColor(DesignSystem.ColorRole.textPrimary))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(self.title)
                     .font(DesignSystem.Typography.titleS)
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                 Text(self.subtitle)
                     .font(DesignSystem.Typography.caption)
-                    .foregroundColor(.white.opacity(0.85))
+                    .foregroundColor(DesignSystem.ColorRole.textSecondary)
             }
 
             Spacer()
@@ -124,14 +124,17 @@ private struct VLActionCard: View {
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
                 .fill(LinearGradient(
-                    colors: [Color.white.opacity(0.06), Color.white.opacity(0.02)],
+                    colors: [
+                        DesignSystem.ColorRole.textPrimary.opacity(0.06),
+                        DesignSystem.ColorRole.textPrimary.opacity(0.02)
+                    ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ))
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.10))
+                .strokeBorder(DesignSystem.ColorRole.textPrimary.opacity(0.10))
         )
     }
 }

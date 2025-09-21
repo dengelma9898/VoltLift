@@ -36,10 +36,11 @@ struct OutdoorActivityView: View {
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             HStack(spacing: DesignSystem.Spacing.m) {
-                                Image(systemName: "play.circle.fill").foregroundColor(.white)
+                                Image(systemName: "play.circle.fill")
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                                 Text(self.activeActivity?.title ?? String(localized: "hint.activity_running"))
                                     .font(DesignSystem.Typography.body)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                                 Spacer()
                                 Button(String(localized: "action.stop")) {
                                     self.showStopConfirm = true
@@ -243,7 +244,7 @@ struct OutdoorActivityView: View {
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
             Text(value)
                 .font(DesignSystem.Typography.titleS.monospacedDigit())
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
         }
     }
 

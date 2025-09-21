@@ -22,7 +22,7 @@ struct OutdoorSummaryView: View {
             HStack {
                 Text(self.summary.activity.title)
                     .font(DesignSystem.Typography.titleM)
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                 Spacer()
                 Button(String(localized: "action.close")) { self.onClose() }
                     .buttonStyle(VLSecondaryButtonStyle())
@@ -53,7 +53,7 @@ struct OutdoorSummaryView: View {
 
             Text(String(localized: "label.splits"))
                 .font(DesignSystem.Typography.titleS)
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
 
             VStack(spacing: DesignSystem.Spacing.m) {
                 ForEach(Array(self.summary.perKmSeconds.enumerated()), id: \.offset) { index, sec in
@@ -67,7 +67,7 @@ struct OutdoorSummaryView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                         Text(self.formattedDuration(sec))
                             .monospacedDigit()
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
@@ -76,7 +76,8 @@ struct OutdoorSummaryView: View {
                         Text(String(localized: "label.partial"))
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                         Spacer()
-                        Text(self.formattedDuration(last)).monospacedDigit().foregroundColor(.white)
+                        Text(self.formattedDuration(last)).monospacedDigit()
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     }
                 }
             }
@@ -91,7 +92,7 @@ struct OutdoorSummaryView: View {
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
             Text(value)
                 .font(DesignSystem.Typography.titleS.monospacedDigit())
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
         }
     }
 
@@ -186,7 +187,7 @@ private struct MapOverlay: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let line = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: line)
-                renderer.strokeColor = UIColor.systemTeal
+                renderer.strokeColor = UIColor(DesignSystem.ColorRole.primary)
                 renderer.lineWidth = 4
                 renderer.lineJoin = .round
                 renderer.lineCap = .round

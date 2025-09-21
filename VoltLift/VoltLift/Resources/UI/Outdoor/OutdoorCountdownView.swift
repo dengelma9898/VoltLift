@@ -25,7 +25,7 @@ struct OutdoorCountdownView: View {
 
             Text("\(self.secondsRemaining)s")
                 .font(DesignSystem.Typography.titleXL)
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
 
             HStack(spacing: DesignSystem.Spacing.m) {
                 Button(String(localized: "action.add_10s")) {
@@ -46,7 +46,7 @@ struct OutdoorCountdownView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.1))
+                .strokeBorder(DesignSystem.ColorRole.textPrimary.opacity(0.1))
         )
         .padding(DesignSystem.Spacing.xl)
         .onAppear { self.startTimer() }

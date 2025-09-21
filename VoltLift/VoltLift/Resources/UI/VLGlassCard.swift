@@ -15,7 +15,10 @@ public struct VLGlassCard<Content: View>: View {
                 RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.06), Color.white.opacity(0.02)],
+                            colors: [
+                                DesignSystem.ColorRole.textPrimary.opacity(0.06),
+                                DesignSystem.ColorRole.textPrimary.opacity(0.02)
+                            ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -23,7 +26,7 @@ public struct VLGlassCard<Content: View>: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.10))
+                    .strokeBorder(DesignSystem.ColorRole.textPrimary.opacity(0.10))
             )
             .shadow(
                 color: DesignSystem.Shadow.smallColor,

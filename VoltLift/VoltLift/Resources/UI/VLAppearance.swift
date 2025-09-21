@@ -6,10 +6,10 @@ enum VLAppearance {
         navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = UIColor(DesignSystem.ColorRole.background)
         navAppearance.titleTextAttributes = [
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor(DesignSystem.ColorRole.textPrimary)
         ]
         navAppearance.largeTitleTextAttributes = [
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor(DesignSystem.ColorRole.textPrimary)
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
@@ -22,6 +22,6 @@ enum VLAppearance {
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
         UITabBar.appearance().tintColor = UIColor(DesignSystem.ColorRole.primary)
-        UITabBar.appearance().unselectedItemTintColor = UIColor.white.withAlphaComponent(0.6)
+        UITabBar.appearance().unselectedItemTintColor = UIColor(DesignSystem.ColorRole.textSecondary)
     }
 }

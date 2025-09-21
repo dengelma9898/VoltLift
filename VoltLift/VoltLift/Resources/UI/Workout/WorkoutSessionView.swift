@@ -225,7 +225,7 @@ private extension WorkoutSessionView {
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.white.opacity(0.06), in: Capsule())
+                            .background(DesignSystem.ColorRole.textPrimary.opacity(0.06), in: Capsule())
                     }
                 }
 

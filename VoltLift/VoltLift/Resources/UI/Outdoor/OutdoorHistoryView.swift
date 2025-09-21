@@ -9,7 +9,7 @@ struct OutdoorHistoryView: View {
         VStack(spacing: 0) {
             if self.isLoading {
                 ProgressView()
-                    .tint(.white)
+                    .tint(DesignSystem.ColorRole.textPrimary)
                     .padding()
             }
 
@@ -52,7 +52,7 @@ struct OutdoorHistoryView: View {
     private func row(_ record: OutdoorActivityRecord) -> some View {
         VLGlassCard {
             HStack(spacing: DesignSystem.Spacing.m) {
-                Image(systemName: "map.fill").foregroundStyle(.white)
+                Image(systemName: "map.fill").foregroundStyle(DesignSystem.ColorRole.textPrimary)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(self.title(for: record))
                         .font(DesignSystem.Typography.body)
@@ -145,10 +145,10 @@ struct OutdoorHistoryDetailView: View {
                     VLGlassCard {
                         HStack {
                             Text("\(index + 1) km")
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                             Spacer()
                             Text(self.formatDuration(seconds))
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                         }
                     }
                 }
@@ -157,10 +157,10 @@ struct OutdoorHistoryDetailView: View {
                     VLGlassCard {
                         HStack {
                             Text(String(localized: "label.partial_km"))
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                             Spacer()
                             Text(self.formatDuration(last))
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                         }
                     }
                 }
@@ -205,7 +205,7 @@ struct OutdoorHistoryDetailView: View {
     private func metric(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).foregroundColor(DesignSystem.ColorRole.textSecondary)
-            Text(value).foregroundColor(.white)
+            Text(value).foregroundColor(DesignSystem.ColorRole.textPrimary)
         }
     }
 
@@ -255,7 +255,7 @@ private struct MapOverlayPolyline: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let pl = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: pl)
-                renderer.strokeColor = .systemTeal
+                renderer.strokeColor = UIColor(DesignSystem.ColorRole.primary)
                 renderer.lineWidth = 3
                 return renderer
             }
