@@ -1,5 +1,7 @@
 import SwiftUI
 
+import MapKit
+
 struct OutdoorActivitySummary: Identifiable {
     let id = UUID()
     let activity: ActivityType
@@ -8,6 +10,7 @@ struct OutdoorActivitySummary: Identifiable {
     let perKmSeconds: [Int] // only full kilometers
     let lastPartialSeconds: Int?
     let startDate: Date
+    let track: [CLLocationCoordinate2D]
 }
 
 struct OutdoorSummaryView: View {
@@ -23,6 +26,14 @@ struct OutdoorSummaryView: View {
                 Spacer()
                 Button(String(localized: "action.close")) { self.onClose() }
                     .buttonStyle(VLSecondaryButtonStyle())
+            }
+
+            // Route preview
+            if let region = self.routeRegion() {
+                Map(coordinateRegion: .constant(region))
+                    .overlay(self.routeOverlay())
+                    .frame(height: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous))
             }
 
             HStack(spacing: DesignSystem.Spacing.xl) {
@@ -47,7 +58,7 @@ struct OutdoorSummaryView: View {
             VStack(spacing: DesignSystem.Spacing.m) {
                 ForEach(Array(self.summary.perKmSeconds.enumerated()), id: \.offset) { index, sec in
                     HStack {
-                        Text("\(index + 1) km")
+                        Text("\(index + 1) km · \(self.formattedPace(seconds: sec, meters: 1_000)) /km")
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                         Spacer()
                         Text(self.formattedDuration(sec)).monospacedDigit().foregroundColor(.white)
@@ -100,5 +111,73 @@ struct OutdoorSummaryView: View {
         let mins = paceSecPerKm / 60
         let secs = paceSecPerKm % 60
         return String(format: "%d:%02d /km", mins, secs)
+    }
+
+    // MARK: - Route helpers
+
+    private func routeRegion() -> MKCoordinateRegion? {
+        let coords = self.summary.track
+        guard !coords.isEmpty else { return nil }
+        guard let first = coords.first else { return nil }
+        var minLat = first.latitude
+        var maxLat = first.latitude
+        var minLon = first.longitude
+        var maxLon = first.longitude
+        for coord in coords {
+            minLat = min(minLat, coord.latitude)
+            maxLat = max(maxLat, coord.latitude)
+            minLon = min(minLon, coord.longitude)
+            maxLon = max(maxLon, coord.longitude)
+        }
+        let span = MKCoordinateSpan(
+            latitudeDelta: max(0.002, (maxLat - minLat) * 1.3),
+            longitudeDelta: max(0.002, (maxLon - minLon) * 1.3)
+        )
+        let center = CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2.0, longitude: (minLon + maxLon) / 2.0)
+        return MKCoordinateRegion(center: center, span: span)
+    }
+
+    private func routeOverlay() -> some View {
+        let polyline = MKPolyline(coordinates: self.summary.track, count: self.summary.track.count)
+        return MapOverlay(polyline: polyline)
+    }
+}
+
+private struct MapOverlay: UIViewRepresentable {
+    let polyline: MKPolyline
+
+    func makeUIView(context: Context) -> MKMapView {
+        let map = MKMapView()
+        map.isUserInteractionEnabled = false
+        map.delegate = context.coordinator
+        return map
+    }
+
+    func updateUIView(_ uiView: MKMapView, context: Context) {
+        uiView.removeOverlays(uiView.overlays)
+        uiView.addOverlay(self.polyline)
+        uiView.setVisibleMapRect(
+            self.polyline.boundingMapRect,
+            edgePadding: UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16),
+            animated: false
+        )
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    final class Coordinator: NSObject, MKMapViewDelegate {
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            if let line = overlay as? MKPolyline {
+                let renderer = MKPolylineRenderer(polyline: line)
+                renderer.strokeColor = UIColor.systemTeal
+                renderer.lineWidth = 4
+                renderer.lineJoin = .round
+                renderer.lineCap = .round
+                return renderer
+            }
+            return MKOverlayRenderer(overlay: overlay)
+        }
     }
 }

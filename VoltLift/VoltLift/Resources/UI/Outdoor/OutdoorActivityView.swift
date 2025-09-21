@@ -24,6 +24,7 @@ struct OutdoorActivityView: View {
     @State private var lastSplitStartSeconds: Int = 0
     @State private var showStopConfirm = false
     @State private var summary: OutdoorActivitySummary?
+    @State private var trackCoordinates: [CLLocationCoordinate2D] = []
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -138,6 +139,8 @@ struct OutdoorActivityView: View {
                     self.totalDistanceMeters += newLocation.distance(from: last)
                 }
                 self.lastTrackLocation = newLocation
+                // track route
+                self.trackCoordinates.append(newLocation.coordinate)
                 let completedKm = Int(self.totalDistanceMeters / 1_000.0)
                 while self.splitsSeconds.count < completedKm {
                     let split = self.elapsedSeconds - self.lastSplitStartSeconds
@@ -182,6 +185,7 @@ struct OutdoorActivityView: View {
         self.activeActivity = self.selectedActivity
         self.splitsSeconds = []
         self.lastSplitStartSeconds = 0
+        self.trackCoordinates = self.locationService.currentLocation.map { [$0.coordinate] } ?? []
         self.activityTimerTask?.cancel()
         self.activityTimerTask = Task { @MainActor in
             while self.isActivityRunning {
@@ -210,7 +214,8 @@ struct OutdoorActivityView: View {
             totalMeters: self.totalDistanceMeters,
             perKmSeconds: perKm,
             lastPartialSeconds: partial,
-            startDate: self.activityStartDate ?? Date()
+            startDate: self.activityStartDate ?? Date(),
+            track: self.trackCoordinates
         )
     }
 
