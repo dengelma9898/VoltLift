@@ -4,10 +4,7 @@ import SwiftUI
 
 struct OutdoorActivityView: View {
     @StateObject private var locationService = LocationService()
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 52.5200, longitude: 13.4050),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
+    @State private var camera: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedActivity: ActivityType = .running
     @State private var isCountdownPresented = false
     @State private var isActivityRunning = false
@@ -28,7 +25,7 @@ struct OutdoorActivityView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Map(coordinateRegion: self.$region, showsUserLocation: true)
+            Map(position: self.$camera)
                 .ignoresSafeArea()
 
             VStack(spacing: DesignSystem.Spacing.m) {
@@ -165,8 +162,10 @@ struct OutdoorActivityView: View {
                     self.lastSplitStartSeconds = self.elapsedSeconds
                 }
                 withAnimation(.easeInOut) {
-                    self.region.center = newLocation.coordinate
-                    self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    self.camera = .region(MKCoordinateRegion(
+                        center: newLocation.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    ))
                 }
             }
         }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 enum VLAppearance {
+    @MainActor
     static func applyBrandAppearance() {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()

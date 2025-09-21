@@ -48,7 +48,7 @@ struct WorkoutSessionView: View {
                             .padding(.horizontal)
                             .id("top-\(exercise.id)")
                         }
-                        .onChange(of: self.pageIndex) { newIndex in
+                        .onChange(of: self.pageIndex) { _, newIndex in
                             if newIndex == exerciseIndex {
                                 withAnimation(.easeInOut) {
                                     proxy.scrollTo("top-\(exercise.id)", anchor: .top)

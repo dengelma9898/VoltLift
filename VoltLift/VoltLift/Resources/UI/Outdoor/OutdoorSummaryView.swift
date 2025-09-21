@@ -30,7 +30,7 @@ struct OutdoorSummaryView: View {
 
             // Route preview
             if let region = self.routeRegion() {
-                Map(coordinateRegion: .constant(region))
+                Map(initialPosition: .region(region))
                     .overlay(self.routeOverlay())
                     .frame(height: 160)
                     .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous))

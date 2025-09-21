@@ -122,7 +122,7 @@ struct OutdoorHistoryDetailView: View {
                     .foregroundColor(DesignSystem.ColorRole.textPrimary)
 
                 if let region = self.region() {
-                    Map(coordinateRegion: .constant(region))
+                    Map(initialPosition: .region(region))
                         .overlay(self.routeOverlay())
                         .frame(height: 200)
                         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous))
