@@ -31,4 +31,9 @@
 "label.partial_km" = "Letzter Teilabschnitt";
 "label.distance_time_format" = "%@ km • %@";
 
+/* Dashboard */
+"label.workouts" = "Workouts";
+"label.activities" = "Aktivitäten";
+"label.week_streak" = "Wochen‑Streak";
+
 

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @State private var stats: DashboardStats?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
@@ -22,9 +24,12 @@ struct HomeView: View {
 
                 // Stats Row
                 HStack(spacing: DesignSystem.Spacing.m) {
-                    VLStatCard(value: "15", label: "Workouts")
-                    VLStatCard(value: "42", label: "Activities")
-                    VLStatCard(value: "7", label: "Day Streak")
+                    VLStatCard(value: String(self.stats?.workouts ?? 0), label: String(localized: "label.workouts"))
+                    VLStatCard(value: String(self.stats?.activities ?? 0), label: String(localized: "label.activities"))
+                    VLStatCard(
+                        value: String(self.stats?.weekStreak ?? 0),
+                        label: String(localized: "label.week_streak")
+                    )
                 }
 
                 // Actions
@@ -66,16 +71,14 @@ struct HomeView: View {
                     .buttonStyle(.plain)
                 }
 
-                // Placeholder for sections
-                VLGlassCard {
-                    Text("Today's Progress")
-                        .font(DesignSystem.Typography.titleS)
-                        .foregroundColor(DesignSystem.ColorRole.textPrimary)
-                }
+                // Placeholder entfernt
             }
             .padding(DesignSystem.Spacing.xl)
         }
         .vlBrandBackground()
+        .task {
+            self.stats = try? await DashboardStatsService().load()
+        }
     }
 }
 
