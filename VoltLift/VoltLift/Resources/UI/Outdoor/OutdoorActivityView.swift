@@ -183,8 +183,10 @@ struct OutdoorActivityView: View {
             self.locationService.requestWhenInUsePermission()
         } else if let location = self.locationService.currentLocation {
             withAnimation(.easeInOut) {
-                self.region.center = location.coordinate
-                self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                self.camera = .region(MKCoordinateRegion(
+                    center: location.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                ))
             }
         } else {
             self.locationService.startUpdatingLocation()

@@ -67,6 +67,23 @@ public enum DesignSystem {
             LinearGradient(colors: [brandTeal, brandIndigo], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
     }
+
+    // MARK: - Liquid Glass Tokens
+
+    public enum Glass {
+        public static var backgroundMaterial: Material { .ultraThinMaterial }
+        public static var cornerRadius: CGFloat { DesignSystem.Radius.l }
+
+        // Tinted overlay gradient (topLeading -> bottomTrailing)
+        public static var tintStart: Color { DesignSystem.ColorRole.primary.opacity(0.08) }
+        public static var tintEnd: Color { DesignSystem.ColorRole.primary.opacity(0.03) }
+
+        // Borders and highlights
+        public static var borderColor: Color { DesignSystem.ColorRole.textPrimary.opacity(0.12) }
+        public static var borderWidth: CGFloat { 1.0 }
+        public static var highlightColor: Color { .white.opacity(0.35) }
+        public static var highlightWidth: CGFloat { 0.5 }
+    }
 }
 
 public struct VLThemedText: View {
