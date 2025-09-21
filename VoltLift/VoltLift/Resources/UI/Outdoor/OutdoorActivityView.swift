@@ -113,6 +113,22 @@ struct OutdoorActivityView: View {
             Button(String(localized: "action.stop"), role: .destructive) {
                 let built = self.buildSummary()
                 self.stopActivity()
+                Task {
+                    // Persistiere in Outdoor-Historie
+                    let activity = self.activeActivity ?? self.selectedActivity
+                    let record = OutdoorActivityRecord(
+                        id: UUID(),
+                        activityType: self.storageKey(for: activity),
+                        startedAt: built.startDate,
+                        finishedAt: Date(),
+                        totalSeconds: built.totalSeconds,
+                        totalMeters: built.totalMeters,
+                        perKmSeconds: built.perKmSeconds,
+                        lastPartialSeconds: built.lastPartialSeconds,
+                        track: built.track
+                    )
+                    try? await OutdoorActivityHistoryService().save(record: record)
+                }
                 self.summary = built
             }
             Button(String(localized: "action.cancel"), role: .cancel) {}
@@ -254,6 +270,14 @@ struct OutdoorActivityView: View {
         let mins = paceSecPerKm / 60
         let secs = paceSecPerKm % 60
         return String(format: "%d:%02d /km", mins, secs)
+    }
+
+    private func storageKey(for activity: ActivityType) -> String {
+        switch activity {
+        case .running: "running"
+        case .biking: "biking"
+        case .hiking: "hiking"
+        }
     }
 }
 

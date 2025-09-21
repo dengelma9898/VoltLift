@@ -22,4 +22,13 @@
 "label.splits" = "Splits";
 "label.partial" = "Teilabschnitt";
 
+/* Outdoor History */
+"title.outdoor_history" = "Outdoor-Verlauf";
+"subtitle.outdoor_history" = "Deine aufgezeichneten Aktivitäten";
+"empty.outdoor_history.title" = "Noch keine Aktivitäten";
+"empty.outdoor_history.message" = "Starte eine Outdoor-Aktivität, um sie hier zu sehen.";
+"title.outdoor_history_detail" = "Aktivitätsdetails";
+"label.partial_km" = "Letzter Teilabschnitt";
+"label.distance_time_format" = "%@ km • %@";
+
 

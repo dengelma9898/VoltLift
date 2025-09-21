@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="5">
+    <!-- Copied entities from version 4 and added OutdoorActivityCD -->
+    <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+    </entity>
+    <entity name="ExerciseMetadata" representedClassName="ExerciseMetadata" syncable="YES" codeGenerationType="class">
+        <attribute name="exerciseId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="lastUsed" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="personalNotes" optional="YES" attributeType="String"/>
+        <attribute name="customWeight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="usageCount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="UserEquipment" representedClassName="UserEquipment" syncable="YES" codeGenerationType="class">
+        <attribute name="equipmentId" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="category" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="WorkoutPlan" representedClassName="WorkoutPlan" syncable="YES" codeGenerationType="class">
+        <attribute name="planId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="lastUsedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exerciseCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="planData" attributeType="Binary"/>
+    </entity>
+    <entity name="PlanExercise" representedClassName="PlanExercise" syncable="YES" codeGenerationType="class">
+        <attribute name="exerciseId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="sets" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="reps" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="weight" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="restTime" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="orderIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="workoutPlanId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <!-- Fields referenced by migration helpers in PersistenceController -->
+        <attribute name="setsData" optional="YES" attributeType="Binary"/>
+        <attribute name="totalSets" optional="YES" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="averageWeight" optional="YES" attributeType="Double" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="WorkoutSessionCD" representedClassName="WorkoutSessionCD" syncable="YES" codeGenerationType="class">
+        <attribute name="sessionId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="planId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="startedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="finishedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" attributeType="String"/>
+        <attribute name="currentExerciseIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="setIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="repIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="restDurationSeconds" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="restTimerRemainingSeconds" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="hapticOnTimerEnd" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="WorkoutSetEntryCD" representedClassName="WorkoutSetEntryCD" syncable="YES" codeGenerationType="class">
+        <attribute name="entryId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="sessionId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="planExerciseId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="setIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="repIndex" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="weightKg" optional="YES" attributeType="Double" usesScalarValueType="YES"/>
+        <attribute name="difficultiesData" attributeType="Binary"/>
+        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
+    </entity>
+    <entity name="PlanChangeDuringSessionCD" representedClassName="PlanChangeDuringSessionCD" syncable="YES" codeGenerationType="class">
+        <attribute name="changeId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="sessionId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="operation" attributeType="String"/>
+        <attribute name="payload" attributeType="Binary"/>
+    </entity>
+
+    <!-- New entity for Outdoor Activity History -->
+    <entity name="OutdoorActivityCD" representedClassName="OutdoorActivityCD" syncable="YES" codeGenerationType="class">
+        <attribute name="activityId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="activityType" attributeType="String"/>
+        <attribute name="startedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="finishedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="totalSeconds" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="totalMeters" attributeType="Double" usesScalarValueType="YES"/>
+        <attribute name="perKmSecondsData" attributeType="Binary"/>
+        <attribute name="lastPartialSeconds" optional="YES" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="trackData" attributeType="Binary"/>
+    </entity>
+
+    <elements>
+        <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
+        <element name="ExerciseMetadata" positionX="-54" positionY="63" width="128" height="119"/>
+        <element name="UserEquipment" positionX="-36" positionY="144" width="128" height="104"/>
+        <element name="WorkoutPlan" positionX="117" positionY="63" width="128" height="134"/>
+        <element name="PlanExercise" positionX="117" positionY="225" width="160" height="190"/>
+        <element name="WorkoutSessionCD" positionX="320" positionY="60" width="200" height="220"/>
+        <element name="WorkoutSetEntryCD" positionX="320" positionY="300" width="200" height="200"/>
+        <element name="PlanChangeDuringSessionCD" positionX="560" positionY="180" width="220" height="120"/>
+        <element name="OutdoorActivityCD" positionX="560" positionY="20" width="220" height="220"/>
+    </elements>
+</model>
+
+
+
