@@ -51,8 +51,8 @@ public enum DesignSystem {
     }
 
     public enum Gradient {
-        private static var brandPurple: Color { DesignSystem.ColorRole.secondary } // mapped via assets if desired
-        private static var brandIndigo: Color { DesignSystem.ColorRole.primary.opacity(0.9) }
+        private static var brandPurple: Color { DesignSystem.ColorRole.secondary }
+        private static var brandIndigo: Color { DesignSystem.ColorRole.primary }
         private static var brandTeal: Color { DesignSystem.ColorRole.primary }
 
         public static var primary: LinearGradient { // purple → indigo

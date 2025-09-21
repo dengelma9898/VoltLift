@@ -41,10 +41,10 @@ struct ActivityPickerView: View {
                     VStack(spacing: 6) {
                         Image(systemName: activity.symbolName)
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
                         Text(activity.title)
                             .font(DesignSystem.Typography.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.ColorRole.textPrimary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, DesignSystem.Spacing.xl)
