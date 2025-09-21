@@ -12,17 +12,20 @@ public struct VLWordmark: View {
     public var body: some View {
         let baseFont: Font = self.size == .xl ? DesignSystem.Typography.titleXL : DesignSystem.Typography.titleL
 
-        Text("Volt")
+        let volt = Text("Volt")
             .font(baseFont)
             .foregroundStyle(DesignSystem.ColorRole.textPrimary)
+
+        let lift = Text("Lift")
+            .font(baseFont)
+            .foregroundStyle(DesignSystem.Gradient.primary)
+
+        (volt + lift)
             .kerning(-0.5)
-            .overlay(alignment: .trailing) {
-                Text("Lift")
-                    .font(baseFont)
-                    .foregroundStyle(DesignSystem.Gradient.primary)
-                    .kerning(-0.5)
-                    .offset(x: 0)
-            }
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .allowsTightening(true)
+            .layoutPriority(1)
             .accessibilityLabel(Text("VoltLift"))
     }
 }
