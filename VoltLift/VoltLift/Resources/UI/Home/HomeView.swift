@@ -7,9 +7,10 @@ struct HomeView: View {
                 HStack(spacing: DesignSystem.Spacing.m) {
                     Image("AppLogo")
                         .resizable()
-                        .scaledToFill()
+                        .aspectRatio(1, contentMode: .fill)
+                        .scaleEffect(1.14) // leicht hineinzoomen, um weißen Außenrand zu eliminieren
                         .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     VLWordmark(size: .l)
                     Spacer()
                 }
