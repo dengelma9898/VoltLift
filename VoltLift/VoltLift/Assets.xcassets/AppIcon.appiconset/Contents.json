@@ -4,7 +4,7 @@
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024",
-      "filename" : "volt_lift_final.png"
+      "filename" : "volt_lift_final_transparent.png"
     },
     {
       "appearances" : [
@@ -16,7 +16,7 @@
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024",
-      "filename" : "volt_lift_final.png"
+      "filename" : "volt_lift_final_transparent.png"
     },
     {
       "appearances" : [
@@ -28,7 +28,7 @@
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024",
-      "filename" : "volt_lift_final.png"
+      "filename" : "volt_lift_final_transparent.png"
     }
   ],
   "info" : {
