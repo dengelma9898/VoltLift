@@ -50,6 +50,18 @@ struct HomeView: View {
                         )
                     }
                     .buttonStyle(.plain)
+
+                    NavigationLink {
+                        OutdoorHistoryView()
+                    } label: {
+                        VLActionCard(
+                            icon: "map.fill",
+                            title: String(localized: "title.outdoor_history"),
+                            subtitle: String(localized: "subtitle.outdoor_history"),
+                            gradient: DesignSystem.Gradient.tealBlue
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 // Placeholder for sections

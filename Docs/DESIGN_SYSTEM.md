@@ -154,3 +154,35 @@ struct PlanDetailView: View {
 ```
 
 
+## Palette-Konsolidierung (Vorschlag)
+
+Ziel: Wenige Grundfarben definieren, alle Ableitungen (Gradients, States, Opazitäten) konsequent daraus ableiten; eine Quelle der Wahrheit (Assets).
+
+- Grundfarben (Assets als Quelle)
+  - Primary: VLPrimary (Teal-Familie)
+  - Background: VLBackground (Light #FFFFFF, Dark vereinheitlichen auf Navy 0x0F1729)
+  - Surface: VLSurface (Light #F5F7FA, Dark = Background + Glas/Border 10–12%)
+  - Text: VLTextPrimary/VLTextSecondary (Light: #0A0F19/#6B737F; Dark: #FFFFFF/85%)
+
+- Statusfarben
+  - Success: VLSuccess (#21C35E / #87F2AB)
+  - Warning: VLWarning (#F59E0A / #FBBF24)
+  - Danger: VLDanger (#F04444 / #FFA6A6)
+
+- Gradients (aus Grundpalette abgeleitet)
+  - primary: purple → indigo (~#8B5CF6 → #3B63FA)
+  - bluePurple: indigo → purple
+  - tealBlue: teal → indigo (~#14B8A6 → #3B63FA)
+
+- Richtlinien
+  - Keine Hardcoded-RGBs in Code (auch `DesignSystem.ColorRole.background`) – stattdessen Asset-Rollen verwenden
+  - `textSecondary` konsistent über feste Töne oder Opacity, nicht beides gemischt
+  - `VLSecondary` als Akzent prüfen: entweder gezielt für sekundäre CTAs oder durch Gradients ersetzen
+
+- To‑Dos (Implementierung)
+  1) VLBackground/VLSurface (Dark) harmonisieren und `DesignSystem.ColorRole.background` auf Asset mappen
+  2) Textfarben-Strategie vereinheitlichen (Assets vs. Opacity) und Views migrieren
+  3) Farbverwendung in Komponenten prüfen (Buttons, Karten, Tabbar) und auf Rollen mappen
+  4) Dokumentation/Zeigestücke (Screens) updaten
+
+
