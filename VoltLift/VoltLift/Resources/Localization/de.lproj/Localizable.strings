@@ -7,4 +7,19 @@
 "activity.biking" = "Radfahren";
 "activity.hiking" = "Wandern";
 
+/* Countdown */
+"title.outdoor_countdown" = "Mach dich bereit";
+"action.add_10s" = "+10s";
+"action.skip_countdown" = "Jetzt starten";
+"hint.activity_running" = "Aktivität läuft";
+"action.stop" = "Stopp";
+"label.elapsed_time" = "Zeit";
+"label.distance" = "Distanz";
+"label.pace" = "Pace";
+"title.confirm_stop" = "Aktivität beenden?";
+"action.cancel" = "Abbrechen";
+"action.close" = "Schließen";
+"label.splits" = "Splits";
+"label.partial" = "Teilabschnitt";
+
 

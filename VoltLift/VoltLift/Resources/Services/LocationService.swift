@@ -33,6 +33,12 @@ final class LocationService: NSObject, ObservableObject {
         }
     }
 
+    func requestPreciseLocationIfNeeded() {
+        if #available(iOS 14.0, *) {
+            self.locationManager.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "PreciseLocation")
+        }
+    }
+
     func startUpdatingLocation() {
         guard !self.isUpdatingLocation else { return }
         self.isUpdatingLocation = true

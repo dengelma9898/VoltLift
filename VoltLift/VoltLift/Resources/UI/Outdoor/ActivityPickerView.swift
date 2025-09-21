@@ -32,57 +32,37 @@ struct ActivityPickerView: View {
     var onSelect: ((ActivityType) -> Void)?
 
     var body: some View {
-        VLGlassCard {
-            HStack(spacing: DesignSystem.Spacing.m) {
-                ForEach(self.activities) { activity in
-                    Button(action: {
-                        self.selected = activity
-                        self.onSelect?(activity)
-                    }) {
-                        VStack(spacing: 6) {
-                            Image(systemName: activity.symbolName)
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(self.iconColor(isSelected: activity == self.selected))
-                            Text(activity.title)
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(self.textColor(isSelected: activity == self.selected))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 44)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: DesignSystem.Radius.m, style: .continuous)
-                                .fill(self.background(isSelected: activity == self.selected))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: DesignSystem.Radius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.10))
-                        )
+        HStack(spacing: DesignSystem.Spacing.m) {
+            ForEach(self.activities) { activity in
+                Button(action: {
+                    self.selected = activity
+                    self.onSelect?(activity)
+                }) {
+                    VStack(spacing: 6) {
+                        Image(systemName: activity.symbolName)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(activity.title)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(.white)
                     }
-                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                    .padding(.vertical, DesignSystem.Spacing.m)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.Radius.l, style: .continuous)
+                            .fill(DesignSystem.Gradient.tealBlue)
+                    )
+                    .shadow(
+                        color: DesignSystem.Shadow.smallColor,
+                        radius: DesignSystem.Shadow.smallRadius,
+                        y: DesignSystem.Shadow.smallY
+                    )
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(activity.title))
             }
         }
-    }
-
-    private func background(isSelected: Bool) -> some ShapeStyle {
-        if isSelected {
-            return AnyShapeStyle(DesignSystem.Gradient.tealBlue)
-        } else {
-            return AnyShapeStyle(LinearGradient(
-                colors: [Color.white.opacity(0.06), Color.white.opacity(0.02)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ))
-        }
-    }
-
-    private func iconColor(isSelected: Bool) -> Color {
-        isSelected ? .white : DesignSystem.ColorRole.textPrimary
-    }
-
-    private func textColor(isSelected: Bool) -> Color {
-        isSelected ? .white : DesignSystem.ColorRole.textSecondary
     }
 }
 
