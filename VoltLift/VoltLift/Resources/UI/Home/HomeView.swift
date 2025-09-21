@@ -5,10 +5,11 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.l) {
                 HStack(spacing: DesignSystem.Spacing.m) {
-                    Circle()
-                        .fill(DesignSystem.Gradient.primary)
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 44, height: 44)
-                        .overlay(Image(systemName: "bolt.fill").foregroundColor(DesignSystem.ColorRole.textPrimary))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     VLWordmark(size: .l)
                     Spacer()
                 }
