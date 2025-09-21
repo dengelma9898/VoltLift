@@ -57,11 +57,18 @@ struct OutdoorSummaryView: View {
 
             VStack(spacing: DesignSystem.Spacing.m) {
                 ForEach(Array(self.summary.perKmSeconds.enumerated()), id: \.offset) { index, sec in
+                    let speed = self.formattedSpeedKmh(seconds: sec, meters: 1_000)
                     HStack {
-                        Text("\(index + 1) km · \(self.formattedPace(seconds: sec, meters: 1_000)) /km")
+                        Text("\(index + 1) km")
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
-                        Spacer()
-                        Text(self.formattedDuration(sec)).monospacedDigit().foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("\(speed) km/h")
+                            .foregroundColor(DesignSystem.ColorRole.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Text(self.formattedDuration(sec))
+                            .monospacedDigit()
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
                 if let last = summary.lastPartialSeconds {
@@ -111,6 +118,14 @@ struct OutdoorSummaryView: View {
         let mins = paceSecPerKm / 60
         let secs = paceSecPerKm % 60
         return String(format: "%d:%02d /km", mins, secs)
+    }
+
+    private func formattedSpeedKmh(seconds: Int, meters: Double) -> String {
+        guard seconds > 0 else { return "-" }
+        let hours = Double(seconds) / 3_600.0
+        let km = meters / 1_000.0
+        let kmh = km / hours
+        return String(format: "%.1f", kmh)
     }
 
     // MARK: - Route helpers
