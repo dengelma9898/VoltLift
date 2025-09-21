@@ -4,7 +4,7 @@ enum VLAppearance {
     static func applyBrandAppearance() {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
-        navAppearance.backgroundColor = UIColor(red: 0.07, green: 0.09, blue: 0.16, alpha: 1.0)
+        navAppearance.backgroundColor = UIColor(DesignSystem.ColorRole.background)
         navAppearance.titleTextAttributes = [
             .foregroundColor: UIColor.white
         ]
@@ -18,7 +18,7 @@ enum VLAppearance {
 
         let tabAppearance = UITabBarAppearance()
         tabAppearance.configureWithOpaqueBackground()
-        tabAppearance.backgroundColor = UIColor(red: 0.07, green: 0.09, blue: 0.16, alpha: 1.0)
+        tabAppearance.backgroundColor = UIColor(DesignSystem.ColorRole.background)
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
         UITabBar.appearance().tintColor = UIColor(DesignSystem.ColorRole.primary)
