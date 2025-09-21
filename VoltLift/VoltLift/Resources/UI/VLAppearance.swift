@@ -1,15 +1,16 @@
 import SwiftUI
 
 enum VLAppearance {
+    @MainActor
     static func applyBrandAppearance() {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
-        navAppearance.backgroundColor = UIColor(red: 0.07, green: 0.09, blue: 0.16, alpha: 1.0)
+        navAppearance.backgroundColor = UIColor(DesignSystem.ColorRole.background)
         navAppearance.titleTextAttributes = [
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor(DesignSystem.ColorRole.textPrimary)
         ]
         navAppearance.largeTitleTextAttributes = [
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor(DesignSystem.ColorRole.textPrimary)
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
@@ -18,10 +19,10 @@ enum VLAppearance {
 
         let tabAppearance = UITabBarAppearance()
         tabAppearance.configureWithOpaqueBackground()
-        tabAppearance.backgroundColor = UIColor(red: 0.07, green: 0.09, blue: 0.16, alpha: 1.0)
+        tabAppearance.backgroundColor = UIColor(DesignSystem.ColorRole.background)
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
         UITabBar.appearance().tintColor = UIColor(DesignSystem.ColorRole.primary)
-        UITabBar.appearance().unselectedItemTintColor = UIColor.white.withAlphaComponent(0.6)
+        UITabBar.appearance().unselectedItemTintColor = UIColor(DesignSystem.ColorRole.textSecondary)
     }
 }

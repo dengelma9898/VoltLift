@@ -4,12 +4,12 @@ public enum DesignSystem {
     public enum ColorRole {
         public static var primary: Color { Color("VLPrimary") }
         public static var secondary: Color { Color("VLSecondary") }
-        // Brand background matches the Home screen base
-        public static var background: Color { Color(red: 0.07, green: 0.09, blue: 0.16) }
+        // Brand background (aus Assets, Light/Dark via ColorSet)
+        public static var background: Color { Color("VLBackground") }
         public static var surface: Color { Color("VLSurface") }
-        // Brand text colors optimized for dark background accessibility
-        public static var textPrimary: Color { .white }
-        public static var textSecondary: Color { .white.opacity(0.85) }
+        // Textfarben aus Assets (Light/Dark abgestimmt)
+        public static var textPrimary: Color { Color("VLTextPrimary") }
+        public static var textSecondary: Color { Color("VLTextSecondary") }
         public static var success: Color { Color("VLSuccess") }
         public static var warning: Color { Color("VLWarning") }
         public static var danger: Color { Color("VLDanger") }
@@ -41,19 +41,19 @@ public enum DesignSystem {
     }
 
     public enum Shadow {
-        public static var smallColor: Color { .black.opacity(0.08) }
+        public static var smallColor: Color { Color.black.opacity(0.08) }
         public static let smallRadius: CGFloat = 8
         public static let smallY: CGFloat = 4
 
-        public static var mediumColor: Color { .black.opacity(0.12) }
+        public static var mediumColor: Color { Color.black.opacity(0.12) }
         public static let mediumRadius: CGFloat = 16
         public static let mediumY: CGFloat = 8
     }
 
     public enum Gradient {
-        private static var brandPurple: Color { Color(red: 0.55, green: 0.36, blue: 0.96) } // ~#8B5CF6
-        private static var brandIndigo: Color { Color(red: 0.23, green: 0.39, blue: 0.98) } // ~#3B63FA
-        private static var brandTeal: Color { Color(red: 0.08, green: 0.72, blue: 0.66) } // ~#14B8A6
+        private static var brandPurple: Color { DesignSystem.ColorRole.secondary }
+        private static var brandIndigo: Color { DesignSystem.ColorRole.primary }
+        private static var brandTeal: Color { DesignSystem.ColorRole.primary }
 
         public static var primary: LinearGradient { // purple → indigo
             LinearGradient(colors: [brandPurple, brandIndigo], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -66,6 +66,23 @@ public enum DesignSystem {
         public static var tealBlue: LinearGradient { // teal → indigo
             LinearGradient(colors: [brandTeal, brandIndigo], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
+    }
+
+    // MARK: - Liquid Glass Tokens
+
+    public enum Glass {
+        public static var backgroundMaterial: Material { .ultraThinMaterial }
+        public static var cornerRadius: CGFloat { DesignSystem.Radius.l }
+
+        // Tinted overlay gradient (topLeading -> bottomTrailing)
+        public static var tintStart: Color { DesignSystem.ColorRole.primary.opacity(0.08) }
+        public static var tintEnd: Color { DesignSystem.ColorRole.primary.opacity(0.03) }
+
+        // Borders and highlights
+        public static var borderColor: Color { DesignSystem.ColorRole.textPrimary.opacity(0.12) }
+        public static var borderWidth: CGFloat { 1.0 }
+        public static var highlightColor: Color { .white.opacity(0.35) }
+        public static var highlightWidth: CGFloat { 0.5 }
     }
 }
 

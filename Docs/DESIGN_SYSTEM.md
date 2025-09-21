@@ -3,6 +3,7 @@
 Quelle & Referenzen
 - Apple HIG (Typography, Dynamic Type, Dark Mode)
 - Trendfarben 2025 (Teal, Apricot/Orange-Akzente) – siehe Web-Suche in Ticket
+- SwiftUI Liquid‑Glass Referenz: [Applying Liquid Glass to custom views](https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views)
 
 Ziele
 - Einfache, konsistente Tokens für Farben und Typografie
@@ -24,6 +25,9 @@ Farben (Assets)
 - VLPrimary (Brand)
   - Light: #0EA5A4 (bestehend)
   - Dark: #2DD4BF (bestehend)
+- VLSecondary (Brand, Purple)
+  - Light: ~#8B5CF6 (srgb 0.55/0.36/0.96)
+  - Dark: ~#A88CFB (srgb 0.66/0.55/0.98)
 - Zusatz-Gradients für Dark-UI (orientiert am Screenshot)
   - primary: purple → indigo (~#8B5CF6 → #3B63FA)
   - bluePurple: indigo → purple
@@ -61,7 +65,7 @@ Verwendung (SwiftUI)
 
 Komponenten
 - `VLButton`: einheitlicher CTA-Button mit drei Varianten
-- `VLGlassCard`: Glas-/Transluzenz-Karte (Home-Optik, weißer Border 10%)
+- `VLGlassCard`: Liquid‑Glass Karte (Material, getönter Overlay‑Gradient, Highlight‑Stroke, Border)
 - `VLListRow`: Listenzeile mit führendem/abschließendem Content, Titel/Untertitel
 - `VLWordmark`: zweifarbige Wortmarke (Text + Verlauf)
 - `HomeView`/`MainTabView`: Startseite ähnlich Referenz mit Tabbar
@@ -79,7 +83,7 @@ Brand-Guidelines
 Base Design (Glas only)
 - Hintergrund: `view.vlBrandBackground()`
 - Textfarben: `DesignSystem.ColorRole.textPrimary` (weiß), `textSecondary` (weiß 0.85)
-- Karten: ausschließlich `VLGlassCard { ... }` für Abschnitte, Status, CTAs
+- Karten/Container: ausschließlich `VLGlassCard { ... }` oder Glass‑Pattern für Abschnitte, Status, CTAs (inkl. `VLActionCard`, `VLErrorView`)
 - Navigation/TabBar: `VLAppearance.applyBrandAppearance()` im App-Root, `.preferredColorScheme(.dark)`
 
 Beispiel
@@ -118,6 +122,7 @@ VStack {
 - Do: `ScrollView` + `VLGlassCard` für Abschnitte/Details verwenden.
 - Do: Brand-Background via `.vlBrandBackground()` global aktiv halten.
 - Do: Textfarben ausschließlich über `DesignSystem.ColorRole.text*` nutzen.
+- Do: Liquid‑Glass gemäß Apple‑Referenz einsetzen (Material + Tint + Border + Highlight).
 - Don’t: System-`List`-Hintergründe/Grauflächen für Detailseiten.
 - Don’t: Zusätzliche graue Container unter Bottom-CTAs.
 
@@ -177,12 +182,25 @@ Ziel: Wenige Grundfarben definieren, alle Ableitungen (Gradients, States, Opazit
 - Richtlinien
   - Keine Hardcoded-RGBs in Code (auch `DesignSystem.ColorRole.background`) – stattdessen Asset-Rollen verwenden
   - `textSecondary` konsistent über feste Töne oder Opacity, nicht beides gemischt
-  - `VLSecondary` als Akzent prüfen: entweder gezielt für sekundäre CTAs oder durch Gradients ersetzen
+  - `VLSecondary` (Purple) gezielt für sekundäre CTAs/Highlights einsetzen; Gradients auf Basis Primary/Secondary
 
 - To‑Dos (Implementierung)
   1) VLBackground/VLSurface (Dark) harmonisieren und `DesignSystem.ColorRole.background` auf Asset mappen
   2) Textfarben-Strategie vereinheitlichen (Assets vs. Opacity) und Views migrieren
   3) Farbverwendung in Komponenten prüfen (Buttons, Karten, Tabbar) und auf Rollen mappen
   4) Dokumentation/Zeigestücke (Screens) updaten
+
+## Liquid‑Glass Tokens (DesignSystem.Glass)
+
+- backgroundMaterial: `.ultraThinMaterial`
+- cornerRadius: `DesignSystem.Radius.l`
+- tintStart/tintEnd: `primary.opacity(0.08)` → `primary.opacity(0.03)` (Gradient TL→BR)
+- borderColor/width: `textPrimary.opacity(0.12)`, 1.0 pt
+- highlightColor/width: `white.opacity(0.35)`, 0.5 pt, BlendMode.overlay, diagonale Mask (TL→BR)
+
+Einsatzrichtlinien
+- Einheitlich für: `VLGlassCard`, `VLActionCard`, Fehlercontainer (`VLErrorView`), Stat‑Cards.
+- Keine doppelten Material-Layer auf demselben Container.
+- visionOS: `.glassBackgroundEffect()` zusätzlich zulässig; iOS: Emulation über Tokens.
 
 

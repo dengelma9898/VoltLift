@@ -63,7 +63,7 @@ public struct VLButtonLabel: View {
         case .primary:
             Text(self.title)
                 .font(DesignSystem.Typography.body.weight(.semibold))
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                 .padding(.horizontal, DesignSystem.Spacing.xl)
                 .padding(.vertical, DesignSystem.Spacing.m)
                 .background(
@@ -94,7 +94,7 @@ public struct VLButtonLabel: View {
         case .destructive:
             Text(self.title)
                 .font(DesignSystem.Typography.body.weight(.semibold))
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
                 .padding(.horizontal, DesignSystem.Spacing.xl)
                 .padding(.vertical, DesignSystem.Spacing.m)
                 .background(
@@ -114,7 +114,7 @@ private struct VLDestructiveButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(DesignSystem.Typography.body.weight(.semibold))
-            .foregroundColor(.white)
+            .foregroundColor(DesignSystem.ColorRole.textPrimary)
             .padding(.horizontal, DesignSystem.Spacing.xl)
             .padding(.vertical, DesignSystem.Spacing.m)
             .background(

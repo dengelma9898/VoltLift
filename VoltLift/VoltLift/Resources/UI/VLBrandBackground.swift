@@ -5,7 +5,7 @@ public struct VLBrandBackground: View {
 
     public var body: some View {
         ZStack {
-            Color(red: 0.07, green: 0.09, blue: 0.16)
+            DesignSystem.ColorRole.background
             Circle()
                 .fill(DesignSystem.Gradient.bluePurple)
                 .frame(width: 480, height: 480)

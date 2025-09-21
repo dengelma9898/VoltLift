@@ -4,10 +4,7 @@ import SwiftUI
 
 struct OutdoorActivityView: View {
     @StateObject private var locationService = LocationService()
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 52.5200, longitude: 13.4050),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
+    @State private var camera: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedActivity: ActivityType = .running
     @State private var isCountdownPresented = false
     @State private var isActivityRunning = false
@@ -28,7 +25,7 @@ struct OutdoorActivityView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Map(coordinateRegion: self.$region, showsUserLocation: true)
+            Map(position: self.$camera)
                 .ignoresSafeArea()
 
             VStack(spacing: DesignSystem.Spacing.m) {
@@ -36,10 +33,11 @@ struct OutdoorActivityView: View {
                     VLGlassCard {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.m) {
                             HStack(spacing: DesignSystem.Spacing.m) {
-                                Image(systemName: "play.circle.fill").foregroundColor(.white)
+                                Image(systemName: "play.circle.fill")
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                                 Text(self.activeActivity?.title ?? String(localized: "hint.activity_running"))
                                     .font(DesignSystem.Typography.body)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(DesignSystem.ColorRole.textPrimary)
                                 Spacer()
                                 Button(String(localized: "action.stop")) {
                                     self.showStopConfirm = true
@@ -164,8 +162,10 @@ struct OutdoorActivityView: View {
                     self.lastSplitStartSeconds = self.elapsedSeconds
                 }
                 withAnimation(.easeInOut) {
-                    self.region.center = newLocation.coordinate
-                    self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    self.camera = .region(MKCoordinateRegion(
+                        center: newLocation.coordinate,
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    ))
                 }
             }
         }
@@ -183,8 +183,10 @@ struct OutdoorActivityView: View {
             self.locationService.requestWhenInUsePermission()
         } else if let location = self.locationService.currentLocation {
             withAnimation(.easeInOut) {
-                self.region.center = location.coordinate
-                self.region.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                self.camera = .region(MKCoordinateRegion(
+                    center: location.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                ))
             }
         } else {
             self.locationService.startUpdatingLocation()
@@ -243,7 +245,7 @@ struct OutdoorActivityView: View {
                 .foregroundColor(DesignSystem.ColorRole.textSecondary)
             Text(value)
                 .font(DesignSystem.Typography.titleS.monospacedDigit())
-                .foregroundColor(.white)
+                .foregroundColor(DesignSystem.ColorRole.textPrimary)
         }
     }
 

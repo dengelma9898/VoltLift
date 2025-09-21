@@ -48,7 +48,7 @@ struct WorkoutSessionView: View {
                             .padding(.horizontal)
                             .id("top-\(exercise.id)")
                         }
-                        .onChange(of: self.pageIndex) { newIndex in
+                        .onChange(of: self.pageIndex) { _, newIndex in
                             if newIndex == exerciseIndex {
                                 withAnimation(.easeInOut) {
                                     proxy.scrollTo("top-\(exercise.id)", anchor: .top)
@@ -225,7 +225,7 @@ private extension WorkoutSessionView {
                             .foregroundColor(DesignSystem.ColorRole.textSecondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.white.opacity(0.06), in: Capsule())
+                            .background(DesignSystem.ColorRole.textPrimary.opacity(0.06), in: Capsule())
                     }
                 }
 
