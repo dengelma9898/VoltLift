@@ -1,0 +1,8 @@
+"title.workout" = "Workout";
+"action.start" = "Start";
+"action.pause" = "Pause";
+"action.resume" = "Resume";
+"action.stop" = "Stop";
+"status.running" = "Running";
+"status.paused" = "Paused";
+

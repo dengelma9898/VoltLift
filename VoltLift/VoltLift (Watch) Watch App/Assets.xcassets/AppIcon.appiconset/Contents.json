@@ -1,0 +1,22 @@
+{
+  "images": [
+    { "idiom": "watch", "filename": "172.png", "subtype": "38mm", "scale": "2x", "size": "86x86", "expected-size": "172", "role": "quickLook" },
+    { "idiom": "watch", "filename": "80.png",  "subtype": "38mm", "scale": "2x", "size": "40x40", "expected-size": "80",  "role": "appLauncher" },
+    { "idiom": "watch", "filename": "88.png",  "subtype": "40mm", "scale": "2x", "size": "44x44", "expected-size": "88",  "role": "appLauncher" },
+    { "idiom": "watch", "filename": "92.png",  "subtype": "41mm", "scale": "2x", "size": "46x46", "expected-size": "92",  "role": "appLauncher" },
+    { "idiom": "watch", "filename": "100.png", "subtype": "44mm", "scale": "2x", "size": "50x50", "expected-size": "100", "role": "appLauncher" },
+    { "idiom": "watch", "filename": "102.png", "subtype": "45mm", "scale": "2x", "size": "51x51", "expected-size": "102", "role": "appLauncher" },
+    { "idiom": "watch", "filename": "108.png", "subtype": "49mm", "scale": "2x", "size": "54x54", "expected-size": "108", "role": "appLauncher" },
+    { "idiom": "watch", "filename": "196.png", "subtype": "42mm", "scale": "2x", "size": "98x98", "expected-size": "196", "role": "quickLook" },
+    { "idiom": "watch", "filename": "216.png", "subtype": "44mm", "scale": "2x", "size": "108x108", "expected-size": "216", "role": "quickLook" },
+    { "idiom": "watch", "filename": "234.png", "subtype": "45mm", "scale": "2x", "size": "117x117", "expected-size": "234", "role": "quickLook" },
+    { "idiom": "watch", "filename": "258.png", "subtype": "49mm", "scale": "2x", "size": "129x129", "expected-size": "258", "role": "quickLook" },
+    { "idiom": "watch", "filename": "48.png",  "subtype": "38mm", "scale": "2x", "size": "24x24", "expected-size": "48",  "role": "notificationCenter" },
+    { "idiom": "watch", "filename": "55.png",  "subtype": "42mm", "scale": "2x", "size": "27.5x27.5", "expected-size": "55", "role": "notificationCenter" },
+    { "idiom": "watch", "filename": "66.png",  "subtype": "45mm", "scale": "2x", "size": "33x33", "expected-size": "66",  "role": "notificationCenter" },
+    { "idiom": "watch", "filename": "87.png",  "scale": "3x", "size": "29x29", "expected-size": "87",  "role": "companionSettings" },
+    { "idiom": "watch", "filename": "58.png",  "scale": "2x", "size": "29x29", "expected-size": "58",  "role": "companionSettings" },
+    { "idiom": "watch-marketing", "filename": "1024.png", "scale": "1x", "size": "1024x1024", "expected-size": "1024" }
+  ],
+  "info": { "author": "xcode", "version": 1 }
+}

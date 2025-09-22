@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E15B77F52E808F0A00CC54AF /* VoltLift (Watch) Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E15B77D52E808F0900CC54AF /* VoltLift (Watch) Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E140674C2E72A67800C0F152 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,50 @@
 			remoteGlobalIDString = E14067382E72A67800C0F152;
 			remoteInfo = VoltLift;
 		};
+		E15B77E22E808F0A00CC54AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E14067312E72A67800C0F152 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E15B77D42E808F0900CC54AF;
+			remoteInfo = "VoltLift (Watch) Watch App";
+		};
+		E15B77EC2E808F0A00CC54AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E14067312E72A67800C0F152 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E15B77D42E808F0900CC54AF;
+			remoteInfo = "VoltLift (Watch) Watch App";
+		};
+		E15B77F32E808F0A00CC54AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E14067312E72A67800C0F152 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E15B77D42E808F0900CC54AF;
+			remoteInfo = "VoltLift (Watch) Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E15B77F92E808F0A00CC54AF /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				E15B77F52E808F0A00CC54AF /* VoltLift (Watch) Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E14067392E72A67800C0F152 /* VoltLift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoltLift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E140674B2E72A67800C0F152 /* VoltLiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoltLiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E14067552E72A67900C0F152 /* VoltLiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoltLiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15B77D52E808F0900CC54AF /* VoltLift (Watch) Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VoltLift (Watch) Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15B77E12E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "VoltLift (Watch) Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15B77EB2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "VoltLift (Watch) Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,6 +85,21 @@
 		E14067582E72A67900C0F152 /* VoltLiftUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VoltLiftUITests;
+			sourceTree = "<group>";
+		};
+		E15B77D62E808F0900CC54AF /* VoltLift (Watch) Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "VoltLift (Watch) Watch App";
+			sourceTree = "<group>";
+		};
+		E15B77E42E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "VoltLift (Watch) Watch AppTests";
+			sourceTree = "<group>";
+		};
+		E15B77EE2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "VoltLift (Watch) Watch AppUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +126,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E15B77D22E808F0900CC54AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77DE2E808F0A00CC54AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77E82E808F0A00CC54AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +156,9 @@
 				E140673B2E72A67800C0F152 /* VoltLift */,
 				E140674E2E72A67800C0F152 /* VoltLiftTests */,
 				E14067582E72A67900C0F152 /* VoltLiftUITests */,
+				E15B77D62E808F0900CC54AF /* VoltLift (Watch) Watch App */,
+				E15B77E42E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests */,
+				E15B77EE2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests */,
 				E140673A2E72A67800C0F152 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +169,9 @@
 				E14067392E72A67800C0F152 /* VoltLift.app */,
 				E140674B2E72A67800C0F152 /* VoltLiftTests.xctest */,
 				E14067552E72A67900C0F152 /* VoltLiftUITests.xctest */,
+				E15B77D52E808F0900CC54AF /* VoltLift (Watch) Watch App.app */,
+				E15B77E12E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests.xctest */,
+				E15B77EB2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +186,12 @@
 				E14067352E72A67800C0F152 /* Sources */,
 				E14067362E72A67800C0F152 /* Frameworks */,
 				E14067372E72A67800C0F152 /* Resources */,
+				E15B77F92E808F0A00CC54AF /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E15B77F42E808F0A00CC54AF /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E140673B2E72A67800C0F152 /* VoltLift */,
@@ -163,6 +249,74 @@
 			productReference = E14067552E72A67900C0F152 /* VoltLiftUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		E15B77D42E808F0900CC54AF /* VoltLift (Watch) Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E15B77F62E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch App" */;
+			buildPhases = (
+				E15B77D12E808F0900CC54AF /* Sources */,
+				E15B77D22E808F0900CC54AF /* Frameworks */,
+				E15B77D32E808F0900CC54AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E15B77D62E808F0900CC54AF /* VoltLift (Watch) Watch App */,
+			);
+			name = "VoltLift (Watch) Watch App";
+			packageProductDependencies = (
+			);
+			productName = "VoltLift (Watch) Watch App";
+			productReference = E15B77D52E808F0900CC54AF /* VoltLift (Watch) Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E15B77E02E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E15B77FA2E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch AppTests" */;
+			buildPhases = (
+				E15B77DD2E808F0A00CC54AF /* Sources */,
+				E15B77DE2E808F0A00CC54AF /* Frameworks */,
+				E15B77DF2E808F0A00CC54AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E15B77E32E808F0A00CC54AF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E15B77E42E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests */,
+			);
+			name = "VoltLift (Watch) Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "VoltLift (Watch) Watch AppTests";
+			productReference = E15B77E12E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E15B77EA2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E15B77FD2E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch AppUITests" */;
+			buildPhases = (
+				E15B77E72E808F0A00CC54AF /* Sources */,
+				E15B77E82E808F0A00CC54AF /* Frameworks */,
+				E15B77E92E808F0A00CC54AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E15B77ED2E808F0A00CC54AF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E15B77EE2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests */,
+			);
+			name = "VoltLift (Watch) Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "VoltLift (Watch) Watch AppUITests";
+			productReference = E15B77EB2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -170,7 +324,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					E14067382E72A67800C0F152 = {
@@ -183,6 +337,17 @@
 					E14067542E72A67900C0F152 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = E14067382E72A67800C0F152;
+					};
+					E15B77D42E808F0900CC54AF = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					E15B77E02E808F0A00CC54AF = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = E15B77D42E808F0900CC54AF;
+					};
+					E15B77EA2E808F0A00CC54AF = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = E15B77D42E808F0900CC54AF;
 					};
 				};
 			};
@@ -204,6 +369,9 @@
 				E14067382E72A67800C0F152 /* VoltLift */,
 				E140674A2E72A67800C0F152 /* VoltLiftTests */,
 				E14067542E72A67900C0F152 /* VoltLiftUITests */,
+				E15B77D42E808F0900CC54AF /* VoltLift (Watch) Watch App */,
+				E15B77E02E808F0A00CC54AF /* VoltLift (Watch) Watch AppTests */,
+				E15B77EA2E808F0A00CC54AF /* VoltLift (Watch) Watch AppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -224,6 +392,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E14067532E72A67900C0F152 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77D32E808F0900CC54AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77DF2E808F0A00CC54AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77E92E808F0A00CC54AF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -254,6 +443,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E15B77D12E808F0900CC54AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77DD2E808F0A00CC54AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E15B77E72E808F0A00CC54AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -266,6 +476,21 @@
 			isa = PBXTargetDependency;
 			target = E14067382E72A67800C0F152 /* VoltLift */;
 			targetProxy = E14067562E72A67900C0F152 /* PBXContainerItemProxy */;
+		};
+		E15B77E32E808F0A00CC54AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E15B77D42E808F0900CC54AF /* VoltLift (Watch) Watch App */;
+			targetProxy = E15B77E22E808F0A00CC54AF /* PBXContainerItemProxy */;
+		};
+		E15B77ED2E808F0A00CC54AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E15B77D42E808F0900CC54AF /* VoltLift (Watch) Watch App */;
+			targetProxy = E15B77EC2E808F0A00CC54AF /* PBXContainerItemProxy */;
+		};
+		E15B77F42E808F0A00CC54AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E15B77D42E808F0900CC54AF /* VoltLift (Watch) Watch App */;
+			targetProxy = E15B77F32E808F0A00CC54AF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -401,6 +626,8 @@
 				DEVELOPMENT_TEAM = 4T9BXP692G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need access to Health data to store and analyze workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We write workouts and metrics to the Health app.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Wir benötigen deinen Standort, um Outdoor-Aktivitäten und deine aktuelle Position auf der Karte anzuzeigen.";
 				INFOPLIST_KEY_NSPurposeString_PreciseLocation = "Wir benötigen erhöhte Genauigkeit, um Outdoor-Aktivitäten präzise zu tracken.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -431,6 +658,8 @@
 				DEVELOPMENT_TEAM = 4T9BXP692G;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need access to Health data to store and analyze workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We write workouts and metrics to the Health app.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Wir benötigen deinen Standort, um Outdoor-Aktivitäten und deine aktuelle Position auf der Karte anzuzeigen.";
 				INFOPLIST_KEY_NSPurposeString_PreciseLocation = "Wir benötigen erhöhte Genauigkeit, um Outdoor-Aktivitäten präzise zu tracken.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -523,6 +752,166 @@
 			};
 			name = Release;
 		};
+		E15B77F72E808F0A00CC54AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "VoltLift (Watch) Watch App/VoltLift (Watch) Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VoltLift--Watch--Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "VoltLift (Watch)";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = de.dengelma.VoltLift;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.dengelma.VoltLift.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		E15B77F82E808F0A00CC54AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "VoltLift (Watch) Watch App/VoltLift (Watch) Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VoltLift--Watch--Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "VoltLift (Watch)";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = de.dengelma.VoltLift;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.dengelma.VoltLift.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		E15B77FB2E808F0A00CC54AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.dengelma.VoltLift--Watch--Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoltLift (Watch) Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoltLift (Watch) Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		E15B77FC2E808F0A00CC54AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.dengelma.VoltLift--Watch--Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoltLift (Watch) Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoltLift (Watch) Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		E15B77FE2E808F0A00CC54AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.dengelma.VoltLift--Watch--Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "VoltLift (Watch) Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		E15B77FF2E808F0A00CC54AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4T9BXP692G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.dengelma.VoltLift--Watch--Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "VoltLift (Watch) Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -558,6 +947,33 @@
 			buildConfigurations = (
 				E14067662E72A67900C0F152 /* Debug */,
 				E14067672E72A67900C0F152 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E15B77F62E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E15B77F72E808F0A00CC54AF /* Debug */,
+				E15B77F82E808F0A00CC54AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E15B77FA2E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E15B77FB2E808F0A00CC54AF /* Debug */,
+				E15B77FC2E808F0A00CC54AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E15B77FD2E808F0A00CC54AF /* Build configuration list for PBXNativeTarget "VoltLift (Watch) Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E15B77FE2E808F0A00CC54AF /* Debug */,
+				E15B77FF2E808F0A00CC54AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
