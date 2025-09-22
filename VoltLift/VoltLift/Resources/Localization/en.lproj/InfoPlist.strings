@@ -1,0 +1,3 @@
+"NSHealthShareUsageDescription" = "We need access to Health data to store and analyze workouts.";
+"NSHealthUpdateUsageDescription" = "We write workouts and metrics to the Health app.";
+
