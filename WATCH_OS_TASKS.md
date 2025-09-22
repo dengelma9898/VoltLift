@@ -16,6 +16,54 @@
   - **Retry/Backoff**: einfache Wiederholungslogik bei Fehlern
 - [ ] Versionierung der Nachrichten (z. B. `version: 1`) und Kompatibilitätsregeln dokumentieren
 
+### 1.1) Kommunikationsereignisse (aktueller iOS‑Funktionsumfang)
+
+Alle Nachrichten verwenden einen gemeinsamen Envelope:
+
+```json
+{
+  "v": 1,
+  "flow": "strength|outdoor",
+  "type": "<event>",
+  "id": "<uuid>",
+  "corr": "<uuid>",
+  "ts": "<ISO8601>",
+  "device": "watch|phone",
+  "payload": { }
+}
+```
+
+| Flow | Event | Richtung | Payload (Schema) | Beispiel |
+|---|---|---|---|---|
+| any | mode.select | Watch → Phone (optional Phone → Watch Bestätigung) | { "flow": "strength"|"outdoor" } | {"v":1,"flow":"strength","type":"mode.select","id":"…","corr":null,"ts":"2025-09-21T20:00:00Z","device":"watch","payload":{"flow":"strength"}} |
+| strength | strength.start | Watch → Phone | { "planId": "<id>" } | {"v":1,"flow":"strength","type":"strength.start","id":"…","ts":"…","device":"watch","payload":{"planId":"plan_123"}} |
+| strength | strength.rep.confirm | Watch → Phone | { "setId":"<id>", "exerciseId":"<id>", "weight": <Double>, "reps": <Int>, "difficulty": { "type":"rpe"|"rir"|"native", "value": <Double?> }, "confirmedAt":"<ISO8601>" } | {"v":1,"flow":"strength","type":"strength.rep.confirm","id":"…","ts":"…","device":"watch","payload":{"setId":"s_1","exerciseId":"e_1","weight":60.0,"reps":8,"difficulty":{"type":"rpe","value":8.5},"confirmedAt":"2025-09-21T20:05:00Z"}} |
+| strength | strength.rest.started | Phone → Watch | { "seconds": <Int> } | {"v":1,"flow":"strength","type":"strength.rest.started","id":"…","ts":"…","device":"phone","payload":{"seconds":90}} |
+| strength | strength.rest.completed | Phone → Watch | { } | {"v":1,"flow":"strength","type":"strength.rest.completed","id":"…","ts":"…","device":"phone","payload":{}} |
+| strength | strength.finish | Watch → Phone | { "finishedAt":"<ISO8601>" } | {"v":1,"flow":"strength","type":"strength.finish","id":"…","ts":"…","device":"watch","payload":{"finishedAt":"2025-09-21T21:00:00Z"}} |
+| outdoor | outdoor.activity.select | Watch → Phone | { "activity": "running"|"cycling"|"walking"|… } | {"v":1,"flow":"outdoor","type":"outdoor.activity.select","id":"…","ts":"…","device":"watch","payload":{"activity":"running"}} |
+| outdoor | outdoor.countdown.start | Watch → Phone | { "seconds": <Int> } | {"v":1,"flow":"outdoor","type":"outdoor.countdown.start","id":"…","ts":"…","device":"watch","payload":{"seconds":10}} |
+| outdoor | outdoor.countdown.extend | Watch → Phone | { "seconds": <Int> } | {"v":1,"flow":"outdoor","type":"outdoor.countdown.extend","id":"…","ts":"…","device":"watch","payload":{"seconds":10}} |
+| outdoor | outdoor.countdown.skip | Watch → Phone | { } | {"v":1,"flow":"outdoor","type":"outdoor.countdown.skip","id":"…","ts":"…","device":"watch","payload":{}} |
+| outdoor | outdoor.start | Watch → Phone | { "startedAt":"<ISO8601>" } | {"v":1,"flow":"outdoor","type":"outdoor.start","id":"…","ts":"…","device":"watch","payload":{"startedAt":"2025-09-21T20:10:00Z"}} |
+| outdoor | outdoor.progress | Watch → Phone (throttled) | { "elapsed": <Int>, "hr": <Int?>, "kcal": <Double?>, "distance": <Double?>, "pace": "<min/km?>", "loc": { "lat": <Double>, "lon": <Double> }? } | {"v":1,"flow":"outdoor","type":"outdoor.progress","id":"…","ts":"…","device":"watch","payload":{"elapsed":120,"hr":132,"kcal":17.3,"distance":0.4,"pace":"5:15","loc":{"lat":48.1374,"lon":11.5755}}} |
+| outdoor | outdoor.stop.request | Watch → Phone | { } | {"v":1,"flow":"outdoor","type":"outdoor.stop.request","id":"…","ts":"…","device":"watch","payload":{}} |
+| outdoor | outdoor.stop.confirm | Watch → Phone | { "confirmedAt":"<ISO8601>" } | {"v":1,"flow":"outdoor","type":"outdoor.stop.confirm","id":"…","ts":"…","device":"watch","payload":{"confirmedAt":"2025-09-21T21:10:00Z"}} |
+| system | session.snapshot | beide Richtungen | { "state": { … vollständiger Zustand … } } | {"v":1,"flow":"strength","type":"session.snapshot","id":"…","ts":"…","device":"phone","payload":{"state":{"flow":"strength","planId":"plan_123","currentSet":"s_1","restRemaining":45}}} |
+| system | session.ack | Empfänger → Sender | { "id":"<refId>", "ok": true } | {"v":1,"flow":"outdoor","type":"session.ack","id":"…","ts":"…","device":"phone","payload":{"id":"<ref-of-msg>","ok":true}} |
+| system | session.nack | Empfänger → Sender | { "id":"<refId>", "ok": false, "error": { "code":"…","msg":"…" } } | {"v":1,"flow":"strength","type":"session.nack","id":"…","ts":"…","device":"phone","payload":{"id":"<ref-of-msg>","ok":false,"error":{"code":"invalid_state","msg":"Set not active"}}} |
+| system | permission.status | Watch → Phone | { "health":"granted|denied", "location":"granted|denied|precise" } | {"v":1,"flow":"outdoor","type":"permission.status","id":"…","ts":"…","device":"watch","payload":{"health":"granted","location":"precise"}} |
+| system | reachability.changed | beide Richtungen | { "reachable": true|false } | {"v":1,"flow":"any","type":"reachability.changed","id":"…","ts":"…","device":"phone","payload":{"reachable":false}} |
+
+Hinweise:
+- Strength‑Rest‑Timer ist automatisch (Phone initiiert; Watch erhält nur `rest.started`/`rest.completed` zur Anzeige/Haptik).
+- Keine Pause/Resume‑Events im aktuellen Scope (entspricht iOS‑Funktionalität).
+
+### 1.2) Reserved for future (nicht Teil des aktuellen iOS‑Umfangs)
+- strength.pause / strength.resume
+- outdoor.pause / outdoor.resume
+- strength.rest.extend / strength.rest.cancel / strength.rest.skip
+
 ### 2) HealthKit-Workout-Session auf watchOS orchestrieren
 - [ ] Autorisierung UX-Flow (lokalisiert, freundliche Texte). Sicherstellen, dass nur die Watch aufzeichnet
 - [ ] Konfiguration: `HKWorkoutConfiguration` pro Aktivität (Start mit `functionalStrengthTraining`), später erweiterbar
