@@ -6,3 +6,25 @@
 "status.running" = "Running";
 "status.paused" = "Paused";
 
+"brand.voltlift" = "VoltLift";
+"action.strength" = "Strength";
+"action.outdoor" = "Outdoor";
+"title.strength_plans" = "Strength Plans";
+"plans.exercise_count_format" = "%d exercises";
+"action.start" = "Start";
+"set_type.warmup" = "Warm up";
+"set_type.normal" = "Normal";
+"set_type.cooldown" = "Cool down";
+"summary.plan_overview_format" = "%d exercises · %d sets · ~%d min";
+"title.workout" = "Workout";
+"session.reps_format" = "%d reps";
+"session.reps" = "Reps";
+"session.weight" = "Weight";
+"session.difficulty" = "Difficulty";
+"session.confirm_exercise" = "Confirm exercise";
+"session.rest_title" = "Rest";
+"session.skip_rest" = "Skip rest";
+"action.cancel" = "Cancel";
+"finish.title" = "Finished";
+"finish.done_to_home" = "Done";
+

@@ -6,3 +6,25 @@
 "status.running" = "Läuft";
 "status.paused" = "Pausiert";
 
+"brand.voltlift" = "VoltLift";
+"action.strength" = "Kraft";
+"action.outdoor" = "Outdoor";
+"title.strength_plans" = "Kraftpläne";
+"plans.exercise_count_format" = "%d Übungen";
+"action.start" = "Start";
+"set_type.warmup" = "Aufwärmen";
+"set_type.normal" = "Normal";
+"set_type.cooldown" = "Cooldown";
+"summary.plan_overview_format" = "%d Übungen · %d Sätze · ~%d Min";
+"title.workout" = "Workout";
+"session.reps_format" = "%d Wdh.";
+"session.reps" = "Wdh.";
+"session.weight" = "Gewicht";
+"session.difficulty" = "Intensität";
+"session.confirm_exercise" = "Übung bestätigen";
+"session.rest_title" = "Pause";
+"session.skip_rest" = "Pause überspringen";
+"action.cancel" = "Abbrechen";
+"finish.title" = "Fertig";
+"finish.done_to_home" = "Fertig";
+

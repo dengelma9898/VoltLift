@@ -1,0 +1,5 @@
+"NSHealthShareUsageDescription" = "VoltLift benötigt Lesezugriff auf deine Gesundheitsdaten, um Workouts anzuzeigen.";
+"NSHealthUpdateUsageDescription" = "VoltLift schreibt Trainingsdaten in Health, um deine Workouts zu speichern.";
+"NSLocationWhenInUseUsageDescription" = "VoltLift nutzt deinen Standort für Outdoor‑Workouts.";
+
+

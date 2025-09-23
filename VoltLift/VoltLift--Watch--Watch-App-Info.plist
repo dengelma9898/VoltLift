@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>VoltLift benötigt Lesezugriff auf deine Gesundheitsdaten, um Workouts anzuzeigen.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>VoltLift schreibt Trainingsdaten in Health, um deine Workouts zu speichern.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
@@ -10,5 +14,7 @@
 	<array>
 		<string>workout-processing</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>VoltLift nutzt deinen Standort für Outdoor-Workouts.</string>
 </dict>
 </plist>
